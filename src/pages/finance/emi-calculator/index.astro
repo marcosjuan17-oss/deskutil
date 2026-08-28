@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free EMI calculator for home, car, and personal loans. Enter loan amount, interest rate, and tenure to get monthly EMI, total interest, and total payment. Math stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'EMI Calculator',item:'https://deskutil.com/finance/emi-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'EMI Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/emi-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Monthly EMI amount','Total interest payable','Total payment over tenure','Tenure in years or months','Home, car, and personal loans','Copy EMI breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How is EMI calculated?',acceptedAnswer:{'@type':'Answer',text:'EMI uses the reducing-balance formula: EMI = P × r × (1+r)^n / ((1+r)^n − 1), where P is the principal, r is the monthly interest rate (annual rate ÷ 12 ÷ 100), and n is the number of months.'}},
+{'@type':'Question',name:'What loans can I use this EMI calculator for?',acceptedAnswer:{'@type':'Answer',text:'It works for any fixed-rate equated monthly installment loan, including home loans, car loans, and personal loans. Enter the principal, annual interest rate, and tenure.'}},
+{'@type':'Question',name:'Should tenure be in years or months?',acceptedAnswer:{'@type':'Answer',text:'Either. Pick years or months, then enter the matching tenure. The calculator converts years to months (multiply by 12) before computing EMI.'}},
+{'@type':'Question',name:'Is this official lending advice?',acceptedAnswer:{'@type':'Answer',text:'No. Results are estimates for planning. Banks may round differently, add fees, or use a different day-count. This is not a loan offer or financial advice.'}},
+{'@type':'Question',name:'Does the EMI calculator upload my loan details?',acceptedAnswer:{'@type':'Answer',text:'No. All EMI math runs in your browser. Deskutil never receives the loan amount, rate, or tenure you enter.'}}
+]}
+];
+---
+<BaseLayout title="EMI Calculator — Monthly Loan Payment Instantly" description={description} canonical="https://deskutil.com/finance/emi-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">EMI Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>EMI Calculator</h1><p>Estimate your monthly EMI for a home, car, or personal loan. Enter the loan amount, annual interest rate, and tenure to see EMI, total interest, and total payment—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="EMI actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="loan-amount">Loan amount</label><input class="field-input" id="loan-amount" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 2500000" /></div>
+<div class="tool-field"><label for="interest-rate">Interest rate (% p.a.)</label><input class="field-input" id="interest-rate" type="number" min="0" max="100" step="0.01" value="8.5" inputmode="decimal" /></div>
+<div class="tool-field"><label for="tenure">Tenure</label><input class="field-input" id="tenure" type="number" min="1" step="1" value="20" inputmode="numeric" /></div>
+<div class="tool-field grow"><span>Tenure unit</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="tenure-unit" value="years" checked /> Years</label><label class="tool-check"><input type="radio" name="tenure-unit" value="months" /> Months</label></div></div>
+</div>
+<div class="tool-output prose-output" id="emi-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Monthly EMI</span><strong id="out-emi">—</strong></div>
+<div class="finance-stat"><span>Principal</span><strong id="out-principal">—</strong></div>
+<div class="finance-stat"><span>Total interest</span><strong id="out-interest">—</strong></div>
+<div class="finance-stat"><span>Total payment</span><strong id="out-total">—</strong></div>
+<div class="finance-stat"><span>Tenure</span><strong id="out-tenure">—</strong></div>
+<div class="finance-stat"><span>Rate (p.a.)</span><strong id="out-rate">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter loan amount, rate, and tenure, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the EMI calculator</h2><p>Enter the loan principal, the annual interest rate, and the tenure in years or months. Choose <strong>Calculate</strong> to see monthly EMI, total interest, and total payment. Use <strong>Copy results</strong> when you want the breakdown elsewhere. Nothing is uploaded. Figures are estimates; lenders may round or add fees differently.</p>
+<h2>Frequently asked questions</h2>
+<h3>How is EMI calculated?</h3><p>This tool uses the standard reducing-balance EMI formula: EMI = P × r × (1+r)^n ÷ ((1+r)^n − 1). P is the principal, r is the monthly rate (annual percent ÷ 12 ÷ 100), and n is the number of monthly installments. When the rate is zero, EMI is simply principal divided by n.</p>
+<h3>What loans can I use this EMI calculator for?</h3><p>Any fixed-rate equated monthly installment loan works: home loans, car loans, personal loans, and similar products. Plug in the amount you borrow, the advertised annual rate, and how long you will repay.</p>
+<h3>Should tenure be in years or months?</h3><p>Either. Select years or months, then type the matching number. Years are converted to months (× 12) before EMI is computed, so 20 years becomes 240 months.</p>
+<h3>Is this official lending advice?</h3><p>No. Results are planning estimates only. Banks and NBFCs may use different rounding, processing fees, or day-count conventions. This page is not a loan offer and not financial advice.</p>
+<h3>Does the EMI calculator upload my loan details?</h3><p>No. EMI math runs in your browser. Deskutil never receives the amount, rate, or tenure you enter.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/finance/gst-calculator/">GST Calculator</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li></ul></aside></div></section>
+<script>
+const amountInput=document.querySelector<HTMLInputElement>('#loan-amount')!;
+const rateInput=document.querySelector<HTMLInputElement>('#interest-rate')!;
+const tenureInput=document.querySelector<HTMLInputElement>('#tenure')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={emi:document.querySelector<HTMLElement>('#out-emi')!,principal:document.querySelector<HTMLElement>('#out-principal')!,interest:document.querySelector<HTMLElement>('#out-interest')!,total:document.querySelector<HTMLElement>('#out-total')!,tenure:document.querySelector<HTMLElement>('#out-tenure')!,rate:document.querySelector<HTMLElement>('#out-rate')!};
+let lastCopy='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parseAmount=()=>{
+  const raw=amountInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter a loan amount.');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a loan amount greater than 0.');
+  return amount;
+};
+const parseRate=()=>{
+  const raw=rateInput.value.trim();
+  if(!raw)throw new Error('Enter an interest rate.');
+  const rate=Number(raw);
+  if(!Number.isFinite(rate)||rate<0||rate>100)throw new Error('Enter an interest rate between 0 and 100.');
+  return rate;
+};
+const parseMonths=()=>{
+  const raw=tenureInput.value.trim();
+  if(!raw)throw new Error('Enter a tenure.');
+  const tenure=Number(raw);
+  if(!Number.isFinite(tenure)||tenure<=0||!Number.isInteger(tenure))throw new Error('Enter a whole-number tenure of 1 or more.');
+  const years=selected('tenure-unit')!=='months';
+  const months=years?tenure*12:tenure;
+  if(months>1200)throw new Error('Tenure must be 100 years (1200 months) or less.');
+  return {months,years,tenure};
+};
+const calculate=()=>{
+  const principal=parseAmount();
+  const annualRate=parseRate();
+  const {months,years,tenure}=parseMonths();
+  const r=annualRate/12/100;
+  let emi:number;
+  if(annualRate===0){emi=principal/months}
+  else{
+    const factor=Math.pow(1+r,months);
+    emi=principal*r*factor/(factor-1);
+  }
+  emi=round2(emi);
+  const total=round2(emi*months);
+  const interest=round2(total-principal);
+  out.emi.textContent=rupee(emi);
+  out.principal.textContent=rupee(principal);
+  out.interest.textContent=rupee(interest);
+  out.total.textContent=rupee(total);
+  out.tenure.textContent=years?`${tenure} years (${months} months)`:`${months} months`;
+  out.rate.textContent=`${annualRate}%`;
+  lastCopy=['EMI breakdown',`Loan amount: ${rupee(principal)}`,`Interest rate: ${annualRate}% p.a.`,`Tenure: ${years?`${tenure} years`:`${months} months`} (${months} months)`,`Monthly EMI: ${rupee(emi)}`,`Total interest: ${rupee(interest)}`,`Total payment: ${rupee(total)}`].join('\n');
+  return `EMI is ${rupee(emi)} per month.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate EMI.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate EMI first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied EMI results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [amountInput,rateInput,tenureInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate EMI.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="tenure-unit"]').forEach((input)=>input.addEventListener('change',()=>{try{if(amountInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate EMI.','error')}}));
+</script></BaseLayout>
