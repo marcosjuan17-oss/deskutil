@@ -27,4 +27,3 @@ Create a production build with `pnpm build`; static output is written to `dist/`
 2. Add its name, slug, category, description, and path to `src/data/tools.ts`.
 
 The registry automatically exposes live tools on the homepage, relevant hub, and sitemap. Link only to pages that exist. Preserve the JSON Formatter’s accessibility, privacy, metadata, FAQ, and structured-data conventions.
-
