@@ -28,7 +28,7 @@ const jsonLd=[
 <h3>Does this tool verify JWT signatures?</h3><p>No. Decoding is not verification. A decoded token can still be forged, expired, or intended for another audience.</p>
 <h3>Is my token uploaded or stored?</h3><p>No. All decoding happens in your browser. Deskutil never receives the token.</p>
 <h3>How is the expiration time shown?</h3><p>A numeric <code>exp</code> value is treated as Unix seconds and formatted in your local timezone. Invalid or missing exp values are explained in the status line.</p></article>
-<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/base64-encoder/">Base64 Encoder</a></li><li><a href="/developer/uuid-generator/">UUID Generator</a></li></ul></aside></div></section>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/converters/base64-encoder/">Base64 Encoder</a></li><li><a href="/generators/uuid-generator/">UUID Generator</a></li></ul></aside></div></section>
 <script>
 const input=document.querySelector<HTMLTextAreaElement>('#jwt-input')!;
 const headerOut=document.querySelector<HTMLPreElement>('#jwt-header')!;
