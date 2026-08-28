@@ -27,3 +27,11 @@
 .exp-line strong{color:var(--ink)}
 @media(max-width:800px){.tool-split{grid-template-columns:1fr}.cron-grid{grid-template-columns:1fr 1fr}.footer-inner nav{justify-content:flex-start;max-width:none}}
 @media(max-width:560px){.cron-grid{grid-template-columns:1fr}}
+
+.card.category-card{display:flex;flex-direction:column;gap:8px}
+.card.category-card>h3{margin:0}
+.card.category-card>h3 a{color:inherit;text-decoration:none}
+.card.category-card>h3 a:hover{color:var(--blue)}
+.category-tools{margin:8px 0 0;padding-left:18px}
+.category-tools a{color:var(--blue-dark)}
+.category-empty{margin:8px 0 0;color:var(--muted);font-size:.9rem}
