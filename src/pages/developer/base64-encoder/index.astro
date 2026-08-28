@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Encode and decode UTF-8 text as Base64 in your browser. Convert in either direction, copy the result instantly, and see a clear error for invalid Base64 input.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'Base64 Encoder',item:'https://deskutil.com/developer/base64-encoder/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Base64 Encoder',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/base64-encoder/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Encode Base64','Decode Base64','UTF-8 text','Copy result']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What is Base64 encoding?',acceptedAnswer:{'@type':'Answer',text:'Base64 turns binary or UTF-8 text into an ASCII string using letters, digits, plus, slash, and padding. It is an encoding, not encryption.'}},
+{'@type':'Question',name:'Can I decode Base64 back to text?',acceptedAnswer:{'@type':'Answer',text:'Yes. Choose Decode to convert Base64 into UTF-8 text. Invalid Base64 produces a clear error instead of garbled output.'}},
+{'@type':'Question',name:'Is my text uploaded or stored?',acceptedAnswer:{'@type':'Answer',text:'No. Encoding and decoding run entirely in your browser. Nothing you paste is sent to a server.'}},
+{'@type':'Question',name:'Why do I see an invalid Base64 error?',acceptedAnswer:{'@type':'Answer',text:'The input is not valid Base64. Check for missing padding, spaces in the wrong place, or characters outside A–Z, a–z, 0–9, +, /, -, _, and =.'}}
+]}
+];
+---
+<BaseLayout title="Base64 Encoder Online — Encode & Decode UTF-8 Text" description={description} canonical="https://deskutil.com/developer/base64-encoder/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">Base64 Encoder</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>Base64 Encoder</h1><p>Encode and decode UTF-8 text as Base64 instantly. Everything runs locally in your browser, so your data never leaves your device.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Base64 actions"><button class="tool-button primary" id="encode" type="button">Encode</button><button class="tool-button" id="decode" type="button">Decode</button><button class="tool-button" id="copy" type="button">Copy</button><span class="privacy-note">Processed only in your browser</span></div>
+<label class="editor-label" for="b64-input">Text or Base64</label>
+<textarea class="tool-textarea tall" id="b64-input" spellcheck="false" autocomplete="off" placeholder="Paste UTF-8 text to encode, or Base64 to decode."></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Paste text, then choose Encode or Decode.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the Base64 encoder</h2><p>Paste UTF-8 text and choose <strong>Encode</strong> to get Base64, or paste Base64 and choose <strong>Decode</strong> to get the original text. Unicode is handled correctly. Use <strong>Copy</strong> when you are done.</p>
+<h2>Frequently asked questions</h2>
+<h3>What is Base64 encoding?</h3><p>Base64 represents bytes as ASCII using A–Z, a–z, 0–9, and a few symbols. It is meant for transport, not secrecy.</p>
+<h3>Can I decode Base64 back to text?</h3><p>Yes. Decode converts valid Base64 back into UTF-8 text. If the input is not valid Base64, you get an error instead of silent corruption.</p>
+<h3>Is my text uploaded or stored?</h3><p>No. All encoding and decoding happens in your browser. Deskutil never receives the content.</p>
+<h3>Why do I see an invalid Base64 error?</h3><p>The string could not be decoded. Remove unexpected characters, fix padding, and make sure you pasted Base64 rather than ordinary text.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/jwt-decoder/">JWT Decoder</a></li><li><a href="/developer/sql-formatter/">SQL Formatter</a></li></ul></aside></div></section>
+<script>
+const input=document.querySelector<HTMLTextAreaElement>('#b64-input')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const toBinary=(bytes:Uint8Array)=>{let binary='';const chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));return binary};
+const fromBinary=(binary:string)=>{const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes};
+const encodeUtf8=(text:string)=>btoa(toBinary(new TextEncoder().encode(text)));
+const decodeUtf8=(value:string)=>{
+  const cleaned=value.replace(/\s+/g,'');
+  if(!cleaned)throw new Error('Enter some Base64 first.');
+  if(!/^[A-Za-z0-9+/_-]+={0,2}$/.test(cleaned))throw new Error('The input is not valid Base64.');
+  const normalized=cleaned.replace(/-/g,'+').replace(/_/g,'/');
+  const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+  let binary='';
+  try{binary=atob(padded)}catch{throw new Error('The input is not valid Base64.')}
+  return new TextDecoder().decode(fromBinary(binary));
+};
+document.querySelector('#encode')?.addEventListener('click',()=>{try{if(!input.value)throw new Error('Enter some text first.');input.value=encodeUtf8(input.value);setStatus('Encoded to Base64.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not encode this text.','error');input.focus()}});
+document.querySelector('#decode')?.addEventListener('click',()=>{try{input.value=decodeUtf8(input.value);setStatus('Decoded from Base64.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not decode this Base64.','error');input.focus()}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!input.value)throw new Error('Nothing to copy yet.');await navigator.clipboard.writeText(input.value);setStatus('Copied to clipboard.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy. Select the text and copy it manually.','error')}});
+</script></BaseLayout>

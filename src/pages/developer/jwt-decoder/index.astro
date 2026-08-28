@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Decode JWT header and payload in your browser. Inspect Base64URL JSON, see expiration as a human time, and copy results. Decoding is not signature verification.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'JWT Decoder',item:'https://deskutil.com/developer/jwt-decoder/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'JWT Decoder',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/jwt-decoder/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Decode JWT','Inspect header','Inspect payload','Show expiration','Copy JSON']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What does a JWT decoder do?',acceptedAnswer:{'@type':'Answer',text:'A JWT decoder splits a token into its Base64URL parts and shows the header and payload as JSON. It does not check whether the signature is valid.'}},
+{'@type':'Question',name:'Does this tool verify JWT signatures?',acceptedAnswer:{'@type':'Answer',text:'No. Decoding is not verification. Deskutil never checks signatures or treats a decoded token as authentic.'}},
+{'@type':'Question',name:'Is my token uploaded or stored?',acceptedAnswer:{'@type':'Answer',text:'No. Decoding runs entirely in your browser. The token is not sent to a server.'}},
+{'@type':'Question',name:'How is the expiration time shown?',acceptedAnswer:{'@type':'Answer',text:'If the payload includes a numeric exp claim, it is converted from Unix seconds into a local date and time. Missing or non-numeric exp values are called out clearly.'}}
+]}
+];
+---
+<BaseLayout title="JWT Decoder Online — Decode Token Header & Payload" description={description} canonical="https://deskutil.com/developer/jwt-decoder/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">JWT Decoder</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>JWT Decoder</h1><p>Decode a JSON Web Token into header and payload JSON. Everything runs locally in your browser. Decoding is not signature verification.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="JWT actions"><button class="tool-button primary" id="decode" type="button">Decode</button><button class="tool-button" id="copy" type="button">Copy JSON</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-warning"><strong>Decoding is not verification.</strong> This tool does not check signatures, encryption, or trust. Do not treat a decoded token as authentic.</p>
+<label class="editor-label" for="jwt-input">JWT token</label>
+<textarea class="tool-textarea short" id="jwt-input" spellcheck="false" autocomplete="off" placeholder="Paste a JWT, for example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkRlc2t1dGlsIiwiZXhwIjoxODkzNDU2MDAwfQ.signature-not-verified"></textarea>
+<div class="tool-split"><div><label class="editor-label" for="jwt-header">Header</label><pre class="tool-output" id="jwt-header">Header JSON will appear here.</pre></div><div><label class="editor-label" for="jwt-payload">Payload</label><pre class="tool-output" id="jwt-payload">Payload JSON will appear here.</pre></div></div>
+<p class="exp-line" id="exp-line">Expiration will appear here if the payload includes an exp claim.</p>
+<p class="status" id="status" role="status" aria-live="polite">Paste a JWT, then choose Decode.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the JWT decoder</h2><p>Paste a token into the editor. Choose <strong>Decode</strong> to read the Base64URL header and payload as JSON. If the payload has an <code>exp</code> claim, it is shown as a local date and time. Use <strong>Copy JSON</strong> to copy both parts. Signatures are never verified.</p>
+<h2>Frequently asked questions</h2>
+<h3>What does a JWT decoder do?</h3><p>It splits a token on dots, Base64URL-decodes the first two parts, and pretty-prints them as JSON so you can inspect claims.</p>
+<h3>Does this tool verify JWT signatures?</h3><p>No. Decoding is not verification. A decoded token can still be forged, expired, or intended for another audience.</p>
+<h3>Is my token uploaded or stored?</h3><p>No. All decoding happens in your browser. Deskutil never receives the token.</p>
+<h3>How is the expiration time shown?</h3><p>A numeric <code>exp</code> value is treated as Unix seconds and formatted in your local timezone. Invalid or missing exp values are explained in the status line.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/base64-encoder/">Base64 Encoder</a></li><li><a href="/developer/uuid-generator/">UUID Generator</a></li></ul></aside></div></section>
+<script>
+const input=document.querySelector<HTMLTextAreaElement>('#jwt-input')!;
+const headerOut=document.querySelector<HTMLPreElement>('#jwt-header')!;
+const payloadOut=document.querySelector<HTMLPreElement>('#jwt-payload')!;
+const expLine=document.querySelector<HTMLParagraphElement>('#exp-line')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+let copied='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const decodePart=(part:string,label:string)=>{
+  if(!part)throw new Error(`The token is missing a ${label} part.`);
+  if(!/^[A-Za-z0-9_-]+$/.test(part))throw new Error(`The ${label} is not valid Base64URL.`);
+  const padded=part+'='.repeat((4-part.length%4)%4);
+  const b64=padded.replace(/-/g,'+').replace(/_/g,'/');
+  let binary='';
+  try{binary=atob(b64)}catch{throw new Error(`The ${label} is not valid Base64URL.`)}
+  const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);const text=new TextDecoder().decode(bytes);
+  try{return JSON.parse(text) as unknown}catch{throw new Error(`The ${label} is not valid JSON.`)}
+};
+const describeExp=(payload:unknown)=>{
+  if(!payload||typeof payload!=='object'||Array.isArray(payload)||!('exp' in payload))return 'No exp claim in the payload.';
+  const exp=(payload as {exp:unknown}).exp;
+  if(typeof exp!=='number'||!Number.isFinite(exp))return 'The exp claim is present but is not a Unix timestamp.';
+  const date=new Date(exp*1000);
+  if(Number.isNaN(date.getTime()))return 'The exp claim could not be converted to a date.';
+  const formatted=date.toLocaleString(undefined,{dateStyle:'full',timeStyle:'long'});
+  return `Expires ${formatted}${date.getTime()<Date.now()?' (already expired).':'.'}`;
+};
+const decodeToken=()=>{
+  const token=input.value.trim();
+  if(!token)throw new Error('Paste a JWT first.');
+  const parts=token.split('.');
+  if(parts.length<2)throw new Error('A JWT needs at least two Base64URL parts separated by dots (header.payload).');
+  const header=decodePart(parts[0],'header');
+  const payload=decodePart(parts[1],'payload');
+  const headerText=JSON.stringify(header,null,2);
+  const payloadText=JSON.stringify(payload,null,2);
+  headerOut.textContent=headerText;
+  payloadOut.textContent=payloadText;
+  expLine.textContent=describeExp(payload);
+  copied=JSON.stringify({header,payload},null,2);
+  return 'JWT decoded. Signature was not verified.';
+};
+document.querySelector('#decode')?.addEventListener('click',()=>{try{setStatus(decodeToken(),'success')}catch(error){copied='';headerOut.textContent='Header JSON will appear here.';payloadOut.textContent='Payload JSON will appear here.';expLine.textContent='Expiration will appear here if the payload includes an exp claim.';setStatus(error instanceof Error?error.message:'Could not decode this token.','error');input.focus()}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!copied)decodeToken();await navigator.clipboard.writeText(copied);setStatus('Copied JSON to clipboard. Signature was not verified.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy. Select the JSON and copy it manually.','error')}});
+</script></BaseLayout>

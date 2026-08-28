@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Format and minify SQL in your browser. Uppercase keywords, add line breaks on major clauses, copy or download the result, and keep every query on your device.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'SQL Formatter',item:'https://deskutil.com/developer/sql-formatter/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'SQL Formatter',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/sql-formatter/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Format SQL','Minify SQL','Copy SQL','Download SQL']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What does an SQL formatter do?',acceptedAnswer:{'@type':'Answer',text:'An SQL formatter uppercases keywords and adds line breaks before major clauses so queries are easier to read and review.'}},
+{'@type':'Question',name:'What is minified SQL?',acceptedAnswer:{'@type':'Answer',text:'Minified SQL collapses extra whitespace while leaving string literals and comments intact, producing a compact one-line-style query.'}},
+{'@type':'Question',name:'Is my SQL uploaded or stored?',acceptedAnswer:{'@type':'Answer',text:'No. Formatting runs entirely in your browser. Queries are not sent to a server.'}},
+{'@type':'Question',name:'Which SQL dialects are supported?',acceptedAnswer:{'@type':'Answer',text:'The formatter is dialect-agnostic. It recognizes common standard keywords and clauses used in PostgreSQL, MySQL, SQLite, and similar engines.'}}
+]}
+];
+---
+<BaseLayout title="SQL Formatter Online — Format & Minify SQL Queries" description={description} canonical="https://deskutil.com/developer/sql-formatter/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">SQL Formatter</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>SQL Formatter</h1><p>Format or minify SQL in your browser. Keywords are uppercased and major clauses get line breaks. Your query never leaves this device.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="SQL actions"><button class="tool-button primary" id="format" type="button">Format</button><button class="tool-button" id="minify" type="button">Minify</button><button class="tool-button" id="copy" type="button">Copy</button><button class="tool-button" id="download" type="button">Download</button><span class="privacy-note">Processed only in your browser</span></div>
+<label class="editor-label" for="sql-input">SQL input</label>
+<textarea class="tool-textarea tall" id="sql-input" spellcheck="false" autocomplete="off" placeholder={'Paste SQL here, for example:\nselect id, name from users where active = 1 order by name'}></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Paste SQL, then choose Format or Minify.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the SQL formatter</h2><p>Paste a query into the editor. Choose <strong>Format</strong> for readable keywords and clause line breaks, or <strong>Minify</strong> for compact SQL. Use <strong>Copy</strong> or <strong>Download</strong> when you are done. String literals and comments are left intact.</p>
+<h2>Frequently asked questions</h2>
+<h3>What does an SQL formatter do?</h3><p>It uppercases SQL keywords and starts major clauses such as SELECT, FROM, WHERE, JOIN, GROUP BY, and ORDER BY on new lines.</p>
+<h3>What is minified SQL?</h3><p>Minified SQL removes unnecessary whitespace while keeping the same statement, including the contents of quoted strings.</p>
+<h3>Is my SQL uploaded or stored?</h3><p>No. Formatting happens in your browser. Deskutil never receives the query.</p>
+<h3>Which SQL dialects are supported?</h3><p>The rules are generic rather than engine-specific, so they work for everyday PostgreSQL, MySQL, SQLite, and similar queries.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/jwt-decoder/">JWT Decoder</a></li><li><a href="/developer/base64-encoder/">Base64 Encoder</a></li></ul></aside></div></section>
+<script>
+const input=document.querySelector<HTMLTextAreaElement>('#sql-input')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const CLAUSES=['LEFT OUTER JOIN','RIGHT OUTER JOIN','FULL OUTER JOIN','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','GROUP BY','ORDER BY','INSERT INTO','DELETE FROM','UNION ALL','SELECT DISTINCT','CREATE TABLE','ALTER TABLE','DROP TABLE','PARTITION BY','FETCH FIRST','SELECT','FROM','WHERE','HAVING','LIMIT','OFFSET','VALUES','RETURNING','UPDATE','SET','WITH','JOIN','UNION','EXCEPT','INTERSECT'];
+const KEYWORDS=['LEFT OUTER JOIN','RIGHT OUTER JOIN','FULL OUTER JOIN','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','CROSS JOIN','GROUP BY','ORDER BY','INSERT INTO','DELETE FROM','UNION ALL','SELECT DISTINCT','CREATE TABLE','ALTER TABLE','DROP TABLE','PRIMARY KEY','FOREIGN KEY','NOT NULL','IS NOT NULL','PARTITION BY','FETCH FIRST','SELECT','FROM','WHERE','HAVING','LIMIT','OFFSET','VALUES','RETURNING','UPDATE','SET','WITH','JOIN','UNION','EXCEPT','INTERSECT','AND','OR','ON','AS','IN','NOT','NULL','IS','LIKE','BETWEEN','EXISTS','CASE','WHEN','THEN','ELSE','END','ASC','DESC','DISTINCT','INTO','TABLE','CREATE','ALTER','DROP','KEY','DEFAULT','UNIQUE','INDEX','VIEW','TRUE','FALSE','INNER','LEFT','RIGHT','FULL','CROSS','OUTER','BY','INSERT','DELETE','GROUP','ORDER','OVER','WINDOW','USING','NATURAL','RECURSIVE','ALL','ANY','SOME','CAST','COALESCE','COUNT','SUM','AVG','MIN','MAX'];
+const protect=(sql:string)=>{const parts:string[]=[];const held=sql.replace(/'(?:''|[^'])*'|"(?:\\.|[^"\\])*"|`[^`]*`|\/\*[\s\S]*?\*\/|--[^\n]*/g,(chunk)=>{parts.push(chunk);return `\u0000${parts.length-1}\u0000`});return {held,parts}};
+const restore=(sql:string,parts:string[])=>sql.replace(/\u0000(\d+)\u0000/g,(_,i)=>parts[Number(i)]??'');
+const applyKeywords=(sql:string,list:string[],replacer:(keyword:string)=>string)=>{
+  let out=sql;
+  for(const keyword of list){const re=new RegExp(`\\b${keyword.replace(/ /g,'\\s+')}\\b`,'gi');out=out.replace(re,()=>replacer(keyword))}
+  return out;
+};
+const formatSql=(sql:string)=>{
+  const {held,parts}=protect(sql);
+  let out=held.replace(/\s+/g,' ').trim();
+  const clauseMarks:string[]=[];
+  out=applyKeywords(out,CLAUSES,(keyword)=>{clauseMarks.push(keyword);return `\u0001${clauseMarks.length-1}\u0001`});
+  out=applyKeywords(out,KEYWORDS.filter((word)=>!CLAUSES.includes(word)),(keyword)=>keyword);
+  out=out.replace(/\s*\u0001(\d+)\u0001/g,(_,i)=>'\n'+clauseMarks[Number(i)]);
+  out=out.replace(/\s+\b(AND|OR|ON)\b/g,'\n  $1');
+  return restore(out,parts).replace(/\n{3,}/g,'\n\n').trim();
+};
+const minifySql=(sql:string)=>{
+  const {held,parts}=protect(sql);
+  return restore(held.replace(/\s+/g,' ').trim(),parts);
+};
+const requireSql=()=>{if(!input.value.trim())throw new Error('Enter some SQL first.');return input.value};
+document.querySelector('#format')?.addEventListener('click',()=>{try{input.value=formatSql(requireSql());setStatus('SQL formatted successfully.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not format this SQL.','error');input.focus()}});
+document.querySelector('#minify')?.addEventListener('click',()=>{try{input.value=minifySql(requireSql());setStatus('SQL minified successfully.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not minify this SQL.','error');input.focus()}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{requireSql();await navigator.clipboard.writeText(input.value);setStatus('Copied to clipboard.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy. Select the text and copy it manually.','error')}});
+document.querySelector('#download')?.addEventListener('click',()=>{try{requireSql();const url=URL.createObjectURL(new Blob([input.value],{type:'text/sql'}));const link=document.createElement('a');link.href=url;link.download='formatted.sql';link.click();URL.revokeObjectURL(url);setStatus('SQL downloaded.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not download.','error')}});
+input.addEventListener('keydown',(event)=>{if(event.key==='Tab'){event.preventDefault();const start=input.selectionStart,end=input.selectionEnd;input.setRangeText('  ',start,end,'end')}});
+</script></BaseLayout>

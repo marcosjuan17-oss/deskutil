@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Generate UUID v4 values in your browser with crypto.randomUUID. Create 1–100 IDs, copy one or all, download the list, and optionally use uppercase letters.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'UUID Generator',item:'https://deskutil.com/developer/uuid-generator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'UUID Generator',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/uuid-generator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Generate UUID v4','Batch generate','Copy UUIDs','Download UUIDs','Uppercase option']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What is a UUID v4?',acceptedAnswer:{'@type':'Answer',text:'A UUID v4 is a 128-bit identifier generated from random or pseudo-random numbers. Version 4 values are the common choice for unique IDs in applications.'}},
+{'@type':'Question',name:'How many UUIDs can I generate at once?',acceptedAnswer:{'@type':'Answer',text:'You can generate between 1 and 100 UUID v4 values in one click, then copy one ID, copy the full list, or download it as a text file.'}},
+{'@type':'Question',name:'Are these UUIDs random and unique?',acceptedAnswer:{'@type':'Answer',text:'They are created with crypto.randomUUID in your browser, which produces cryptographically strong UUID v4 values. Collisions are extraordinarily unlikely for normal use.'}},
+{'@type':'Question',name:'Does this generator send data to a server?',acceptedAnswer:{'@type':'Answer',text:'No. IDs are generated locally with the Web Crypto API and never leave your browser.'}}
+]}
+];
+---
+<BaseLayout title="UUID Generator Online — Create Random UUID v4 Values" description={description} canonical="https://deskutil.com/developer/uuid-generator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">UUID Generator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>UUID Generator</h1><p>Generate UUID v4 identifiers with crypto.randomUUID. Create one ID or a batch, copy them, or download a list—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="UUID actions"><button class="tool-button primary" id="generate" type="button">Generate</button><button class="tool-button" id="copy-one" type="button">Copy one</button><button class="tool-button" id="copy-all" type="button">Copy all</button><button class="tool-button" id="download" type="button">Download</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields"><div class="tool-field"><label for="uuid-count">Count (1–100)</label><input class="field-input" id="uuid-count" type="number" min="1" max="100" value="1" /></div><label class="tool-check"><input id="uuid-upper" type="checkbox" /> Uppercase</label></div>
+<label class="editor-label" for="uuid-output">Generated UUIDs</label>
+<textarea class="tool-textarea" id="uuid-output" spellcheck="false" autocomplete="off" readonly placeholder="Generated UUIDs will appear here, one per line."></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Choose a count, then generate UUID v4 values.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the UUID generator</h2><p>Set a count from 1 to 100, optionally enable <strong>Uppercase</strong>, and choose <strong>Generate</strong>. Use <strong>Copy one</strong> for the first ID, <strong>Copy all</strong> for the full list, or <strong>Download</strong> to save a text file.</p>
+<h2>Frequently asked questions</h2>
+<h3>What is a UUID v4?</h3><p>A UUID v4 is a 128-bit random identifier, typically shown as 36 characters with hyphens. It does not encode a MAC address or timestamp.</p>
+<h3>How many UUIDs can I generate at once?</h3><p>Between 1 and 100 per click. Increase the count, generate again, then copy or download whatever you need.</p>
+<h3>Are these UUIDs random and unique?</h3><p>Yes for practical purposes. The browser’s crypto.randomUUID API supplies cryptographically strong randomness for version 4 UUIDs.</p>
+<h3>Does this generator send data to a server?</h3><p>No. IDs are created on your device. Deskutil never receives the generated values.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/regex-tester/">Regex Tester</a></li><li><a href="/developer/cron-generator/">Cron Generator</a></li></ul></aside></div></section>
+<script>
+const output=document.querySelector<HTMLTextAreaElement>('#uuid-output')!;
+const countInput=document.querySelector<HTMLInputElement>('#uuid-count')!;
+const upper=document.querySelector<HTMLInputElement>('#uuid-upper')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const list=()=>output.value.split('\n').map((line)=>line.trim()).filter(Boolean);
+const generate=()=>{
+  if(typeof crypto==='undefined'||typeof crypto.randomUUID!=='function')throw new Error('crypto.randomUUID is not available in this browser.');
+  const n=Number(countInput.value);
+  if(!Number.isInteger(n)||n<1||n>100)throw new Error('Enter a count between 1 and 100.');
+  const ids=Array.from({length:n},()=>crypto.randomUUID());
+  output.value=(upper.checked?ids.map((id)=>id.toUpperCase()):ids).join('\n');
+  return n===1?'Generated 1 UUID v4.':`Generated ${n} UUID v4 values.`;
+};
+document.querySelector('#generate')?.addEventListener('click',()=>{try{setStatus(generate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not generate UUIDs.','error')}});
+document.querySelector('#copy-one')?.addEventListener('click',async()=>{try{const ids=list();if(!ids.length)throw new Error('Generate a UUID first.');await navigator.clipboard.writeText(ids[0]);setStatus('Copied the first UUID.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+document.querySelector('#copy-all')?.addEventListener('click',async()=>{try{const ids=list();if(!ids.length)throw new Error('Generate UUIDs first.');await navigator.clipboard.writeText(ids.join('\n'));setStatus(`Copied ${ids.length===1?'1 UUID':`${ids.length} UUIDs`}.`,'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+document.querySelector('#download')?.addEventListener('click',()=>{try{const ids=list();if(!ids.length)throw new Error('Generate UUIDs first.');const url=URL.createObjectURL(new Blob([ids.join('\n')+'\n'],{type:'text/plain'}));const link=document.createElement('a');link.href=url;link.download='uuids.txt';link.click();URL.revokeObjectURL(url);setStatus('UUIDs downloaded.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not download.','error')}});
+</script></BaseLayout>

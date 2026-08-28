@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Test regular expressions in your browser. Use g, i, m, s, and u flags, see match counts, highlights, and capture groups, and a clear error for invalid patterns.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'Regex Tester',item:'https://deskutil.com/developer/regex-tester/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Regex Tester',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/regex-tester/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Test regex','Flags g i m s u','Highlight matches','Capture groups']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How do I test a regular expression?',acceptedAnswer:{'@type':'Answer',text:'Enter a pattern, choose flags, and paste a test string. The tester reports the match count, highlights matches when the input is a reasonable size, and lists capture groups.'}},
+{'@type':'Question',name:'Which regex flags are supported?',acceptedAnswer:{'@type':'Answer',text:'The tester supports the JavaScript flags g, i, m, s, and u: global, case-insensitive, multiline, dotAll, and Unicode.'}},
+{'@type':'Question',name:'What are capture groups?',acceptedAnswer:{'@type':'Answer',text:'Capture groups are the parts of a match created by parentheses in the pattern. Each match lists numbered groups, and named groups when the pattern defines them.'}},
+{'@type':'Question',name:'Is my test string uploaded?',acceptedAnswer:{'@type':'Answer',text:'No. Pattern matching runs entirely in your browser. The test string is not sent to a server.'}}
+]}
+];
+---
+<BaseLayout title="Regex Tester Online — Test Patterns, Flags & Groups" description={description} canonical="https://deskutil.com/developer/regex-tester/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">Regex Tester</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>Regex Tester</h1><p>Test a regular expression against sample text. Inspect match counts, highlighted matches, and capture groups without sending anything to a server.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Regex actions"><button class="tool-button primary" id="test" type="button">Test</button><button class="tool-button" id="copy" type="button">Copy</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields"><div class="tool-field grow"><label for="regex-pattern">Pattern</label><input class="field-input mono" id="regex-pattern" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. (\w+)@(\w+\.\w+)" /></div>
+<div class="tool-field"><span>Flags</span><div class="tool-checks"><label class="tool-check"><input type="checkbox" name="flag" value="g" checked /> g</label><label class="tool-check"><input type="checkbox" name="flag" value="i" /> i</label><label class="tool-check"><input type="checkbox" name="flag" value="m" /> m</label><label class="tool-check"><input type="checkbox" name="flag" value="s" /> s</label><label class="tool-check"><input type="checkbox" name="flag" value="u" /> u</label></div></div></div>
+<label class="editor-label" for="regex-text">Test string</label>
+<textarea class="tool-textarea" id="regex-text" spellcheck="false" autocomplete="off" placeholder="Paste text to test against the pattern."></textarea>
+<div class="tool-output prose-output" id="regex-results"><p><strong>Results</strong></p><p>Match count, highlights, and capture groups will appear here.</p></div>
+<p class="status" id="status" role="status" aria-live="polite">Enter a pattern and test string, then choose Test.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the regex tester</h2><p>Type a JavaScript regular expression (without wrapping slashes), toggle flags, and paste a test string. Choose <strong>Test</strong> to see the match count, highlighted matches when the text is a reasonable size, and capture groups. Invalid patterns show a clear error.</p>
+<h2>Frequently asked questions</h2>
+<h3>How do I test a regular expression?</h3><p>Enter the pattern, pick flags, and provide text. The results panel lists how many times it matched and the captured pieces of each match.</p>
+<h3>Which regex flags are supported?</h3><p>g (global), i (case-insensitive), m (multiline), s (dotAll), and u (Unicode). These are the standard JavaScript flags for everyday testing.</p>
+<h3>What are capture groups?</h3><p>Parentheses in a pattern create groups. Each match shows the full text plus numbered groups, and named groups when you used <code>(?&lt;name&gt;…)</code> syntax.</p>
+<h3>Is my test string uploaded?</h3><p>No. Matching happens in your browser. Deskutil never receives the pattern or the text.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/jwt-decoder/">JWT Decoder</a></li><li><a href="/developer/uuid-generator/">UUID Generator</a></li></ul></aside></div></section>
+<script>
+const patternInput=document.querySelector<HTMLInputElement>('#regex-pattern')!;
+const textInput=document.querySelector<HTMLTextAreaElement>('#regex-text')!;
+const results=document.querySelector<HTMLDivElement>('#regex-results')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const flagBoxes=Array.from(document.querySelectorAll<HTMLInputElement>('input[name="flag"]'));
+let lastJson='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const escapeHtml=(value:string)=>{const chars:Record<string,string>={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};return value.replace(/[&<>"']/g,(ch)=>chars[ch]??ch)};
+const highlight=(text:string,matches:RegExpMatchArray[])=>{
+  const ranges=matches.filter((m)=>typeof m.index==='number'&&(m[0]??'').length>0).map((m)=>({start:m.index as number,end:(m.index as number)+(m[0]??'').length})).sort((a,b)=>a.start-b.start);
+  let html='';let cursor=0;
+  for(const range of ranges){if(range.start<cursor)continue;html+=escapeHtml(text.slice(cursor,range.start));html+=`<mark>${escapeHtml(text.slice(range.start,range.end))}</mark>`;cursor=range.end}
+  return html+escapeHtml(text.slice(cursor));
+};
+const run=()=>{
+  const source=patternInput.value;
+  if(!source)throw new Error('Enter a regular expression pattern.');
+  const flags=flagBoxes.filter((box)=>box.checked).map((box)=>box.value).join('');
+  let regex:RegExp;
+  try{regex=new RegExp(source,flags)}catch(error){throw new Error(`Invalid regular expression: ${error instanceof Error?error.message:'Check the pattern and flags.'}`)}
+  const text=textInput.value;
+  const matches:RegExpMatchArray[]=[];
+  if(flags.includes('g')){regex.lastIndex=0;for(const match of text.matchAll(regex)){matches.push(match);if(matches.length>=500)break}}
+  else{const match=regex.exec(text);if(match)matches.push(match)}
+  const payload={pattern:source,flags,matchCount:matches.length,truncated:flags.includes('g')&&matches.length>=500,matches:matches.map((match)=>({value:match[0],index:match.index??0,groups:match.slice(1),named:match.groups??null}))};
+  lastJson=JSON.stringify(payload,null,2);
+  const canHighlight=text.length<=100000&&matches.length<=200;
+  const groupHtml=matches.length?matches.map((match,i)=>{
+    const numbered=match.slice(1).map((group,idx)=>`<li>Group ${idx+1}: ${group==null?'(unmatched)':escapeHtml(JSON.stringify(group))}</li>`).join('');
+    const named=match.groups?Object.entries(match.groups).map(([name,group])=>`<li>${escapeHtml(name)}: ${group==null?'(unmatched)':escapeHtml(JSON.stringify(group))}</li>`).join(''):'';
+    return `<li><strong>Match ${i+1}</strong> at index ${match.index??0}: ${escapeHtml(JSON.stringify(match[0]))}${numbered||named?`<ul>${numbered}${named}</ul>`:''}</li>`;
+  }).join(''):'<li>No matches.</li>';
+  results.innerHTML=`<p><strong>Results</strong></p><p><strong>${matches.length}</strong> match${matches.length===1?'':'es'}${payload.truncated?' (stopped at 500)':''}.</p>${canHighlight?`<p><strong>Highlighted matches</strong></p><p>${text?highlight(text,matches):'(empty test string)'}</p>`:'<p>Highlighting skipped because the text or match count is large.</p>'}<p><strong>Capture groups</strong></p><ol>${groupHtml}</ol>`;
+  return matches.length===1?'Found 1 match.':`Found ${matches.length} matches.`;
+};
+document.querySelector('#test')?.addEventListener('click',()=>{try{setStatus(run(),'success')}catch(error){lastJson='';results.innerHTML='<p><strong>Results</strong></p><p>Match count, highlights, and capture groups will appear here.</p>';setStatus(error instanceof Error?error.message:'Could not test this pattern.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastJson)run();await navigator.clipboard.writeText(lastJson);setStatus('Copied match JSON to clipboard.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+</script></BaseLayout>
