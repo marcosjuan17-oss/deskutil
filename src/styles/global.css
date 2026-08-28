@@ -35,3 +35,9 @@
 .category-tools{margin:8px 0 0;padding-left:18px}
 .category-tools a{color:var(--blue-dark)}
 .category-empty{margin:8px 0 0;color:var(--muted);font-size:.9rem}
+
+.finance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.finance-stat{padding:12px;border:1px solid var(--line);border-radius:6px;background:#fff}
+.finance-stat span{display:block;color:var(--muted);font-size:.82rem;font-weight:700}
+.finance-stat strong{display:block;margin-top:4px;font-size:1.2rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.finance-grid{grid-template-columns:1fr 1fr}}

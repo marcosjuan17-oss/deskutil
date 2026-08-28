@@ -16,5 +16,6 @@ export const tools = [
   { slug:'regex-tester', category:'developer' as CategorySlug, name:'Regex Tester', description:'Test regular expressions with flags, match highlights, and capture groups.', path:'/developer/regex-tester/' },
   { slug:'cron-generator', category:'developer' as CategorySlug, name:'Cron Generator', description:'Build a 5-field Unix cron expression and see the next run times.', path:'/developer/cron-generator/' },
   { slug:'sql-formatter', category:'developer' as CategorySlug, name:'SQL Formatter', description:'Format and minify SQL in your browser, then copy or download it.', path:'/developer/sql-formatter/' },
+  { slug:'gst-calculator', category:'finance' as CategorySlug, name:'GST Calculator', description:'Add or extract India GST with 5%, 12%, 18%, or 28% rates, CGST/SGST or IGST, entirely in your browser.', path:'/finance/gst-calculator/' },
 ] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);

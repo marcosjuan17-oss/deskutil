@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free GST calculator for India. Add or extract 5%, 12%, 18%, or 28% GST, split CGST and SGST or apply IGST, and copy the breakdown. Math stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'GST Calculator',item:'https://deskutil.com/finance/gst-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'GST Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/gst-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Add GST (exclusive)','Extract GST (inclusive)','CGST and SGST split','IGST for inter-state','GST rate presets','Copy GST breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What is exclusive GST versus inclusive GST?',acceptedAnswer:{'@type':'Answer',text:'Exclusive GST is added on top of a net amount. Inclusive GST is already inside a gross amount, so the calculator extracts the tax portion and the net price.'}},
+{'@type':'Question',name:'What is the difference between CGST, SGST, and IGST?',acceptedAnswer:{'@type':'Answer',text:'Intra-state supplies split GST equally into Central GST (CGST) and State GST (SGST). Inter-state supplies use a single Integrated GST (IGST) equal to the full GST amount.'}},
+{'@type':'Question',name:'What GST rates does this calculator use?',acceptedAnswer:{'@type':'Answer',text:'Presets cover the common Indian slabs of 5%, 12%, 18%, and 28%. You can also enter a custom percentage when a different rate applies.'}},
+{'@type':'Question',name:'Is this official tax advice or a filing tool?',acceptedAnswer:{'@type':'Answer',text:'No. Results are estimates for invoices and planning. This is not official tax advice and it does not file GST returns.'}},
+{'@type':'Question',name:'Does the GST calculator upload my amounts?',acceptedAnswer:{'@type':'Answer',text:'No. All GST math runs in your browser. Deskutil never receives the numbers you enter.'}}
+]}
+];
+---
+<BaseLayout title="GST Calculator India — Add or Extract GST Instantly" description={description} canonical="https://deskutil.com/finance/gst-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">GST Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>GST Calculator</h1><p>Add GST to a net amount or extract it from a gross total. Use India GST slabs, split CGST and SGST or apply IGST, and copy the breakdown—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="GST actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="gst-amount">Amount</label><input class="field-input" id="gst-amount" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 10000" /></div>
+<div class="tool-field"><label for="gst-rate">GST rate (%)</label><input class="field-input" id="gst-rate" type="number" min="0" max="100" step="0.01" value="18" inputmode="decimal" /></div>
+<div class="preset-row"><button class="tool-button" type="button" data-rate="5">5%</button><button class="tool-button" type="button" data-rate="12">12%</button><button class="tool-button" type="button" data-rate="18">18%</button><button class="tool-button" type="button" data-rate="28">28%</button><span class="privacy-note">Or enter a custom %</span></div>
+<div class="tool-field grow"><span>Price type</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="gst-mode" value="exclusive" checked /> Exclusive (add GST)</label><label class="tool-check"><input type="radio" name="gst-mode" value="inclusive" /> Inclusive (extract GST)</label></div></div>
+<div class="tool-field grow"><span>Supply</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="gst-place" value="intra" checked /> Intra-state (CGST + SGST)</label><label class="tool-check"><input type="radio" name="gst-place" value="inter" /> Inter-state (IGST)</label></div></div>
+</div>
+<div class="tool-output prose-output" id="gst-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Net amount</span><strong id="out-net">—</strong></div>
+<div class="finance-stat"><span>GST amount</span><strong id="out-gst">—</strong></div>
+<div class="finance-stat"><span>Total</span><strong id="out-total">—</strong></div>
+<div class="finance-stat"><span>CGST</span><strong id="out-cgst">—</strong></div>
+<div class="finance-stat"><span>SGST</span><strong id="out-sgst">—</strong></div>
+<div class="finance-stat"><span>IGST</span><strong id="out-igst">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter an amount, pick a rate, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the GST calculator</h2><p>Enter the amount, choose a GST rate (5%, 12%, 18%, 28%, or a custom percent), and pick exclusive or inclusive. Exclusive adds GST to a net price. Inclusive peels GST out of a gross price. Intra-state splits the tax equally into CGST and SGST; inter-state applies the full amount as IGST. Choose <strong>Calculate</strong>, then <strong>Copy results</strong> if you need the breakdown. Nothing is uploaded, and this page does not file tax.</p>
+<h2>Frequently asked questions</h2>
+<h3>What is exclusive GST versus inclusive GST?</h3><p>Exclusive GST sits on top of a net amount: tax is extra, and the total is net plus GST. Inclusive GST is already baked into a gross amount, so the calculator works backwards to the net price and the tax inside the total.</p>
+<h3>What is the difference between CGST, SGST, and IGST?</h3><p>For an intra-state supply, GST is split equally into Central GST and State GST. For an inter-state supply, the same GST figure is charged as a single Integrated GST (IGST) instead. This tool shows that split; it does not decide which place-of-supply rule applies to your invoice.</p>
+<h3>What GST rates does this calculator use?</h3><p>The presets are the slabs people look up most often in India: 5%, 12%, 18%, and 28%. Eighteen percent is the default. Type any other percentage in the rate field when a notification or a different goods rate applies.</p>
+<h3>Is this official tax advice or a filing tool?</h3><p>No. Figures are estimates for checking an invoice or planning a quote. They are not official tax advice, not a substitute for GST law or a tax professional, and the page cannot file returns.</p>
+<h3>Does the GST calculator upload my amounts?</h3><p>No. Addition and extraction run in your browser. Deskutil never receives the amount, the rate, or the breakdown.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li></ul></aside></div></section>
+<script>
+const amountInput=document.querySelector<HTMLInputElement>('#gst-amount')!;
+const rateInput=document.querySelector<HTMLInputElement>('#gst-rate')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={net:document.querySelector<HTMLElement>('#out-net')!,gst:document.querySelector<HTMLElement>('#out-gst')!,total:document.querySelector<HTMLElement>('#out-total')!,cgst:document.querySelector<HTMLElement>('#out-cgst')!,sgst:document.querySelector<HTMLElement>('#out-sgst')!,igst:document.querySelector<HTMLElement>('#out-igst')!};
+let lastCopy='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parseAmount=()=>{
+  const raw=amountInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter an amount.');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<0)throw new Error('Enter a valid amount of 0 or more.');
+  return amount;
+};
+const parseRate=()=>{
+  const raw=rateInput.value.trim();
+  if(!raw)throw new Error('Enter a GST rate.');
+  const rate=Number(raw);
+  if(!Number.isFinite(rate)||rate<0||rate>100)throw new Error('Enter a GST rate between 0 and 100.');
+  return rate;
+};
+const calculate=()=>{
+  const amount=parseAmount();
+  const rate=parseRate();
+  const exclusive=selected('gst-mode')!=='inclusive';
+  const intra=selected('gst-place')!=='inter';
+  let gst:number,total:number,net:number;
+  if(exclusive){gst=amount*rate/100;total=amount+gst;net=amount}
+  else{gst=amount-amount/(1+rate/100);total=amount;net=total-gst}
+  gst=round2(gst);total=round2(total);net=round2(net);
+  const cgst=intra?round2(gst/2):0;
+  const sgst=intra?round2(gst-cgst):0;
+  const igst=intra?0:gst;
+  out.net.textContent=rupee(net);
+  out.gst.textContent=rupee(gst);
+  out.total.textContent=rupee(total);
+  out.cgst.textContent=rupee(cgst);
+  out.sgst.textContent=rupee(sgst);
+  out.igst.textContent=rupee(igst);
+  const mode=exclusive?'Exclusive (GST added)':'Inclusive (GST extracted)';
+  const place=intra?'Intra-state (CGST + SGST)':'Inter-state (IGST)';
+  lastCopy=['GST breakdown',`Amount entered: ${rupee(amount)}`,`GST rate: ${rate}%`,mode,place,`Net amount: ${rupee(net)}`,`GST amount: ${rupee(gst)}`,`CGST: ${rupee(cgst)}`,`SGST: ${rupee(sgst)}`,`IGST: ${rupee(igst)}`,`Total: ${rupee(total)}`].join('\n');
+  return exclusive?`Added ${rate}% GST.`:`Extracted ${rate}% GST.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate GST.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate GST first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied GST results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+document.querySelectorAll<HTMLButtonElement>('[data-rate]').forEach((button)=>button.addEventListener('click',()=>{rateInput.value=button.dataset.rate||'18';try{if(amountInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not apply this rate.','error')}}));
+for(const input of [amountInput,rateInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate GST.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="gst-mode"], input[name="gst-place"]').forEach((input)=>input.addEventListener('change',()=>{try{if(amountInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate GST.','error')}}));
+</script></BaseLayout>

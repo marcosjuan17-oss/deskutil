@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { tools, categories, getToolsForCategory } from '../data/tools';
 ---
 <BaseLayout title="Deskutil — Simple tools that work" description="Free, focused browser tools for developers and everyday work. No accounts, clutter, or uploads—just useful utilities that work.">
-  <section class="hero"><div class="shell"><p class="eyebrow">Useful by default</p><h1>Simple tools that work.</h1><p>Fast, focused utilities for everyday tasks. No accounts, no clutter, and your input stays in your browser.</p></div></section>
+  <section class="hero"><div class="shell"><p class="eyebrow">Useful by default</p><h1>Simple tools that work.</h1><p>Fast, focused utilities for everyday tasks. No accounts, no clutter, and your input stays in your browser. Finance calculators are live, starting with <a href="/finance/gst-calculator/">GST</a>.</p></div></section>
   <section class="section shell"><h2>Available tools</h2><div class="card-grid">{tools.map((tool) => <a class="card" href={tool.path}><h3>{tool.name}</h3><p>{tool.description}</p></a>)}</div></section>
   <section class="section shell"><h2>Browse categories</h2><div class="card-grid">{categories.map((category) => {
     const categoryTools = getToolsForCategory(category.slug);

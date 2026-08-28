@@ -1,4 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const description='Deskutil processes tool inputs in your browser and does not receive pasted or calculator data. Read how hosting logs, accounts, and possible future ads work.';
 ---
-<BaseLayout title="Privacy — Deskutil" description="How Deskutil protects your privacy: utility inputs are processed locally in your browser and are not sent to our servers."><article class="shell page-heading prose"><p class="eyebrow">Privacy</p><h1>Your work stays in your browser.</h1><p>Deskutil tools are designed to process your input on your device. The JSON Formatter does not send pasted JSON to a server.</p><h2>What that means</h2><p>You do not need an account. We do not receive, store, or review the content you paste into our tools. Downloads are created locally by your browser.</p><h2>Site operations</h2><p>Like most websites, our hosting provider may process basic request information needed to securely deliver the site. We do not use that information to inspect the content you enter into tools.</p></article></BaseLayout>
+<BaseLayout title="Privacy — How Deskutil Handles Your Data" description={description} canonical="https://deskutil.com/privacy/">
+<article class="shell page-heading prose">
+<p class="eyebrow">Privacy</p>
+<h1>Your work stays in your browser.</h1>
+<p>Deskutil tools are designed to process your input on your device. Calculators, formatters, and generators do their work in the page you already have open. We do not receive the text you paste or the numbers you type into a calculator.</p>
+<h2>What that means</h2>
+<p>You do not need an account, and there is no sign-in. We do not receive, store, or review tool inputs. Downloads, copy actions, and GST or other calculator results are created locally by your browser. Closing the tab leaves those values on your device only.</p>
+<h2>Site operations and hosting</h2>
+<p>Deskutil is hosted on Cloudflare. Like most websites, Cloudflare may see normal request logs needed to serve pages and protect the site. That can include an IP address, the URL requested, and a user agent. Those logs are about fetching a page, not about inspecting calculator or editor contents, which never leave your browser as tool payloads.</p>
+<h2>Accounts</h2>
+<p>There are no user accounts, profiles, or saved workspaces. We do not ask you to register, and we do not keep a login cookie for Deskutil itself.</p>
+<h2>Advertising</h2>
+<p>Deskutil does not show ads today. If advertising is added later, it will be served by Google AdSense and participating partners. Those services may use cookies or similar technologies to show ads, measure how they perform, and limit how often you see them. That would not change the local-processing promise for tool inputs.</p>
+<p>When ads are used, Google’s own policies apply. Read <a href="https://policies.google.com/technologies/ads">how Google uses information for ads</a>, the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>, and <a href="https://www.google.com/settings/ads">Google Ad Settings</a>. This page will be updated if ads go live; until then, treat advertising as a possible future, not a current feature.</p>
+<h2>Privacy questions</h2>
+<p>Email <a href="mailto:marcosjuan17@gmail.com">marcosjuan17@gmail.com</a> about privacy. You can also use the <a href="/contact/">Contact</a> page. For who runs the site, see <a href="/about/">About</a>.</p>
+</article>
+</BaseLayout>
