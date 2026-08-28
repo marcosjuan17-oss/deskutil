@@ -20,3 +20,4 @@ export const tools = [
   { slug:'emi-calculator', category:'finance' as CategorySlug, name:'EMI Calculator', description:'Estimate monthly EMI, total interest, and total payment for home, car, or personal loans in your browser.', path:'/finance/emi-calculator/' },
 ] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);
+export const getLiveCategories = () => categories.filter((category) => getToolsForCategory(category.slug).length > 0);
