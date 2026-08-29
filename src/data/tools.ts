@@ -18,6 +18,7 @@ export const tools = [
   { slug:'sql-formatter', category:'developer' as CategorySlug, name:'SQL Formatter', description:'Format and minify SQL in your browser, then copy or download it.', path:'/developer/sql-formatter/' },
   { slug:'gst-calculator', category:'finance' as CategorySlug, name:'GST Calculator', description:'Add or extract India GST with 5%, 12%, 18%, or 28% rates, CGST/SGST or IGST, entirely in your browser.', path:'/finance/gst-calculator/' },
   { slug:'emi-calculator', category:'finance' as CategorySlug, name:'EMI Calculator', description:'Estimate monthly EMI, total interest, and total payment for home, car, or personal loans in your browser.', path:'/finance/emi-calculator/' },
+  { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
 ] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);
 export const getLiveCategories = () => categories.filter((category) => getToolsForCategory(category.slug).length > 0);

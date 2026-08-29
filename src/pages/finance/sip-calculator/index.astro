@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free SIP calculator for mutual fund investments. Enter monthly investment, expected return, and tenure to see maturity value, total invested, and estimated returns. Math stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'SIP Calculator',item:'https://deskutil.com/finance/sip-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'SIP Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/sip-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Maturity value estimate','Total amount invested','Estimated returns','Tenure in years or months','Expected annual return rate','Copy SIP breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How is SIP maturity value calculated?',acceptedAnswer:{'@type':'Answer',text:'Future value uses M = P × (((1+r)^n − 1) / r) × (1+r), where P is the monthly investment, r is the monthly rate (annual expected return ÷ 12 ÷ 100), and n is the number of months. When the return rate is zero, maturity equals P × n.'}},
+{'@type':'Question',name:'What is a SIP?',acceptedAnswer:{'@type':'Answer',text:'A Systematic Investment Plan (SIP) invests a fixed amount at regular intervals, typically monthly, into a mutual fund or similar product. This calculator estimates how that habit can grow at a constant expected return.'}},
+{'@type':'Question',name:'Should tenure be in years or months?',acceptedAnswer:{'@type':'Answer',text:'Either. Pick years or months, then enter the matching tenure. The calculator converts years to months (multiply by 12) before computing maturity value.'}},
+{'@type':'Question',name:'Is this investment advice?',acceptedAnswer:{'@type':'Answer',text:'No. Results are planning estimates that assume a constant rate of return with no fees, taxes, or market volatility. Actual mutual fund returns vary. This is not financial advice.'}},
+{'@type':'Question',name:'Does the SIP calculator upload my investment details?',acceptedAnswer:{'@type':'Answer',text:'No. All SIP math runs in your browser. Deskutil never receives the monthly amount, return rate, or tenure you enter.'}}
+]}
+];
+---
+<BaseLayout title="SIP Calculator — Mutual Fund Returns Instantly" description={description} canonical="https://deskutil.com/finance/sip-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">SIP Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>SIP Calculator</h1><p>Estimate the maturity value of a monthly SIP. Enter the monthly investment, expected annual return, and tenure to see total invested, estimated returns, and maturity value—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="SIP actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="monthly-amount">Monthly investment</label><input class="field-input" id="monthly-amount" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 10000" /></div>
+<div class="tool-field"><label for="return-rate">Expected return (% p.a.)</label><input class="field-input" id="return-rate" type="number" min="0" max="100" step="0.01" value="12" inputmode="decimal" /></div>
+<div class="tool-field"><label for="tenure">Tenure</label><input class="field-input" id="tenure" type="number" min="1" step="1" value="10" inputmode="numeric" /></div>
+<div class="tool-field grow"><span>Tenure unit</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="tenure-unit" value="years" checked /> Years</label><label class="tool-check"><input type="radio" name="tenure-unit" value="months" /> Months</label></div></div>
+</div>
+<div class="tool-output prose-output" id="sip-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Maturity value</span><strong id="out-maturity">—</strong></div>
+<div class="finance-stat"><span>Total invested</span><strong id="out-invested">—</strong></div>
+<div class="finance-stat"><span>Estimated returns</span><strong id="out-returns">—</strong></div>
+<div class="finance-stat"><span>Monthly SIP</span><strong id="out-monthly">—</strong></div>
+<div class="finance-stat"><span>Tenure</span><strong id="out-tenure">—</strong></div>
+<div class="finance-stat"><span>Expected return</span><strong id="out-rate">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter monthly investment, expected return, and tenure, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the SIP calculator</h2><p>Enter how much you invest each month, the expected annual return rate, and the tenure in years or months. Choose <strong>Calculate</strong> to see maturity value, total invested, and estimated returns. Use <strong>Copy results</strong> when you want the breakdown elsewhere. Nothing is uploaded. Figures assume a constant return and ignore fees and taxes.</p>
+<h2>Frequently asked questions</h2>
+<h3>How is SIP maturity value calculated?</h3><p>This tool uses the standard future-value SIP formula: M = P × (((1+r)^n − 1) ÷ r) × (1+r). P is the monthly investment, r is the monthly rate (annual percent ÷ 12 ÷ 100), and n is the number of months. When the return rate is zero, maturity is simply P × n.</p>
+<h3>What is a SIP?</h3><p>A Systematic Investment Plan invests a fixed amount at regular intervals—usually monthly—into a mutual fund or similar product. This calculator estimates how that habit can grow if returns stay constant.</p>
+<h3>Should tenure be in years or months?</h3><p>Either. Select years or months, then type the matching number. Years are converted to months (× 12) before maturity is computed, so 10 years becomes 120 months.</p>
+<h3>Is this investment advice?</h3><p>No. Results are planning estimates only. They assume a flat expected return with no expense ratios, exit loads, or taxes. Markets fluctuate. This page is not financial advice.</p>
+<h3>Does the SIP calculator upload my investment details?</h3><p>No. SIP math runs in your browser. Deskutil never receives the amount, rate, or tenure you enter.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/finance/emi-calculator/">EMI Calculator</a></li><li><a href="/finance/gst-calculator/">GST Calculator</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li></ul></aside></div></section>
+<script>
+const amountInput=document.querySelector<HTMLInputElement>('#monthly-amount')!;
+const rateInput=document.querySelector<HTMLInputElement>('#return-rate')!;
+const tenureInput=document.querySelector<HTMLInputElement>('#tenure')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={maturity:document.querySelector<HTMLElement>('#out-maturity')!,invested:document.querySelector<HTMLElement>('#out-invested')!,returns:document.querySelector<HTMLElement>('#out-returns')!,monthly:document.querySelector<HTMLElement>('#out-monthly')!,tenure:document.querySelector<HTMLElement>('#out-tenure')!,rate:document.querySelector<HTMLElement>('#out-rate')!};
+let lastCopy='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parseAmount=()=>{
+  const raw=amountInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter a monthly investment amount.');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a monthly investment greater than 0.');
+  return amount;
+};
+const parseRate=()=>{
+  const raw=rateInput.value.trim();
+  if(!raw)throw new Error('Enter an expected return rate.');
+  const rate=Number(raw);
+  if(!Number.isFinite(rate)||rate<0||rate>100)throw new Error('Enter an expected return between 0 and 100.');
+  return rate;
+};
+const parseMonths=()=>{
+  const raw=tenureInput.value.trim();
+  if(!raw)throw new Error('Enter a tenure.');
+  const tenure=Number(raw);
+  if(!Number.isFinite(tenure)||tenure<=0||!Number.isInteger(tenure))throw new Error('Enter a whole-number tenure of 1 or more.');
+  const years=selected('tenure-unit')!=='months';
+  const months=years?tenure*12:tenure;
+  if(months>1200)throw new Error('Tenure must be 100 years (1200 months) or less.');
+  return {months,years,tenure};
+};
+const calculate=()=>{
+  const monthly=parseAmount();
+  const annualRate=parseRate();
+  const {months,years,tenure}=parseMonths();
+  const r=annualRate/12/100;
+  let maturity:number;
+  if(annualRate===0){maturity=monthly*months}
+  else{
+    const factor=Math.pow(1+r,months);
+    maturity=monthly*((factor-1)/r)*(1+r);
+  }
+  maturity=round2(maturity);
+  const invested=round2(monthly*months);
+  const returns=round2(maturity-invested);
+  out.maturity.textContent=rupee(maturity);
+  out.invested.textContent=rupee(invested);
+  out.returns.textContent=rupee(returns);
+  out.monthly.textContent=rupee(monthly);
+  out.tenure.textContent=years?`${tenure} years (${months} months)`:`${months} months`;
+  out.rate.textContent=`${annualRate}%`;
+  lastCopy=['SIP breakdown',`Monthly investment: ${rupee(monthly)}`,`Expected return: ${annualRate}% p.a.`,`Tenure: ${years?`${tenure} years`:`${months} months`} (${months} months)`,`Total invested: ${rupee(invested)}`,`Estimated returns: ${rupee(returns)}`,`Maturity value: ${rupee(maturity)}`].join('\n');
+  return `Maturity value is ${rupee(maturity)}.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate SIP.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate SIP first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied SIP results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [amountInput,rateInput,tenureInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate SIP.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="tenure-unit"]').forEach((input)=>input.addEventListener('change',()=>{try{if(amountInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate SIP.','error')}}));
+</script></BaseLayout>
