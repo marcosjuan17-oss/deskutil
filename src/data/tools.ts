@@ -12,13 +12,17 @@ export const tools = [
   { slug:'json-formatter', category:'developer' as CategorySlug, name:'JSON Formatter', description:'Format, minify, validate, copy, and download JSON without sending it anywhere.', path:'/developer/json-formatter/' },
   { slug:'jwt-decoder', category:'developer' as CategorySlug, name:'JWT Decoder', description:'Decode JWT header and payload locally without verifying signatures.', path:'/developer/jwt-decoder/' },
   { slug:'base64-encoder', category:'converters' as CategorySlug, name:'Base64 Encoder', description:'Encode and decode UTF-8 text as Base64 entirely in your browser.', path:'/converters/base64-encoder/' },
+  { slug:'pdf-to-word', category:'converters' as CategorySlug, name:'PDF to Word', description:'Extract selectable PDF text into a Word .docx file in your browser. Scanned pages and complex layouts will not match the original.', path:'/converters/pdf-to-word/' },
+  { slug:'pdf-to-jpg', category:'converters' as CategorySlug, name:'PDF to JPG', description:'Convert each PDF page to a JPG image in your browser, then download pages one by one. Nothing is uploaded.', path:'/converters/pdf-to-jpg/' },
   { slug:'uuid-generator', category:'generators' as CategorySlug, name:'UUID Generator', description:'Generate UUID v4 identifiers in bulk, then copy or download them.', path:'/generators/uuid-generator/' },
+  { slug:'password-generator', category:'generators' as CategorySlug, name:'Password Generator', description:'Generate strong random passwords in your browser with crypto.getRandomValues, then copy or download them.', path:'/generators/password-generator/' },
   { slug:'regex-tester', category:'developer' as CategorySlug, name:'Regex Tester', description:'Test regular expressions with flags, match highlights, and capture groups.', path:'/developer/regex-tester/' },
   { slug:'cron-generator', category:'developer' as CategorySlug, name:'Cron Generator', description:'Build a 5-field Unix cron expression and see the next run times.', path:'/developer/cron-generator/' },
   { slug:'sql-formatter', category:'developer' as CategorySlug, name:'SQL Formatter', description:'Format and minify SQL in your browser, then copy or download it.', path:'/developer/sql-formatter/' },
   { slug:'gst-calculator', category:'finance' as CategorySlug, name:'GST Calculator', description:'Add or extract India GST with 5%, 12%, 18%, or 28% rates, CGST/SGST or IGST, entirely in your browser.', path:'/finance/gst-calculator/' },
   { slug:'emi-calculator', category:'finance' as CategorySlug, name:'EMI Calculator', description:'Estimate monthly EMI, total interest, and total payment for home, car, or personal loans in your browser.', path:'/finance/emi-calculator/' },
   { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
+  { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);
 export const getLiveCategories = () => categories.filter((category) => getToolsForCategory(category.slug).length > 0);

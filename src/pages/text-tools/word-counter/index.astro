@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Count words, characters, sentences, and paragraphs in your browser. See reading time as you type. Copy the counts instantly. Your text never leaves this page.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Text Tools',item:'https://deskutil.com/text-tools/'},{'@type':'ListItem',position:3,name:'Word Counter',item:'https://deskutil.com/text-tools/word-counter/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Word Counter',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/text-tools/word-counter/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Live word count','Characters with and without spaces','Sentence and paragraph count','Reading time estimate','Copy counts']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How are words counted?',acceptedAnswer:{'@type':'Answer',text:'Words are sequences of characters separated by whitespace. Multiple spaces count as one separator. Counts update as you type.'}},
+{'@type':'Question',name:'What is reading time based on?',acceptedAnswer:{'@type':'Answer',text:'About 225 words per minute, a common silent-reading estimate. Actual reading speed varies by person and text.'}},
+{'@type':'Question',name:'Do characters include spaces?',acceptedAnswer:{'@type':'Answer',text:'You get both totals: characters with spaces and characters without spaces, plus word, sentence, and paragraph counts.'}},
+{'@type':'Question',name:'Is my text uploaded?',acceptedAnswer:{'@type':'Answer',text:'No. Counting runs in your browser. Deskutil never receives the text you paste or type.'}},
+{'@type':'Question',name:'How are sentences and paragraphs counted?',acceptedAnswer:{'@type':'Answer',text:'Sentences end at a period, question mark, or exclamation point. Paragraphs are blocks of text separated by blank lines, or one block if there are no blank lines.'}}
+]}
+];
+---
+<BaseLayout title="Word Counter Online — Words, Characters & Reading Time" description={description} canonical="https://deskutil.com/text-tools/word-counter/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/text-tools/">Text Tools</a></li><li aria-current="page">Word Counter</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Text tool</p><h1>Word Counter</h1><p>Count words, characters, sentences, and paragraphs as you type. Reading time updates instantly. Everything stays in your browser—nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Word counter actions"><button class="tool-button primary" id="copy" type="button">Copy counts</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-output prose-output">
+<div class="finance-grid">
+<div class="finance-stat"><span>Words</span><strong id="out-words">0</strong></div>
+<div class="finance-stat"><span>Characters</span><strong id="out-chars">0</strong></div>
+<div class="finance-stat"><span>Characters (no spaces)</span><strong id="out-chars-ns">0</strong></div>
+<div class="finance-stat"><span>Sentences</span><strong id="out-sentences">0</strong></div>
+<div class="finance-stat"><span>Paragraphs</span><strong id="out-paragraphs">0</strong></div>
+<div class="finance-stat"><span>Reading time</span><strong id="out-time">0 min</strong></div>
+</div>
+</div>
+<label class="editor-label" for="wc-input">Your text</label>
+<textarea class="tool-textarea tall" id="wc-input" spellcheck="true" autocomplete="off" placeholder="Type or paste text to count words, characters, sentences, and paragraphs."></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Start typing. Counts update live and never leave this page.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the word counter</h2><p>Type or paste into the box. Word, character, sentence, and paragraph counts update as you go, along with a reading-time estimate. Choose <strong>Copy counts</strong> for a plain-text summary. Nothing is uploaded.</p>
+<h2>Frequently asked questions</h2>
+<h3>How are words counted?</h3><p>Words are sequences of characters separated by whitespace. Multiple spaces count as one separator. Counts update as you type.</p>
+<h3>What is reading time based on?</h3><p>About 225 words per minute, a common silent-reading estimate. Actual reading speed varies by person and text.</p>
+<h3>Do characters include spaces?</h3><p>You get both totals: characters with spaces and characters without spaces, plus word, sentence, and paragraph counts.</p>
+<h3>Is my text uploaded?</h3><p>No. Counting runs in your browser. Deskutil never receives the text you paste or type.</p>
+<h3>How are sentences and paragraphs counted?</h3><p>Sentences end at a period, question mark, or exclamation point. Paragraphs are blocks of text separated by blank lines, or one block if there are no blank lines.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/text-tools/">Text tools</a></li><li><a href="/converters/base64-encoder/">Base64 Encoder</a></li><li><a href="/generators/password-generator/">Password Generator</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const input=document.querySelector<HTMLTextAreaElement>('#wc-input')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={words:document.querySelector<HTMLElement>('#out-words')!,chars:document.querySelector<HTMLElement>('#out-chars')!,charsNs:document.querySelector<HTMLElement>('#out-chars-ns')!,sentences:document.querySelector<HTMLElement>('#out-sentences')!,paragraphs:document.querySelector<HTMLElement>('#out-paragraphs')!,time:document.querySelector<HTMLElement>('#out-time')!};
+let lastCopy='Words: 0\nCharacters (with spaces): 0\nCharacters (without spaces): 0\nSentences: 0\nParagraphs: 0\nReading time: 0 min';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const formatTime=(words:number)=>{
+  if(!words)return '0 min';
+  const seconds=Math.round(words/225*60);
+  if(seconds<60)return `${seconds} sec`;
+  const mins=Math.floor(seconds/60);
+  const rem=seconds%60;
+  return rem?`${mins} min ${rem} sec`:`${mins} min`;
+};
+const count=()=>{
+  const text=input.value;
+  const words=text.trim()?text.trim().split(/\s+/).length:0;
+  const chars=text.length;
+  const charsNs=text.replace(/\s/g,'').length;
+  const sentences=text.trim()?text.split(/[.!?]+/).map((part)=>part.trim()).filter((part)=>part.length).length:0;
+  const paragraphs=text.trim()?text.split(/\n\s*\n/).map((part)=>part.trim()).filter(Boolean).length:0;
+  const time=formatTime(words);
+  out.words.textContent=String(words);
+  out.chars.textContent=String(chars);
+  out.charsNs.textContent=String(charsNs);
+  out.sentences.textContent=String(sentences);
+  out.paragraphs.textContent=String(paragraphs);
+  out.time.textContent=time;
+  lastCopy=['Words: '+words,'Characters (with spaces): '+chars,'Characters (without spaces): '+charsNs,'Sentences: '+sentences,'Paragraphs: '+paragraphs,'Reading time: '+time].join('\n');
+  setStatus(words?`Live count: ${words} word${words===1?'':'s'}, ${chars} characters.`:'Start typing. Counts update live and never leave this page.');
+};
+input.addEventListener('input',count);
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastCopy);setStatus('Copied counts.','success')}catch{setStatus('Could not copy. Select the numbers and copy them manually.','error')}});
+document.querySelector('#clear')?.addEventListener('click',()=>{input.value='';count();input.focus();setStatus('Cleared. Start typing or paste new text.')});
+count();
+</script></BaseLayout>

@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Generate strong random passwords in your browser with crypto.getRandomValues. Set length and options, then copy or download a list. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Generator Tools',item:'https://deskutil.com/generators/'},{'@type':'ListItem',position:3,name:'Password Generator',item:'https://deskutil.com/generators/password-generator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Password Generator',applicationCategory:'SecurityApplication',operatingSystem:'Any',url:'https://deskutil.com/generators/password-generator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Cryptographically strong randomness','Length slider','Lowercase uppercase numbers symbols','Exclude similar characters','Copy or download a list','Strength hint']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How are passwords generated?',acceptedAnswer:{'@type':'Answer',text:'The generator uses crypto.getRandomValues from the Web Crypto API for cryptographically strong random numbers. It does not use Math.random.'}},
+{'@type':'Question',name:'What does exclude similar characters do?',acceptedAnswer:{'@type':'Answer',text:'It removes easily confused characters such as 0, O, 1, and l from the pool so passwords are easier to type without mixing look-alikes.'}},
+{'@type':'Question',name:'Are passwords uploaded or stored?',acceptedAnswer:{'@type':'Answer',text:'No. Generation stays in your browser. Deskutil never receives the passwords, and nothing is uploaded.'}},
+{'@type':'Question',name:'How is password strength estimated?',acceptedAnswer:{'@type':'Answer',text:'The hint is based on length and the size of the character set (estimated entropy). It is a guide, not a guarantee against every attack.'}},
+{'@type':'Question',name:'Can I generate more than one password?',acceptedAnswer:{'@type':'Answer',text:'Yes. Set a count from 1 to 50, generate a list, then copy or download it as a text file.'}}
+]}
+];
+---
+<BaseLayout title="Password Generator Online — Strong Random Passwords" description={description} canonical="https://deskutil.com/generators/password-generator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/generators/">Generators</a></li><li aria-current="page">Password Generator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Generator tool</p><h1>Password Generator</h1><p>Create strong random passwords with crypto.getRandomValues. Set length, choose character types, optionally exclude similar characters, then copy or download a list. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Password generator actions"><button class="tool-button primary" id="generate" type="button">Generate</button><button class="tool-button" id="copy" type="button">Copy</button><button class="tool-button" id="download" type="button">Download</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="pw-length">Length: <span id="length-label">16</span></label><input class="field-range" id="pw-length" type="range" min="8" max="64" value="16" /></div>
+<div class="tool-field"><label for="pw-count">Count (1–50)</label><input class="field-input" id="pw-count" type="number" min="1" max="50" value="1" /></div>
+<div class="tool-field grow"><span>Character types</span><div class="tool-checks">
+<label class="tool-check"><input id="opt-lower" type="checkbox" checked /> Lowercase</label>
+<label class="tool-check"><input id="opt-upper" type="checkbox" checked /> Uppercase</label>
+<label class="tool-check"><input id="opt-nums" type="checkbox" checked /> Numbers</label>
+<label class="tool-check"><input id="opt-syms" type="checkbox" /> Symbols</label>
+<label class="tool-check"><input id="opt-similar" type="checkbox" /> Exclude similar (0/O, 1/l)</label>
+</div></div>
+</div>
+<div class="tool-output prose-output"><div class="finance-grid"><div class="finance-stat"><span>Strength hint</span><strong id="strength">—</strong></div><div class="finance-stat"><span>Length</span><strong id="out-length">16</strong></div><div class="finance-stat"><span>Count</span><strong id="out-count">0</strong></div></div></div>
+<label class="editor-label" for="pw-output">Generated passwords</label>
+<textarea class="tool-textarea" id="pw-output" spellcheck="false" autocomplete="off" readonly placeholder="Generated passwords will appear here, one per line."></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Choose options, then generate. Randomness stays on this device.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the password generator</h2><p>Set a length with the slider, pick lowercase, uppercase, numbers, and/or symbols, and optionally exclude similar characters (0, O, 1, l). Choose a count from 1 to 50, then <strong>Generate</strong>. Use <strong>Copy</strong> or <strong>Download</strong> for the list. Generation uses crypto.getRandomValues only and never leaves your browser.</p>
+<h2>Frequently asked questions</h2>
+<h3>How are passwords generated?</h3><p>The generator uses crypto.getRandomValues from the Web Crypto API for cryptographically strong random numbers. It does not use Math.random.</p>
+<h3>What does exclude similar characters do?</h3><p>It removes easily confused characters such as 0, O, 1, and l from the pool so passwords are easier to type without mixing look-alikes.</p>
+<h3>Are passwords uploaded or stored?</h3><p>No. Generation stays in your browser. Deskutil never receives the passwords, and nothing is uploaded.</p>
+<h3>How is password strength estimated?</h3><p>The hint is based on length and the size of the character set (estimated entropy). It is a guide, not a guarantee against every attack.</p>
+<h3>Can I generate more than one password?</h3><p>Yes. Set a count from 1 to 50, generate a list, then copy or download it as a text file.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/generators/">Generator tools</a></li><li><a href="/generators/uuid-generator/">UUID Generator</a></li><li><a href="/text-tools/word-counter/">Word Counter</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li></ul></aside></div></section>
+<script>
+const output=document.querySelector<HTMLTextAreaElement>('#pw-output')!;
+const lengthInput=document.querySelector<HTMLInputElement>('#pw-length')!;
+const countInput=document.querySelector<HTMLInputElement>('#pw-count')!;
+const lengthLabel=document.querySelector<HTMLElement>('#length-label')!;
+const strengthEl=document.querySelector<HTMLElement>('#strength')!;
+const outLength=document.querySelector<HTMLElement>('#out-length')!;
+const outCount=document.querySelector<HTMLElement>('#out-count')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const optLower=document.querySelector<HTMLInputElement>('#opt-lower')!;
+const optUpper=document.querySelector<HTMLInputElement>('#opt-upper')!;
+const optNums=document.querySelector<HTMLInputElement>('#opt-nums')!;
+const optSyms=document.querySelector<HTMLInputElement>('#opt-syms')!;
+const optSimilar=document.querySelector<HTMLInputElement>('#opt-similar')!;
+const LOWER='abcdefghijklmnopqrstuvwxyz';
+const UPPER='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const NUMS='0123456789';
+const SYMS='!@#$%^&*()-_=+[]{};:,.<>?';
+const SIMILAR=/[0OolI1]/g;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const randIndex=(max:number)=>{
+  if(typeof crypto==='undefined'||typeof crypto.getRandomValues!=='function')throw new Error('crypto.getRandomValues is not available in this browser.');
+  if(max<1)throw new Error('Character set is empty. Enable at least one character type.');
+  const cap=0x100000000;
+  const limit=cap-(cap%max);
+  const buf=new Uint32Array(1);
+  let value=0;
+  do{crypto.getRandomValues(buf);value=buf[0]}while(value>=limit);
+  return value%max;
+};
+const shuffle=(items:string[])=>{
+  for(let i=items.length-1;i>0;i--){const j=randIndex(i+1);const tmp=items[i];items[i]=items[j];items[j]=tmp}
+  return items;
+};
+const pools=()=>{
+  const selected:string[]=[];
+  if(optLower.checked)selected.push(LOWER);
+  if(optUpper.checked)selected.push(UPPER);
+  if(optNums.checked)selected.push(NUMS);
+  if(optSyms.checked)selected.push(SYMS);
+  if(!selected.length)throw new Error('Select at least one character type.');
+  const cleaned=optSimilar.checked?selected.map((set)=>set.replace(SIMILAR,'')).filter(Boolean):selected;
+  if(!cleaned.length)throw new Error('Exclude similar removed every selected character. Enable another character type.');
+  return cleaned;
+};
+const strengthHint=(length:number,alphabet:number)=>{
+  const bits=length*Math.log2(Math.max(alphabet,2));
+  if(bits<36)return 'Weak';
+  if(bits<60)return 'Fair';
+  if(bits<80)return 'Strong';
+  return 'Very strong';
+};
+const onePassword=(length:number,sets:string[])=>{
+  if(length<sets.length)throw new Error(`Length must be at least ${sets.length} so each selected type can appear once.`);
+  const all=sets.join('');
+  const chars:string[]=[];
+  for(const set of sets)chars.push(set[randIndex(set.length)]);
+  while(chars.length<length)chars.push(all[randIndex(all.length)]);
+  return shuffle(chars).join('');
+};
+const parseCount=()=>{
+  const n=Number(countInput.value);
+  if(!Number.isInteger(n)||n<1||n>50)throw new Error('Enter a count between 1 and 50.');
+  return n;
+};
+const generate=()=>{
+  const length=Number(lengthInput.value);
+  const count=parseCount();
+  const sets=pools();
+  const alphabet=sets.join('').length;
+  const list=Array.from({length:count},()=>onePassword(length,sets));
+  output.value=list.join('\n');
+  strengthEl.textContent=strengthHint(length,alphabet);
+  outLength.textContent=String(length);
+  outCount.textContent=String(count);
+  return count===1?'Generated 1 password.':`Generated ${count} passwords.`;
+};
+lengthInput.addEventListener('input',()=>{lengthLabel.textContent=lengthInput.value;outLength.textContent=lengthInput.value});
+document.querySelector('#generate')?.addEventListener('click',()=>{try{setStatus(generate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not generate passwords.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!output.value.trim())throw new Error('Generate a password first.');await navigator.clipboard.writeText(output.value);setStatus('Copied.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+document.querySelector('#download')?.addEventListener('click',()=>{try{if(!output.value.trim())throw new Error('Generate a password first.');const url=URL.createObjectURL(new Blob([output.value+'\n'],{type:'text/plain'}));const link=document.createElement('a');link.href=url;link.download='passwords.txt';link.click();URL.revokeObjectURL(url);setStatus('Passwords downloaded.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not download.','error')}});
+</script></BaseLayout>

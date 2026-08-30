@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Extract PDF text to a Word .docx in your browser. Scanned pages and layouts will not match the original. Locked PDFs fail with a clear error. Files stay local.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'PDF to Word',item:'https://deskutil.com/converters/pdf-to-word/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'PDF to Word',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/pdf-to-word/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['PDF to DOCX in the browser','Selectable text extraction','Page count and convert status','Password-protected PDF error','Download Word document']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Does this convert PDF layout to Word perfectly?',acceptedAnswer:{'@type':'Answer',text:'No. This tool extracts selectable text into a Word .docx file. Images, scanned pages, columns, and complex layouts will not match the original.'}},
+{'@type':'Question',name:'Can I convert a scanned PDF to Word?',acceptedAnswer:{'@type':'Answer',text:'Not usefully. Scanned PDFs are images, so there is little or no selectable text to extract. Use dedicated OCR software if you need text from a scan.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Conversion stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf.js runs in your browser, the .docx is built locally, and Deskutil never receives the file.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A real Word .docx (Office Open XML zip). Microsoft Word, Google Docs, and LibreOffice can open it. It contains extracted text, not a pixel-perfect replica of the PDF.'}}
+]}
+];
+---
+<BaseLayout title="PDF to Word Online — Convert PDF Text to a DOCX File" description={description} canonical="https://deskutil.com/converters/pdf-to-word/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">PDF to Word</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>PDF to Word</h1><p>Extract selectable text from a PDF into a Word .docx file. This is not a pixel-perfect layout conversion—scanned pages, images, and complex designs will not match the original. Password-protected PDFs fail with a clear error. Everything stays in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="PDF to Word actions"><button class="tool-button primary" id="convert" type="button">Convert</button><button class="tool-button" id="download" type="button" disabled>Download .docx</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">Honesty note: this extracts selectable text page by page into a Word document. It does not rebuild fonts, images, tables, or exact layout.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose a PDF or drop it here. Nothing is uploaded.</p></div></div>
+<p class="status" id="status" role="status" aria-live="polite">Choose a PDF, then convert. Large files above about 50 pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use PDF to Word</h2><p>Choose a PDF, then <strong>Convert</strong>. The tool reads selectable text with pdf.js in your browser, shows page count and progress, and builds a .docx you can <strong>Download</strong>. Scanned or image-only pages will be empty or nearly empty. Password-protected files are rejected with an error. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Does this convert PDF layout to Word perfectly?</h3><p>No. This tool extracts selectable text into a Word .docx file. Images, scanned pages, columns, and complex layouts will not match the original.</p>
+<h3>Can I convert a scanned PDF to Word?</h3><p>Not usefully. Scanned PDFs are images, so there is little or no selectable text to extract. Use dedicated OCR software if you need text from a scan.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Conversion stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf.js runs in your browser, the .docx is built locally, and Deskutil never receives the file.</p>
+<h3>What file do I download?</h3><p>A real Word .docx (Office Open XML zip). Microsoft Word, Google Docs, and LibreOffice can open it. It contains extracted text, not a pixel-perfect replica of the PDF.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/converters/base64-encoder/">Base64 Encoder</a></li><li><a href="/text-tools/word-counter/">Word Counter</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+
+<script>
+const WARN_PAGES=50;
+const MAX_PAGES=200;
+const MAX_BYTES=40*1024*1024;
+const PDFJS_WORKER="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.worker.min.mjs";
+let pdfjsLib:any=null;
+let downloadUrl='';
+let downloadName='converted.docx';
+const fileInput=document.querySelector<HTMLInputElement>('#pdf-file')!;
+const dropZone=document.querySelector<HTMLElement>('#drop-zone')!;
+const fileMeta=document.querySelector<HTMLElement>('#file-meta')!;
+const convertBtn=document.querySelector<HTMLButtonElement>('#convert')!;
+const downloadBtn=document.querySelector<HTMLButtonElement>('#download')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const crcTable=(()=>{const table=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;table[i]=c}return table})();
+const crc32=(data:Uint8Array)=>{let c=0xffffffff;for(let i=0;i<data.length;i++)c=crcTable[(c^data[i])&0xff]^(c>>>8);return (c^0xffffffff)>>>0};
+const u16=(n:number)=>new Uint8Array([n&255,(n>>>8)&255]);
+const u32=(n:number)=>new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]);
+const concat=(parts:Uint8Array[])=>{const total=parts.reduce((sum,part)=>sum+part.length,0);const out=new Uint8Array(total);let offset=0;for(const part of parts){out.set(part,offset);offset+=part.length}return out};
+const zipStore=(files:{name:string;bytes:Uint8Array}[])=>{
+  const locals:Uint8Array[]=[];const centrals:Uint8Array[]=[];let offset=0;
+  for(const file of files){
+    const name=new TextEncoder().encode(file.name);
+    const crc=crc32(file.bytes);
+    const local=concat([new Uint8Array([0x50,0x4b,0x03,0x04]),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(file.bytes.length),u32(file.bytes.length),u16(name.length),u16(0),name,file.bytes]);
+    const central=concat([new Uint8Array([0x50,0x4b,0x01,0x02]),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(file.bytes.length),u32(file.bytes.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]);
+    locals.push(local);centrals.push(central);offset+=local.length;
+  }
+  const localBlob=concat(locals);const centralBlob=concat(centrals);
+  const end=concat([new Uint8Array([0x50,0x4b,0x05,0x06]),u16(0),u16(0),u16(files.length),u16(files.length),u32(centralBlob.length),u32(localBlob.length),u16(0)]);
+  return concat([localBlob,centralBlob,end]);
+};
+const xmlEscape=(value:string)=>value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const para=(text:string)=>`<w:p><w:r><w:t xml:space="preserve">${xmlEscape(text)}</w:t></w:r></w:p>`;
+const contentTypes='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
+const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+const docXml=(body:string)=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr/></w:body></w:document>`;
+const makeDocx=(paragraphs:string[])=>{
+  const body=paragraphs.length?paragraphs.map(para).join(''):para('');
+  const enc=new TextEncoder();
+  return zipStore([
+    {name:'[Content_Types].xml',bytes:enc.encode(contentTypes)},
+    {name:'_rels/.rels',bytes:enc.encode(rels)},
+    {name:'word/document.xml',bytes:enc.encode(docXml(body))}
+  ]);
+};
+const chosenFile=()=>{const file=fileInput.files?.[0];if(!file)throw new Error('Choose a PDF first.');if(file.size>MAX_BYTES)throw new Error('That PDF is larger than 40 MB. Try a smaller file.');if(!file.type.includes('pdf')&&!file.name.toLowerCase().endsWith('.pdf'))throw new Error('Choose a PDF file.');return file};
+const resetDownload=()=>{if(downloadUrl)URL.revokeObjectURL(downloadUrl);downloadUrl='';downloadBtn.disabled=true};
+fileInput.addEventListener('change',()=>{try{const file=chosenFile();fileMeta.textContent=`${file.name} (${Math.round(file.size/1024)} KB)`;resetDownload();setStatus('PDF selected. Choose Convert.')}catch(error){fileMeta.textContent='Choose a PDF or drop it here. Nothing is uploaded.';setStatus(error instanceof Error?error.message:'Could not read that file.','error')}});
+['dragenter','dragover'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add('drag')}));
+['dragleave','drop'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove('drag')}));
+dropZone.addEventListener('drop',(event)=>{const file=event.dataTransfer?.files?.[0];if(!file)return;const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;fileInput.dispatchEvent(new Event('change'))});
+const loadPdfjs=async()=>{if(pdfjsLib)return pdfjsLib;pdfjsLib=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.min.mjs");pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;return pdfjsLib};
+const pageText=async(page:any)=>{
+  const content=await page.getTextContent();
+  const lines:string[]=[];let current='';let lastY:number|null=null;
+  for(const item of content.items as {str?:string;transform?:number[]}[]){
+    const text=item.str??'';const y=item.transform?.[5];
+    if(lastY!==null&&typeof y==='number'&&Math.abs(y-lastY)>2){if(current.trim())lines.push(current.replace(/\s+/g,' ').trim());current=text;lastY=y}
+    else{current+=text;if(typeof y==='number')lastY=y}
+  }
+  if(current.trim())lines.push(current.replace(/\s+/g,' ').trim());
+  return lines;
+};
+const convert=async()=>{
+  const file=chosenFile();
+  setStatus('Loading PDF…');
+  const pdfjs=await loadPdfjs();
+  const data=await file.arrayBuffer();
+  let doc:any;
+  try{doc=await pdfjs.getDocument({data}).promise}catch{throw new Error('Could not open that PDF. Password-protected or damaged files cannot be converted here.')}
+  const count=Math.min(doc.numPages,MAX_PAGES);
+  if(count>=WARN_PAGES)setStatus(`Reading ${count} pages. Large files can take a minute.`);
+  const paragraphs:string[]=[];
+  let chars=0;
+  for(let i=1;i<=count;i++){
+    setStatus(`Reading page ${i} of ${count}…`);
+    const lines=await pageText(await doc.getPage(i));
+    if(count>1)paragraphs.push(`Page ${i}`);
+    if(lines.length){paragraphs.push(...lines);chars+=lines.join(' ').length}
+    else paragraphs.push('(No selectable text on this page.)');
+  }
+  const bytes=makeDocx(paragraphs);
+  resetDownload();
+  downloadUrl=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
+  downloadName=(file.name.replace(/\.pdf$/i,'')||'converted')+'.docx';
+  downloadBtn.disabled=false;
+  if(!chars)setStatus('Converted, but no selectable text was found. Scanned PDFs need OCR, which this tool does not do.','error');
+  else setStatus(`Extracted text from ${count} page${count===1?'':'s'}. Download the Word file.`,'success');
+};
+convertBtn.addEventListener('click',async()=>{convertBtn.disabled=true;try{await convert()}catch(error){setStatus(error instanceof Error?error.message:'Could not convert that PDF.','error')}finally{convertBtn.disabled=false}});
+downloadBtn.addEventListener('click',()=>{if(!downloadUrl)return;const link=document.createElement('a');link.href=downloadUrl;link.download=downloadName;link.click()});
+</script></BaseLayout>
