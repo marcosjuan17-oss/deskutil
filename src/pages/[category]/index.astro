@@ -8,7 +8,7 @@ const { category } = Astro.props;
 const categoryTools = getToolsForCategory(category.slug);
 const titleName = /tools$/i.test(category.name) ? category.name : `${category.name} tools`;
 ---
-<BaseLayout title={`${titleName} — Deskutil`} description={`${category.description} Free utilities that run in your browser.`}<
+<BaseLayout title={`${titleName} — Deskutil`} description={`${category.description} Free utilities that run in your browser.`}>
   <div class="shell page-heading">
     <p class="eyebrow">Tools by category</p>
     <h1>{titleName}</h1>
