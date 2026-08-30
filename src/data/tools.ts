@@ -1,7 +1,7 @@
 export const categories = [
   { slug: 'developer', name: 'Developer', description: 'Format, validate, and inspect code and data.' },
   { slug: 'finance', name: 'Finance', description: 'Practical calculators for everyday money decisions.' },
-  { slug: 'converters', name: 'Converters', description: 'Convert common units and file-friendly values.' },
+  { slug: 'converters', name: 'Converters', description: 'Convert files, encodings, and time values in your browser.' },
   { slug: 'seo-tools', name: 'SEO Tools', description: 'Check and prepare content for search engines.' },
   { slug: 'text-tools', name: 'Text Tools', description: 'Clean, count, compare, and transform text.' },
   { slug: 'generators', name: 'Generators', description: 'Generate useful values and ready-to-use snippets.' },
@@ -14,6 +14,7 @@ export const tools = [
   { slug:'base64-encoder', category:'converters' as CategorySlug, name:'Base64 Encoder', description:'Encode and decode UTF-8 text as Base64 entirely in your browser.', path:'/converters/base64-encoder/' },
   { slug:'pdf-to-word', category:'converters' as CategorySlug, name:'PDF to Word', description:'Extract selectable PDF text into a Word .docx file in your browser. Scanned pages and complex layouts will not match the original.', path:'/converters/pdf-to-word/' },
   { slug:'pdf-to-jpg', category:'converters' as CategorySlug, name:'PDF to JPG', description:'Convert each PDF page to a JPG image in your browser, then download pages one by one. Nothing is uploaded.', path:'/converters/pdf-to-jpg/' },
+  { slug:'unix-timestamp', category:'converters' as CategorySlug, name:'Unix Timestamp', description:'Convert Unix time to a readable date and back. Seconds or milliseconds, all in your browser.', path:'/converters/unix-timestamp/' },
   { slug:'uuid-generator', category:'generators' as CategorySlug, name:'UUID Generator', description:'Generate UUID v4 identifiers in bulk, then copy or download them.', path:'/generators/uuid-generator/' },
   { slug:'password-generator', category:'generators' as CategorySlug, name:'Password Generator', description:'Generate strong random passwords in your browser with crypto.getRandomValues, then copy or download them.', path:'/generators/password-generator/' },
   { slug:'regex-tester', category:'developer' as CategorySlug, name:'Regex Tester', description:'Test regular expressions with flags, match highlights, and capture groups.', path:'/developer/regex-tester/' },
@@ -24,5 +25,7 @@ export const tools = [
   { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
   { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
+export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'sip-calculator', 'sql-formatter'] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);
 export const getLiveCategories = () => categories.filter((category) => getToolsForCategory(category.slug).length > 0);
+export const getFeaturedTools = () => featuredSlugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is (typeof tools)[number] => Boolean(tool));

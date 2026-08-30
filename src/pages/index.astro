@@ -1,24 +1,97 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { tools, getLiveCategories, getToolsForCategory } from '../data/tools';
+import { tools, getLiveCategories, getToolsForCategory, getFeaturedTools } from '../data/tools';
+const featured = getFeaturedTools();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Deskutil',
+    url: 'https://deskutil.com/',
+    description: 'Free browser tools. No accounts, no uploads.',
+  },
+];
 ---
-<BaseLayout title="Deskutil — Simple tools that work" description="Free, focused browser tools for developers and everyday work. No accounts, clutter, or uploads—just useful utilities that work.">
-  <section class="hero"><div class="shell"><p class="eyebrow">Useful by default</p><h1>Simple tools that work.</h1><p>Fast, focused utilities for everyday tasks. No accounts, no clutter, and your input stays in your browser. Finance calculators are live, starting with <a href="/finance/gst-calculator/">GST</a>.</p></div></section>
-  <section class="section shell"><h2>Available tools</h2><div class="card-grid">{tools.map((tool) => <a class="card" href={tool.path}><h3>{tool.name}</h3><p>{tool.description}</p></a>)}</div></section>
-  <section class="section shell"><h2>Browse categories</h2><div class="card-grid">{getLiveCategories().map((category) => {
-    const categoryTools = getToolsForCategory(category.slug);
-    return (
-      <article class="card category-card">
-        <h3><a href={`/${category.slug}/`}>{category.name}</a></h3>
-        <p>{category.description}</p>
-        {categoryTools.length ? (
-          <ul class="category-tools">
-            {categoryTools.map((tool) => <li><a href={tool.path}>{tool.name}</a></li>)}
-          </ul>
-        ) : (
-          <p class="category-empty">No tools in this category yet.</p>
-        )}
-      </article>
-    );
-  })}</div></section>
+<BaseLayout title="Deskutil — Simple tools that work" description="Free browser tools for PDF, JSON, SQL, GST, and everyday tasks. No accounts or uploads—your input stays on your device." jsonLd={jsonLd}>
+  <section class="hero">
+    <div class="shell">
+      <p class="eyebrow">Useful by default</p>
+      <h1>Simple tools that work.</h1>
+      <p>Fast utilities for files, code, and money math. No accounts, no clutter, and nothing you paste is uploaded.</p>
+      <label class="tool-search" for="tool-search">
+        <span class="visually-hidden">Search tools</span>
+        <input class="field-input" id="tool-search" type="search" placeholder="Search tools — PDF, JSON, GST, SQL…" autocomplete="off" />
+      </label>
+    </div>
+  </section>
+
+  <section class="section shell">
+    <h2>Start here</h2>
+    <p class="section-lead">The tools people open first.</p>
+    <div class="card-grid">
+      {featured.map((tool) => (
+        <a class="card featured-card" href={tool.path}>
+          <h3>{tool.name}</h3>
+          <p>{tool.description}</p>
+          <span class="card-cta">Open tool</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section shell" id="all-tools">
+    <h2>All tools</h2>
+    <p class="empty-filter" id="no-matches" hidden>No tools match that search.</p>
+    <div class="card-grid" id="tool-grid">
+      {tools.map((tool) => (
+        <a class="card tool-card" href={tool.path} data-name={tool.name} data-description={tool.description} data-category={tool.category}>
+          <h3>{tool.name}</h3>
+          <p>{tool.description}</p>
+          <span class="card-cta">Open tool</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section shell">
+    <h2>Browse categories</h2>
+    <div class="card-grid">
+      {getLiveCategories().map((category) => {
+        const categoryTools = getToolsForCategory(category.slug);
+        return (
+          <article class="card category-card">
+            <h3><a href={`/${category.slug}/`}>{category.name}</a></h3>
+            <p>{category.description}</p>
+            {categoryTools.length ? (
+              <ul class="category-tools">
+                {categoryTools.map((tool) => <li><a href={tool.path}>{tool.name}</a></li>)}
+              </ul>
+            ) : (
+              <p class="category-empty">No tools in this category yet.</p>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+const input = document.querySelector<HTMLInputElement>('#tool-search');
+const cards = [...document.querySelectorAll<HTMLAnchorElement>('#tool-grid .tool-card')];
+const empty = document.querySelector<HTMLParagraphElement>('#no-matches');
+if (input) {
+  const filter = () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    for (const card of cards) {
+      const hay = `${card.dataset.name} ${card.dataset.description} ${card.dataset.category}`.toLowerCase();
+      const match = !q || hay.includes(q);
+      card.hidden = !match;
+      if (match) shown += 1;
+    }
+    if (empty) empty.hidden = shown > 0;
+  };
+  input.addEventListener('input', filter);
+}
+</script>
