@@ -54,3 +54,7 @@
 .preview-card{display:flex;flex-direction:column;gap:8px;padding:8px;border:1px solid var(--line);border-radius:6px;background:#fff}
 .preview-card img{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:var(--soft)}
 .preview-card .tool-button{width:100%}
+.tool-disclaimer{margin:22px 0 0;padding:18px 22px;border:2px solid #b45309;border-radius:10px;background:#fff7ed;color:#7c2d12}
+.tool-disclaimer-kicker{margin:0 0 6px;color:#b45309;font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.tool-disclaimer p{margin:0;max-width:none;color:#7c2d12;font-size:1.22rem;line-height:1.35}
+.tool-disclaimer strong{display:inline;font-size:1.35rem;letter-spacing:-.02em;color:#9a3412}
