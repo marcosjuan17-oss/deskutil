@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Convert a Unix timestamp to a local and UTC date, or turn a date into seconds and milliseconds. Runs entirely in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converters',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Unix Timestamp',item:'https://deskutil.com/converters/unix-timestamp/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Unix Timestamp Converter',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/unix-timestamp/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Unix to date','Date to Unix','Seconds and milliseconds','Local and UTC']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What is a Unix timestamp?',acceptedAnswer:{'@type':'Answer',text:'A Unix timestamp is the number of seconds (or milliseconds) since 1 January 1970 00:00:00 UTC, also called the Unix epoch.'}},
+{'@type':'Question',name:'Does this use seconds or milliseconds?',acceptedAnswer:{'@type':'Answer',text:'Paste either. Values with 13 or more digits are treated as milliseconds. Shorter values are treated as seconds.'}},
+{'@type':'Question',name:'Is the timestamp sent to a server?',acceptedAnswer:{'@type':'Answer',text:'No. Conversion runs in your browser. Nothing you enter is uploaded.'}}
+]}
+];
+---
+<BaseLayout title="Unix Timestamp Converter — Seconds, Milliseconds, UTC" description={description} canonical="https://deskutil.com/converters/unix-timestamp/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Unix Timestamp</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Unix Timestamp</h1><p>Convert epoch time to a readable date, or a date back to seconds and milliseconds. Local timezone and UTC, with no upload.</p>
+<div class="tool-panel">
+  <div class="tool-topbar" role="toolbar" aria-label="Timestamp actions">
+    <button class="tool-button primary" id="now" type="button">Use now</button>
+    <button class="tool-button" id="convert" type="button">Convert</button>
+    <button class="tool-button" id="copy" type="button">Copy result</button>
+    <span class="privacy-note">Processed only in your browser</span>
+  </div>
+  <div class="tool-fields">
+    <div class="tool-field grow">
+      <label for="epoch">Unix timestamp</label>
+      <input class="field-input mono" id="epoch" inputmode="numeric" placeholder="e.g. 1756564800 or 1756564800000" />
+    </div>
+    <div class="tool-field grow">
+      <label for="datetime">Local date and time</label>
+      <input class="field-input" id="datetime" type="datetime-local" step="1" />
+    </div>
+  </div>
+  <div class="finance-grid tool-output prose-output" id="result">
+    <div class="finance-stat"><span>Seconds</span><strong id="out-sec">—</strong></div>
+    <div class="finance-stat"><span>Milliseconds</span><strong id="out-ms">—</strong></div>
+    <div class="finance-stat"><span>UTC</span><strong id="out-utc">—</strong></div>
+    <div class="finance-stat"><span>Local</span><strong id="out-local">—</strong></div>
+    <div class="finance-stat"><span>ISO 8601</span><strong id="out-iso">—</strong></div>
+    <div class="finance-stat"><span>Relative</span><strong id="out-rel">—</strong></div>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite">Enter a timestamp or pick a date.</p>
+</div>
+<div class="content-grid"><article class="prose">
+<h2>How to convert Unix time</h2>
+<p>Paste seconds or milliseconds, then choose <strong>Convert</strong>. Or pick a local date and convert the other way. <strong>Use now</strong> fills the current instant.</p>
+<h2>Frequently asked questions</h2>
+<h3>What is a Unix timestamp?</h3>
+<p>It counts time from the Unix epoch: 1 January 1970, 00:00:00 UTC. Most APIs use seconds; JavaScript <code>Date.now()</code> uses milliseconds.</p>
+<h3>Seconds or milliseconds?</h3>
+<p>13+ digit values are treated as milliseconds. Shorter values are seconds. The result shows both.</p>
+<h3>Is anything uploaded?</h3>
+<p>No. The conversion stays in your browser.</p>
+</article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/base64-encoder/">Base64 Encoder</a></li><li><a href="/developer/cron-generator/">Cron Generator</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const epoch = document.querySelector<HTMLInputElement>('#epoch')!;
+const datetime = document.querySelector<HTMLInputElement>('#datetime')!;
+const status = document.querySelector<HTMLParagraphElement>('#status')!;
+const outSec = document.querySelector('#out-sec')!;
+const outMs = document.querySelector('#out-ms')!;
+const outUtc = document.querySelector('#out-utc')!;
+const outLocal = document.querySelector('#out-local')!;
+const outIso = document.querySelector('#out-iso')!;
+const outRel = document.querySelector('#out-rel')!;
+const setStatus = (message: string, kind = '') => {
+  status.textContent = message;
+  status.className = `status ${kind}`.trim();
+};
+const toLocalInput = (date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+const relative = (date: Date) => {
+  const delta = date.getTime() - Date.now();
+  const abs = Math.abs(delta);
+  const minute = 60_000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const fmt = (value: number, unit: string) => `${value} ${unit}${value === 1 ? '' : 's'} ${delta < 0 ? 'ago' : 'from now'}`;
+  if (abs < minute) return 'just now';
+  if (abs < hour) return fmt(Math.round(abs / minute), 'minute');
+  if (abs < day) return fmt(Math.round(abs / hour), 'hour');
+  return fmt(Math.round(abs / day), 'day');
+};
+const render = (date: Date) => {
+  const ms = date.getTime();
+  if (!Number.isFinite(ms)) throw new Error('That is not a valid date.');
+  outSec.textContent = String(Math.trunc(ms / 1000));
+  outMs.textContent = String(ms);
+  outUtc.textContent = date.toUTCString();
+  outLocal.textContent = date.toString();
+  outIso.textContent = date.toISOString();
+  outRel.textContent = relative(date);
+  epoch.value = String(Math.trunc(ms / 1000));
+  datetime.value = toLocalInput(date);
+};
+const fromEpoch = (raw: string) => {
+  const cleaned = raw.trim().replace(/_/g, '');
+  if (!cleaned) throw new Error('Enter a timestamp first.');
+  if (!/^-?\d+$/.test(cleaned)) throw new Error('Use an integer timestamp.');
+  const value = Number(cleaned);
+  const ms = Math.abs(value) >= 1e12 ? value : value * 1000;
+  return new Date(ms);
+};
+const convert = () => {
+  try {
+    const date = epoch.value.trim() ? fromEpoch(epoch.value) : new Date(datetime.value);
+    if (Number.isNaN(date.getTime())) throw new Error('Enter a timestamp or pick a date.');
+    render(date);
+    setStatus('Converted in your browser.', 'success');
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : 'Could not convert.', 'error');
+  }
+};
+document.querySelector('#convert')?.addEventListener('click', convert);
+document.querySelector('#now')?.addEventListener('click', () => {
+  render(new Date());
+  setStatus('Filled with the current time.', 'success');
+});
+document.querySelector('#copy')?.addEventListener('click', async () => {
+  try {
+    const text = [outSec.textContent, outMs.textContent, outIso.textContent].filter(Boolean).join('\n');
+    if (!text || text.includes('—')) throw new Error('Convert something first.');
+    await navigator.clipboard.writeText(text);
+    setStatus('Copied seconds, milliseconds, and ISO time.', 'success');
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : 'Could not copy.', 'error');
+  }
+});
+epoch.addEventListener('keydown', (event) => { if (event.key === 'Enter') convert(); });
+render(new Date());
+setStatus('Showing the current time. Edit either field and convert.');
+</script>
+</BaseLayout>
