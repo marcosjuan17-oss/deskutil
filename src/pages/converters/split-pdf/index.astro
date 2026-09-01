@@ -1,0 +1,220 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Split a PDF in your browser: extract a page range, save every page as its own file, or split into chunks of N pages. Copies pages as-is. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Split PDF',item:'https://deskutil.com/converters/split-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Split PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/split-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Extract a page range into one PDF','Split every page into separate PDFs','Split into chunks of N pages','Copy pages with pdf-lib','Password-protected PDF error']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How do I extract only some pages?',acceptedAnswer:{'@type':'Answer',text:'Choose Extract page range and enter pages like 1-3,5,8-10. Those pages are copied into one PDF in that order. The original file is not uploaded.'}},
+{'@type':'Question',name:'Can I save every page as its own PDF?',acceptedAnswer:{'@type':'Answer',text:'Yes. Choose Split every page. Each page is copied into a separate PDF and downloaded sequentially. Your browser may ask to allow multiple downloads.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Split stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, new files are built locally, and Deskutil never receives the PDF.'}},
+{'@type':'Question',name:'Does Split PDF redesign or OCR my pages?',acceptedAnswer:{'@type':'Answer',text:'No. It copies pages as they are with pdf-lib. It does not OCR scanned pages, restyle layouts, or rebuild text.'}}
+]}
+];
+---
+<BaseLayout title="Split PDF Online — Extract Pages or Split a PDF in Your Browser" description={description} canonical="https://deskutil.com/converters/split-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Split PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Split PDF</h1><p>Split one PDF in your browser: extract a page range into one file, save every page as its own PDF, or split into chunks of N pages. Pages are copied as they are—not OCR or restyle. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Split PDF actions"><button class="tool-button primary" id="split" type="button">Split PDF</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This copies pages as-is with pdf-lib. It does not OCR scans or restyle layouts. Work stays in the browser. Large files may be slow.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose one PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field grow"><span>Mode</span>
+<div class="tool-checks" role="radiogroup" aria-label="Split mode">
+<label class="tool-check"><input type="radio" name="mode" id="mode-range" value="range" checked /> Extract page range</label>
+<label class="tool-check"><input type="radio" name="mode" id="mode-every" value="every" /> Split every page</label>
+<label class="tool-check"><input type="radio" name="mode" id="mode-chunks" value="chunks" /> Chunks of N pages</label>
+</div></div>
+<div class="tool-field grow" id="range-field"><label for="page-range">Page range</label><input class="field-input" id="page-range" type="text" placeholder="1-3,5,8-10" autocomplete="off" /></div>
+<div class="tool-field" id="chunk-field" hidden><label for="chunk-size">Pages per file</label><input class="field-input" id="chunk-size" type="number" min="1" step="1" value="2" /></div>
+</div>
+<div class="finance-grid">
+<div class="finance-stat"><span>File</span><strong id="out-file">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+<div class="finance-stat"><span>Size</span><strong id="out-size">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose one PDF. Files around 40 MB or many pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Split PDF</h2><p>Choose or drop one PDF. The page count appears after the file is read locally. Pick a mode: extract a range such as <strong>1-3,5,8-10</strong> into one PDF, split every page into separate PDFs downloaded one after another, or split into chunks of N pages. Then <strong>Split PDF</strong>. Password-protected files fail with an error. Files around 40 MB or many pages may slow this tab. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How do I extract only some pages?</h3><p>Choose Extract page range and enter pages like 1-3,5,8-10. Those pages are copied into one PDF in that order. The original file is not uploaded.</p>
+<h3>Can I save every page as its own PDF?</h3><p>Yes. Choose Split every page. Each page is copied into a separate PDF and downloaded sequentially. Your browser may ask to allow multiple downloads.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Split stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, new files are built locally, and Deskutil never receives the PDF.</p>
+<h3>Does Split PDF redesign or OCR my pages?</h3><p>No. It copies pages as they are with pdf-lib. It does not OCR scanned pages, restyle layouts, or rebuild text.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/converters/compress-pdf/">Compress PDF</a></li><li><a href="/converters/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=120*1024*1024;
+const WARN_PAGES=50;
+const MAX_PAGES=400;
+let PDFDocument:any=null;
+let selected:File|null=null;
+let pageCount=0;
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const rangeInput=document.querySelector<HTMLInputElement>("#page-range")!;
+const chunkInput=document.querySelector<HTMLInputElement>("#chunk-size")!;
+const rangeField=document.querySelector<HTMLElement>("#range-field")!;
+const chunkField=document.querySelector<HTMLElement>("#chunk-field")!;
+const splitBtn=document.querySelector<HTMLButtonElement>("#split")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFile=document.querySelector<HTMLElement>("#out-file")!;
+const outPages=document.querySelector<HTMLElement>("#out-pages")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(selected&&selected.size>WARN_BYTES)bits.push("this file is over about 40 MB");
+  if(pageCount>WARN_PAGES)bits.push(pageCount+" pages may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const currentMode=()=>{
+  const checked=document.querySelector<HTMLInputElement>('input[name="mode"]:checked');
+  return checked?checked.value:"range";
+};
+const syncModeFields=()=>{
+  const mode=currentMode();
+  rangeField.hidden=mode!=="range";
+  chunkField.hidden=mode!=="chunks";
+};
+document.querySelectorAll('input[name="mode"]').forEach((el)=>el.addEventListener("change",syncModeFields));
+syncModeFields();
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const mod:any=await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.esm.min.js");
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+const resetMeta=()=>{
+  selected=null;pageCount=0;
+  outFile.textContent="\u2014";outPages.textContent="\u2014";outSize.textContent="\u2014";
+  fileMeta.textContent="Choose one PDF or drop it here. Nothing is uploaded.";
+};
+const inspectFile=async(file:File)=>{
+  if(!isPdf(file))throw new Error("Choose a PDF file.");
+  if(file.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+  setStatus("Reading page count..."+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":""));
+  const Doc=await loadPdfLib();
+  const bytes=await file.arrayBuffer();
+  let source:any;
+  try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be split here.")}
+  const count=source.getPageCount();
+  if(!count)throw new Error("This PDF has no pages.");
+  if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Split a file with "+MAX_PAGES+" pages or fewer.");
+  selected=file;pageCount=count;
+  outFile.textContent=file.name;
+  outPages.textContent=String(count);
+  outSize.textContent=kb(file.size);
+  fileMeta.textContent=file.name+" \u2014 "+count+" page"+(count===1?"":"s")+" ("+kb(file.size)+"). Work stays in the browser.";
+  setStatus(count+" page"+(count===1?"":"s")+" ready. Pick a mode, then split."+warnNote());
+};
+fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",async(event)=>{
+  const file=event.dataTransfer&&event.dataTransfer.files&&event.dataTransfer.files[0];
+  if(!file)return;
+  const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+clearBtn.addEventListener("click",()=>{fileInput.value="";resetMeta();setStatus("Cleared. Choose one PDF, then split.")});
+const parseRange=(spec:string,count:number)=>{
+  const raw=spec.trim();
+  if(!raw)throw new Error("Enter a page range such as 1-3,5,8-10.");
+  const pages:number[]=[];
+  const seen=new Set<number>();
+  for(const part of raw.split(",")){
+    const token=part.trim();
+    if(!token)continue;
+    const dash=token.match(/^(\d+)\s*-\s*(\d+)$/);
+    const single=token.match(/^(\d+)$/);
+    let from=0,to=0;
+    if(dash){from=Number(dash[1]);to=Number(dash[2]);}
+    else if(single){from=to=Number(single[1]);}
+    else throw new Error("Could not parse \""+token+"\". Use pages like 1-3,5,8-10.");
+    if(from<1||to<1||from>count||to>count)throw new Error("Pages must be between 1 and "+count+".");
+    if(from>to){const tmp=from;from=to;to=tmp}
+    for(let p=from;p<=to;p++){if(!seen.has(p)){seen.add(p);pages.push(p)}}
+  }
+  if(!pages.length)throw new Error("Enter a page range such as 1-3,5,8-10.");
+  return pages;
+};
+const downloadBytes=(bytes:Uint8Array,name:string)=>{
+  const blob=new Blob([bytes],{type:"application/pdf"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;link.download=name;link.click();
+  URL.revokeObjectURL(url);
+};
+const wait=(ms:number)=>new Promise((resolve)=>setTimeout(resolve,ms));
+const buildPdf=async(Doc:any,source:any,indices:number[])=>{
+  const out=await Doc.create();
+  const copied=await out.copyPages(source,indices);
+  copied.forEach((page:any)=>out.addPage(page));
+  return out.save();
+};
+splitBtn.addEventListener("click",async()=>{
+  splitBtn.disabled=true;
+  try{
+    if(!selected||!pageCount)throw new Error("Choose a PDF first.");
+    if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+    setStatus("Loading PDF library..."+warnNote());
+    const Doc=await loadPdfLib();
+    const bytes=await selected.arrayBuffer();
+    let source:any;
+    try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be split here.")}
+    const count=source.getPageCount();
+    if(!count)throw new Error("This PDF has no pages.");
+    pageCount=count;outPages.textContent=String(count);
+    const mode=currentMode();
+    const stem=selected.name.replace(/\.pdf$/i,"")||"split";
+    if(mode==="range"){
+      const pages=parseRange(rangeInput.value,count);
+      setStatus("Copying "+pages.length+" page"+(pages.length===1?"":"s")+"..."+warnNote());
+      const out=await buildPdf(Doc,source,pages.map((p)=>p-1));
+      downloadBytes(out,stem+"-extracted.pdf");
+      setStatus("Downloaded "+stem+"-extracted.pdf with "+pages.length+" page"+(pages.length===1?"":"s")+". Pages were copied as-is; nothing was uploaded.","success");
+    }else if(mode==="every"){
+      for(let i=0;i<count;i++){
+        setStatus("Saving page "+(i+1)+" of "+count+"..."+warnNote());
+        const out=await buildPdf(Doc,source,[i]);
+        const num=String(i+1).padStart(String(count).length,"0");
+        downloadBytes(out,stem+"-page-"+num+".pdf");
+        await wait(250);
+      }
+      setStatus("Downloaded "+count+" PDF"+(count===1?"":"s")+", one per page. Your browser may have asked to allow multiple downloads.","success");
+    }else{
+      const n=Number(chunkInput.value);
+      if(!Number.isInteger(n)||n<1)throw new Error("Pages per file must be a whole number of 1 or more.");
+      if(n>count)throw new Error("Pages per file cannot be more than "+count+".");
+      const parts=Math.ceil(count/n);
+      for(let i=0;i<parts;i++){
+        const from=i*n;
+        const to=Math.min(count,from+n);
+        const indices:number[]=[];
+        for(let p=from;p<to;p++)indices.push(p);
+        setStatus("Saving chunk "+(i+1)+" of "+parts+" (pages "+(from+1)+"-"+to+")..."+warnNote());
+        const out=await buildPdf(Doc,source,indices);
+        downloadBytes(out,stem+"-pages-"+(from+1)+"-"+to+".pdf");
+        await wait(250);
+      }
+      setStatus("Downloaded "+parts+" PDF"+(parts===1?"":"s")+" in chunks of "+n+" page"+(n===1?"":"s")+". Pages were copied as-is.","success");
+    }
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not split that PDF.","error")}
+  finally{splitBtn.disabled=false}
+});
+</script></BaseLayout>
