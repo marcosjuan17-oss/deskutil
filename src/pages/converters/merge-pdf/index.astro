@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Combine multiple PDFs into one file in your browser. Reorder, then download merged.pdf. Concatenates pages as-is; no OCR or restyle. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Merge PDF',item:'https://deskutil.com/converters/merge-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Merge PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/merge-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Merge multiple PDFs in the browser','Reorder files before merge','Copy pages with pdf-lib','Password-protected PDF error','Download merged.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Does Merge PDF redesign or OCR my pages?',acceptedAnswer:{'@type':'Answer',text:'No. This tool concatenates PDFs in the order you choose. It copies pages as they are. It does not OCR scanned pages, restyle layouts, or rebuild text.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Merge stops with a clear error. Remove the password in another app, then try again. Files are never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, the merged file is built locally, and Deskutil never receives the files.'}},
+{'@type':'Question',name:'Can I change the order of PDFs?',acceptedAnswer:{'@type':'Answer',text:'Yes. Selected files appear in a list. Use up and down to reorder, or remove a file before merging.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named merged.pdf. Pages from each source file are appended in list order. Page size and content are copied, not redesigned.'}}
+]}
+];
+---
+<BaseLayout title="Merge PDF Online — Combine PDF Files in Your Browser" description={description} canonical="https://deskutil.com/converters/merge-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Merge PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Merge PDF</h1><p>Combine multiple PDFs into one file in your browser. Reorder the list, then download <strong>merged.pdf</strong>. This concatenates pages as they are—it does not OCR or restyle. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Merge PDF actions"><button class="tool-button primary" id="merge" type="button">Merge PDFs</button><button class="tool-button" id="clear" type="button">Clear list</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This concatenates PDFs in the order shown. Pages are copied as-is. It does not OCR scans or restyle layouts. Work stays in the browser.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-files">PDF files</label><input class="field-input" id="pdf-files" type="file" accept="application/pdf,.pdf" multiple /><p class="file-meta" id="file-meta">Choose PDFs or drop them here. Nothing is uploaded.</p></div></div>
+<div id="file-list" hidden></div>
+<p class="status" id="status" role="status" aria-live="polite">Add two or more PDFs, set the order, then merge. Large totals above about 40 MB or many files may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Merge PDF</h2><p>Choose or drop two or more PDFs. Use <strong>Up</strong> and <strong>Down</strong> to set order, or remove a file. Then <strong>Merge PDFs</strong> to download <strong>merged.pdf</strong>. Password-protected files fail with an error. Totals above about 40 MB or many files may slow this tab. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Does Merge PDF redesign or OCR my pages?</h3><p>No. This tool concatenates PDFs in the order you choose. It copies pages as they are. It does not OCR scanned pages, restyle layouts, or rebuild text.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Merge stops with a clear error. Remove the password in another app, then try again. Files are never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, the merged file is built locally, and Deskutil never receives the files.</p>
+<h3>Can I change the order of PDFs?</h3><p>Yes. Selected files appear in a list. Use up and down to reorder, or remove a file before merging.</p>
+<h3>What file do I download?</h3><p>A single PDF named merged.pdf. Pages from each source file are appended in list order. Page size and content are copied, not redesigned.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/pdf-to-word/">PDF to Word</a></li><li><a href="/converters/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+
+<script>
+const WARN_BYTES=40*1024*1024;
+const WARN_FILES=12;
+const MAX_BYTES=120*1024*1024;
+const MAX_FILES=40;
+let PDFDocument:any=null;
+type Item={id:number;file:File};
+let items:Item[]=[];
+let nextId=1;
+const CDN_HOST="cdn.jsdelivr.net";
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-files")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const fileList=document.querySelector<HTMLElement>("#file-list")!;
+const mergeBtn=document.querySelector<HTMLButtonElement>("#merge")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const totalBytes=()=>items.reduce((sum,item)=>sum+item.file.size,0);
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(totalBytes()>WARN_BYTES)bits.push("total size is over about 40 MB");
+  if(items.length>WARN_FILES)bits.push(items.length+" files may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const renderList=()=>{
+  fileList.innerHTML="";
+  if(!items.length){fileList.hidden=true;fileMeta.textContent="Choose PDFs or drop them here. Nothing is uploaded.";return}
+  fileList.hidden=false;
+  fileMeta.textContent=items.length+" PDF"+(items.length===1?"":"s")+" selected ("+kb(totalBytes())+"). Work stays in the browser.";
+  items.forEach((item,index)=>{
+    const row=document.createElement("div");
+    row.className="file-drop-inner";
+    row.style.padding="8px 16px";
+    const label=document.createElement("p");
+    label.className="file-meta";
+    label.style.margin="0";
+    label.style.flex="1";
+    label.textContent=(index+1)+". "+item.file.name+" ("+kb(item.file.size)+")";
+    const up=document.createElement("button");
+    up.className="tool-button";up.type="button";up.textContent="Up";up.disabled=index===0;
+    up.addEventListener("click",()=>{if(index===0)return;const swap=items[index-1]!;items[index-1]=items[index]!;items[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const down=document.createElement("button");
+    down.className="tool-button";down.type="button";down.textContent="Down";down.disabled=index===items.length-1;
+    down.addEventListener("click",()=>{if(index>=items.length-1)return;const swap=items[index+1]!;items[index+1]=items[index]!;items[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const remove=document.createElement("button");
+    remove.className="tool-button";remove.type="button";remove.textContent="Remove";
+    remove.addEventListener("click",()=>{items=items.filter((entry)=>entry.id!==item.id);renderList();setStatus(items.length?"File removed."+warnNote():"Add two or more PDFs, set the order, then merge.")});
+    row.append(label,up,down,remove);
+    fileList.append(row);
+  });
+};
+const addFiles=(list:FileList|File[])=>{
+  const incoming=Array.from(list);
+  if(!incoming.length)return;
+  const skipped:string[]=[];
+  for(const file of incoming){
+    if(!isPdf(file)){skipped.push(file.name+" is not a PDF");continue}
+    const dup=items.some((item)=>item.file.name===file.name&&item.file.size===file.size&&item.file.lastModified===file.lastModified);
+    if(dup)continue;
+    if(items.length>=MAX_FILES){skipped.push("Stop at "+MAX_FILES+" files.");break}
+    items.push({id:nextId++,file});
+  }
+  renderList();
+  fileInput.value="";
+  if(skipped.length)setStatus(skipped[0],"error");
+  else if(!items.length)setStatus("Choose PDF files only.");
+  else setStatus(items.length+" file"+(items.length===1?"":"s")+" ready."+warnNote()+(items.length<2?" Add another PDF to merge.":""));
+};
+fileInput.addEventListener("change",()=>{if(fileInput.files&&fileInput.files.length)addFiles(fileInput.files)});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",(event)=>{const files=event.dataTransfer&&event.dataTransfer.files;if(files&&files.length)addFiles(files)});
+clearBtn.addEventListener("click",()=>{items=[];renderList();setStatus("List cleared. Add two or more PDFs, then merge.")});
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+mergeBtn.addEventListener("click",async()=>{
+  mergeBtn.disabled=true;
+  try{
+    if(items.length<2)throw new Error("Add at least two PDFs to merge.");
+    if(totalBytes()>MAX_BYTES)throw new Error("These files total more than 120 MB. Merge a smaller set.");
+    setStatus("Loading PDF library..."+warnNote());
+    const Doc=await loadPdfLib();
+    const merged=await Doc.create();
+    for(let i=0;i<items.length;i++){
+      const item=items[i];
+      setStatus("Copying pages from "+item.file.name+" ("+(i+1)+" of "+items.length+")..."+warnNote());
+      const bytes=await item.file.arrayBuffer();
+      let source:any;
+      try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error(item.file.name+" is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open "+item.file.name+". Damaged files cannot be merged here.")}
+      if(!source.getPageCount())throw new Error(item.file.name+" has no pages.");
+      const copied=await merged.copyPages(source,source.getPageIndices());
+      copied.forEach((page:any)=>merged.addPage(page));
+    }
+    setStatus("Building merged.pdf...");
+    const out=await merged.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="merged.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded merged.pdf with pages from "+items.length+" files. This concatenates PDFs; it does not OCR or restyle pages.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not merge these PDFs.","error")}
+  finally{mergeBtn.disabled=false}
+});
+</script></BaseLayout>
