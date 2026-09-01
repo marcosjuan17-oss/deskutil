@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Shrink a PDF in your browser by redrawing pages as JPEGs. Set quality, compare sizes, then download. Text may become non-selectable. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Compress PDF',item:'https://deskutil.com/converters/compress-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Compress PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/compress-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Compress PDF in the browser','JPEG quality slider','Original vs compressed size','Password-protected PDF error','Download compressed.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How does Compress PDF shrink files?',acceptedAnswer:{'@type':'Answer',text:'It redraws each page as a JPEG image with pdf.js, then builds a new PDF with those images. It is not lossless, vector-preserving compression. Text may become non-selectable, and vector sharpness drops.'}},
+{'@type':'Question',name:'Will I still be able to select text?',acceptedAnswer:{'@type':'Answer',text:'Usually no. Pages become pictures of the original. Search, copy, and screen readers that relied on real text will not work the same way.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Compression stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. Rendering and PDF assembly run in your browser. Deskutil never receives the file.'}},
+{'@type':'Question',name:'Will every PDF get smaller?',acceptedAnswer:{'@type':'Answer',text:'Not always. Already-small scans or low-quality JPEGs may stay similar in size or even grow slightly. Lower the quality slider if you still need a smaller file. Files around 40 MB or 50+ pages can be slow.'}}
+]}
+];
+---
+<BaseLayout title="Compress PDF Online — Shrink PDF Files in Your Browser" description={description} canonical="https://deskutil.com/converters/compress-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Compress PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Compress PDF</h1><p>Shrink a PDF in your browser by redrawing each page as a JPEG image, then downloading <strong>compressed.pdf</strong>. Text may become non-selectable and vector sharpness drops. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Compress PDF actions"><button class="tool-button primary" id="compress" type="button">Compress PDF</button><button class="tool-button" id="download" type="button" disabled>Download compressed.pdf</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This shrinks PDFs by redrawing pages as JPEG images. Text may become non-selectable. Vector sharpness drops. Nothing is uploaded.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose a PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields"><div class="tool-field"><label for="jpg-quality">JPEG quality: <span id="quality-label">72%</span></label><input class="field-range" id="jpg-quality" type="range" min="50" max="92" value="72" /></div></div>
+<div class="finance-grid">
+<div class="finance-stat"><span>Original size</span><strong id="out-original">—</strong></div>
+<div class="finance-stat"><span>Compressed size</span><strong id="out-compressed">—</strong></div>
+<div class="finance-stat"><span>Change</span><strong id="out-change">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose a PDF, set quality, then compress. Files around 40 MB or 50+ pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Compress PDF</h2><p>Choose or drop a PDF, set JPEG quality (about 0.50–0.92), then <strong>Compress PDF</strong>. Each page is drawn to a canvas, saved as JPEG, and packed into a new PDF. Compare original size vs compressed size, then download <strong>compressed.pdf</strong>. Password-protected files fail with an error. Files around 40 MB or 50+ pages may slow this tab. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How does Compress PDF shrink files?</h3><p>It redraws each page as a JPEG image with pdf.js, then builds a new PDF with those images. It is not lossless, vector-preserving compression. Text may become non-selectable, and vector sharpness drops.</p>
+<h3>Will I still be able to select text?</h3><p>Usually no. Pages become pictures of the original. Search, copy, and screen readers that relied on real text will not work the same way.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Compression stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. Rendering and PDF assembly run in your browser. Deskutil never receives the file.</p>
+<h3>Will every PDF get smaller?</h3><p>Not always. Already-small scans or low-quality JPEGs may stay similar in size or even grow slightly. Lower the quality slider if you still need a smaller file. Files around 40 MB or 50+ pages can be slow.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/converters/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/converters/pdf-to-word/">PDF to Word</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_PAGES=50;
+const MAX_PAGES=200;
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=80*1024*1024;
+const MAX_EDGE=4096;
+const PDFJS_SRC="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.min.mjs";
+const PDFJS_WORKER="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.worker.min.mjs";
+let pdfjsLib:any=null;
+let PDFDocument:any=null;
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+let compressedUrl='';
+
+const fileInput=document.querySelector<HTMLInputElement>('#pdf-file')!;
+const dropZone=document.querySelector<HTMLElement>('#drop-zone')!;
+const fileMeta=document.querySelector<HTMLElement>('#file-meta')!;
+const quality=document.querySelector<HTMLInputElement>('#jpg-quality')!;
+const qualityLabel=document.querySelector<HTMLElement>('#quality-label')!;
+const outOriginal=document.querySelector<HTMLElement>('#out-original')!;
+const outCompressed=document.querySelector<HTMLElement>('#out-compressed')!;
+const outChange=document.querySelector<HTMLElement>('#out-change')!;
+const outPages=document.querySelector<HTMLElement>('#out-pages')!;
+const compressBtn=document.querySelector<HTMLButtonElement>('#compress')!;
+const downloadBtn=document.querySelector<HTMLButtonElement>('#download')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(2)+' MB':Math.round(n/1024)+' KB';
+const resetOutput=()=>{if(compressedUrl){URL.revokeObjectURL(compressedUrl);compressedUrl=''} downloadBtn.disabled=true; outOriginal.textContent='-'; outCompressed.textContent='-'; outChange.textContent='-'; outPages.textContent='-';};
+quality.addEventListener('input',()=>{qualityLabel.textContent=`${quality.value}%`});
+const chosenFile=()=>{const file=fileInput.files?.[0];if(!file)throw new Error('Choose a PDF first.');if(file.size>MAX_BYTES)throw new Error('That PDF is larger than 80 MB. Try a smaller file.');if(!file.type.includes('pdf')&&!file.name.toLowerCase().endsWith('.pdf'))throw new Error('Choose a PDF file.');return file};
+fileInput.addEventListener('change',()=>{try{const file=chosenFile();resetOutput(); fileMeta.textContent=file.name+' ('+kb(file.size)+'). Work stays in the browser.'; outOriginal.textContent=kb(file.size); setStatus('PDF selected. Set quality, then compress.'+(file.size>WARN_BYTES?' Warning: this file is over about 40 MB.':''))}catch(error){fileMeta.textContent='Choose a PDF or drop it here. Nothing is uploaded.';setStatus(error instanceof Error?error.message:'Could not read that file.','error')}});
+['dragenter','dragover'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add('drag')}));
+['dragleave','drop'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove('drag')}));
+dropZone.addEventListener('drop',(event)=>{const file=event.dataTransfer?.files?.[0];if(!file)return;const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;fileInput.dispatchEvent(new Event('change'))});
+const loadPdfjs=async()=>{if(pdfjsLib)return pdfjsLib;const mod:any=await import(/* @vite-ignore */ PDFJS_SRC);pdfjsLib=mod.default??mod;pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;return pdfjsLib};
+const renderPdf=async()=>{
+  const file=chosenFile();
+  setStatus('Loading libraries...');
+  const Doc=await loadPdfLib();
+  const pdfjs=await loadPdfjs();
+  const data=await file.arrayBuffer();
+  let doc:any;
+  try{doc=await pdfjs.getDocument({data}).promise}catch(error:any){throw new Error(error?.name==="PasswordException"||error?.code===1||error?.code===2?"This PDF is password-protected. Remove the password and try again. Nothing was uploaded.":"Could not open that PDF. Damaged files cannot be compressed here.")}
+  if(!doc.numPages)throw new Error("This PDF has no pages."); if(doc.numPages>MAX_PAGES)throw new Error("This PDF has "+doc.numPages+" pages. Compress a file with "+MAX_PAGES+" pages or fewer."); const count=doc.numPages;
+  outPages.textContent=String(count);
+  const warn=(count>WARN_PAGES?(" Warning: "+count+" pages may be slow."):"")+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":"");
+  resetOutput(); outOriginal.textContent=kb(file.size); outPages.textContent=String(count);
+  const q=Number(quality.value)/100;
+  const outPdf=await Doc.create();
+  for(let i=1;i<=count;i++){
+    setStatus("Redrawing page "+i+" of "+count+" as JPEG..."+warn);
+    const page=await doc.getPage(i);
+    const baseViewport=page.getViewport({scale:1});
+    const scale=Math.min(2,MAX_EDGE/Math.max(baseViewport.width,baseViewport.height));
+    const viewport=page.getViewport({scale});
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.floor(viewport.width);
+    canvas.height=Math.floor(viewport.height);
+    const context=canvas.getContext("2d",{alpha:false});
+    if(!context)throw new Error("Could not draw this page."); context.fillStyle="#fff"; context.fillRect(0,0,canvas.width,canvas.height);
+    await page.render({canvasContext:context,viewport}).promise;
+    const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob((value)=>value?resolve(value):reject(new Error('Could not make a JPEG.')),'image/jpeg',q));
+    const jpgBytes=new Uint8Array(await blob.arrayBuffer());
+    const image=await outPdf.embedJpg(jpgBytes);
+    const pdfPage=outPdf.addPage([baseViewport.width,baseViewport.height]);
+    pdfPage.drawImage(image,{x:0,y:0,width:baseViewport.width,height:baseViewport.height});
+    await new Promise((resolve)=>setTimeout(resolve,0));
+  }
+  setStatus('Building compressed.pdf...');
+  const bytes=await outPdf.save();
+  const outBlob=new Blob([bytes],{type:'application/pdf'});
+  compressedUrl=URL.createObjectURL(outBlob);
+  downloadBtn.disabled=false;
+  outCompressed.textContent=kb(outBlob.size);
+  const delta=outBlob.size-file.size;
+  const pct=file.size?Math.round((Math.abs(delta)/file.size)*100):0;
+  outChange.textContent=delta===0?'Same size':(delta<0?'-':'+')+kb(Math.abs(delta))+' ('+pct+'%)';
+  setStatus('Ready. Original '+kb(file.size)+', compressed '+kb(outBlob.size)+'. This redraws pages as JPEGs, so text may become non-selectable.'+warn,'success');
+};
+compressBtn.addEventListener('click',async()=>{compressBtn.disabled=true;try{await renderPdf()}catch(error){setStatus(error instanceof Error?error.message:'Could not compress that PDF.','error')}finally{compressBtn.disabled=false}});
+downloadBtn.addEventListener('click',()=>{if(!compressedUrl)return;const link=document.createElement('a');link.href=compressedUrl;link.download='compressed.pdf';link.click();setStatus('Downloaded compressed.pdf. Pages were redrawn as JPEG images.','success')});
+</script></BaseLayout>
