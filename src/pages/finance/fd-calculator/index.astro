@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free FD calculator for fixed deposits. Enter principal, rate, tenure, and compounding frequency to see maturity and interest. Work stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'FD Calculator',item:'https://deskutil.com/finance/fd-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'FD Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/fd-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Maturity value','Interest earned','Principal amount','Tenure in years and months','Monthly, quarterly, half-yearly, or yearly compounding','Copy FD breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How is FD maturity value calculated?',acceptedAnswer:{'@type':'Answer',text:'Maturity uses compound interest: A = P × (1 + r/n)^(n×t). P is the principal, r is the annual rate as a decimal, n is compounds per year, and t is tenure in years (years + months ÷ 12). Interest earned is A − P. When the rate is zero, maturity equals the principal.'}},
+{'@type':'Question',name:'What compounding frequencies can I use?',acceptedAnswer:{'@type':'Answer',text:'Choose monthly (n = 12), quarterly (n = 4), half-yearly (n = 2), or yearly (n = 1). Indian bank FDs often compound quarterly; pick the frequency your bank states.'}},
+{'@type':'Question',name:'How should I enter FD tenure?',acceptedAnswer:{'@type':'Answer',text:'Enter whole years and optional extra months. Tenure in years is years + months ÷ 12, so 2 years and 6 months is 2.5 years. At least one of years or months must be greater than zero.'}},
+{'@type':'Question',name:'Is this official bank advice?',acceptedAnswer:{'@type':'Answer',text:'No. Results are planning estimates. Banks may round differently, use a different day-count, or apply TDS. This is not a deposit offer or financial advice.'}},
+{'@type':'Question',name:'Does the FD calculator upload my deposit details?',acceptedAnswer:{'@type':'Answer',text:'No. All FD math runs in your browser. Deskutil never receives the principal, rate, tenure, or compounding you enter.'}}
+]}
+];
+---
+<BaseLayout title="FD Calculator — Maturity Value & Interest Instantly" description={description} canonical="https://deskutil.com/finance/fd-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">FD Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>FD Calculator</h1><p>Estimate the maturity value of a bank fixed deposit. Enter the principal, annual interest rate, tenure in years and months, and compounding frequency to see maturity value, interest earned, and principal—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="FD actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="principal">Principal (₹)</label><input class="field-input" id="principal" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 100000" /></div>
+<div class="tool-field"><label for="interest-rate">Interest rate (% p.a.)</label><input class="field-input" id="interest-rate" type="number" min="0" max="100" step="0.01" value="7" inputmode="decimal" /></div>
+<div class="tool-field"><label for="tenure-years">Tenure (years)</label><input class="field-input" id="tenure-years" type="number" min="0" step="1" value="5" inputmode="numeric" /></div>
+<div class="tool-field"><label for="tenure-months">Tenure (months)</label><input class="field-input" id="tenure-months" type="number" min="0" max="11" step="1" value="0" inputmode="numeric" /></div>
+<div class="tool-field grow"><span>Compounding</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="compounding" value="12" /> Monthly</label><label class="tool-check"><input type="radio" name="compounding" value="4" checked /> Quarterly</label><label class="tool-check"><input type="radio" name="compounding" value="2" /> Half-yearly</label><label class="tool-check"><input type="radio" name="compounding" value="1" /> Yearly</label></div></div>
+</div>
+<div class="tool-output prose-output" id="fd-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Maturity value</span><strong id="out-maturity">—</strong></div>
+<div class="finance-stat"><span>Interest earned</span><strong id="out-interest">—</strong></div>
+<div class="finance-stat"><span>Principal</span><strong id="out-principal">—</strong></div>
+<div class="finance-stat"><span>Tenure</span><strong id="out-tenure">—</strong></div>
+<div class="finance-stat"><span>Rate (p.a.)</span><strong id="out-rate">—</strong></div>
+<div class="finance-stat"><span>Compounding</span><strong id="out-compounding">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter principal, rate, tenure, and compounding, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the FD calculator</h2><p>Enter the deposit amount (principal), the annual interest rate, tenure in years plus optional months, and how often interest is compounded. Choose <strong>Calculate</strong> to see maturity value, interest earned, and principal. Use <strong>Copy results</strong> when you want the breakdown elsewhere. Nothing is uploaded. Figures assume a constant rate and ignore TDS and bank rounding.</p>
+<h2>Frequently asked questions</h2>
+<h3>How is FD maturity value calculated?</h3><p>This tool uses compound interest: A = P × (1 + r/n)^(n×t). P is the principal, r is the annual rate as a decimal (percent ÷ 100), n is compounds per year, and t is tenure in years (years + months ÷ 12). Interest earned is A − P. When the rate is zero, maturity equals the principal.</p>
+<h3>What compounding frequencies can I use?</h3><p>Monthly (12 times a year), quarterly (4), half-yearly (2), or yearly (1). Indian bank FDs often compound quarterly; match the frequency your bank quotes.</p>
+<h3>How should I enter FD tenure?</h3><p>Type whole years and optional extra months (0–11). Tenure in years is years + months ÷ 12, so 2 years and 6 months is 2.5 years. At least one of years or months must be greater than zero.</p>
+<h3>Is this official bank advice?</h3><p>No. Results are planning estimates only. Banks may round differently, use a different day-count, or deduct TDS. This page is not a deposit offer and not financial advice.</p>
+<h3>Does the FD calculator upload my deposit details?</h3><p>No. FD math runs in your browser. Deskutil never receives the principal, rate, tenure, or compounding you enter.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/finance/sip-calculator/">SIP Calculator</a></li><li><a href="/finance/emi-calculator/">EMI Calculator</a></li><li><a href="/finance/gst-calculator/">GST Calculator</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li></ul></aside></div></section>
+<script>
+const principalInput=document.querySelector<HTMLInputElement>('#principal')!;
+const rateInput=document.querySelector<HTMLInputElement>('#interest-rate')!;
+const yearsInput=document.querySelector<HTMLInputElement>('#tenure-years')!;
+const monthsInput=document.querySelector<HTMLInputElement>('#tenure-months')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={maturity:document.querySelector<HTMLElement>('#out-maturity')!,interest:document.querySelector<HTMLElement>('#out-interest')!,principal:document.querySelector<HTMLElement>('#out-principal')!,tenure:document.querySelector<HTMLElement>('#out-tenure')!,rate:document.querySelector<HTMLElement>('#out-rate')!,compounding:document.querySelector<HTMLElement>('#out-compounding')!};
+let lastCopy='';
+const compoundingLabels:{[key:string]:string}={ '12':'Monthly','4':'Quarterly','2':'Half-yearly','1':'Yearly' };
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parsePrincipal=()=>{
+  const raw=principalInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter a deposit amount (principal).');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a principal greater than 0.');
+  return amount;
+};
+const parseRate=()=>{
+  const raw=rateInput.value.trim();
+  if(!raw)throw new Error('Enter an interest rate.');
+  const rate=Number(raw);
+  if(!Number.isFinite(rate)||rate<0||rate>100)throw new Error('Enter an interest rate between 0 and 100.');
+  return rate;
+};
+const parseTenure=()=>{
+  const yearsRaw=yearsInput.value.trim();
+  const monthsRaw=monthsInput.value.trim();
+  if(!yearsRaw && !monthsRaw)throw new Error('Enter tenure in years and/or months.');
+  const years=yearsRaw===''?0:Number(yearsRaw);
+  const months=monthsRaw===''?0:Number(monthsRaw);
+  if(!Number.isFinite(years)||years<0||!Number.isInteger(years))throw new Error('Enter whole years of 0 or more.');
+  if(!Number.isFinite(months)||months<0||!Number.isInteger(months))throw new Error('Enter whole months of 0 or more.');
+  if(months>11)throw new Error('Months must be between 0 and 11. Put extra months into years.');
+  if(years===0&&months===0)throw new Error('Tenure must be at least 1 month.');
+  const t=years+months/12;
+  if(t>100)throw new Error('Tenure must be 100 years or less.');
+  return {years,months,t};
+};
+const calculate=()=>{
+  const principal=parsePrincipal();
+  const annualRate=parseRate();
+  const {years,months,t}=parseTenure();
+  const nRaw=selected('compounding');
+  if(!nRaw)throw new Error('Choose a compounding frequency.');
+  const n=Number(nRaw);
+  const r=annualRate/100;
+  let maturity:number;
+  if(annualRate===0){maturity=principal}
+  else{
+    maturity=principal*Math.pow(1+r/n,n*t);
+  }
+  maturity=round2(maturity);
+  const interest=round2(maturity-principal);
+  const compoundingLabel=compoundingLabels[nRaw]??nRaw;
+  const tenureParts=[];
+  if(years)tenureParts.push(`${years} year${years===1?'':'s'}`);
+  if(months)tenureParts.push(`${months} month${months===1?'':'s'}`);
+  const tenureLabel=tenureParts.join(' ');
+  out.maturity.textContent=rupee(maturity);
+  out.interest.textContent=rupee(interest);
+  out.principal.textContent=rupee(principal);
+  out.tenure.textContent=tenureLabel;
+  out.rate.textContent=`${annualRate}%`;
+  out.compounding.textContent=compoundingLabel;
+  lastCopy=['FD breakdown',`Principal: ${rupee(principal)}`,`Interest rate: ${annualRate}% p.a.`,`Tenure: ${tenureLabel}`,`Compounding: ${compoundingLabel}`,`Interest earned: ${rupee(interest)}`,`Maturity value: ${rupee(maturity)}`].join('\n');
+  return `Maturity value is ${rupee(maturity)}.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate FD first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied FD results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [principalInput,rateInput,yearsInput,monthsInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="compounding"]').forEach((input)=>input.addEventListener('change',()=>{try{if(principalInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}}));
+</script></BaseLayout>
+const principalInput=document.querySelector<HTMLInputElement>('#principal')!;
+const rateInput=document.querySelector<HTMLInputElement>('#rate')!;
+const yearsInput=document.querySelector<HTMLInputElement>('#years')!;
+const monthsInput=document.querySelector<HTMLInputElement>('#months')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={maturity:document.querySelector<HTMLElement>('#out-maturity')!,interest:document.querySelector<HTMLElement>('#out-interest')!,principal:document.querySelector<HTMLElement>('#out-principal')!,tenure:document.querySelector<HTMLElement>('#out-tenure')!,rate:document.querySelector<HTMLElement>('#out-rate')!,compound:document.querySelector<HTMLElement>('#out-compound')!};
+let lastCopy='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const compoundLabel:(Record<string,string>)={'12':'Monthly','4':'Quarterly','2':'Half-yearly','1':'Yearly'};
+const parsePrincipal=()=>{const raw=principalInput.value.trim().replace(/,/g,'');if(!raw)throw new Error('Enter a principal amount.');const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0)throw new Error('Enter a principal greater than 0.');return amount};
+const parseRate=()=>{const raw=rateInput.value.trim();if(!raw)throw new Error('Enter an interest rate.');const rate=Number(raw);if(!Number.isFinite(rate)||rate<0||rate>50)throw new Error('Enter an interest rate between 0 and 50.');return rate};
+const parseTenure=()=>{
+  const years=Number(yearsInput.value.trim()||'0');
+  const months=Number(monthsInput.value.trim()||'0');
+  if(!Number.isFinite(years)||years<0||!Number.isInteger(years))throw new Error('Enter whole years of 0 or more.');
+  if(!Number.isFinite(months)||months<0||months>11||!Number.isInteger(months))throw new Error('Extra months must be a whole number from 0 to 11.');
+  const totalMonths=years*12+months;
+  if(totalMonths<1)throw new Error('Tenure must be at least 1 month.');
+  if(totalMonths>1200)throw new Error('Tenure must be 100 years or less.');
+  return {years,months,totalMonths,t:totalMonths/12};
+};
+const nValue=()=>{const raw=document.querySelector<HTMLInputElement>('input[name="compound"]:checked')?.value??'4';const n=Number(raw);if(!n)throw new Error('Pick a compounding frequency.');return n};
+const calculate=()=>{
+  const P=parsePrincipal();
+  const annualRate=parseRate();
+  const {years,months,totalMonths,t}=parseTenure();
+  const n=nValue();
+  const r=annualRate/100;
+  const maturity=round2(annualRate===0?P:P*Math.pow(1+r/n,n*t));
+  const interest=round2(maturity-P);
+  const tenureText=years&&months?`${years} years ${months} months`:(years?`${years} year${years===1?'':'s'}`:`${months} month${months===1?'':'s'}`);
+  const compound=compoundLabel[String(n)]??'Quarterly';
+  out.maturity.textContent=rupee(maturity);
+  out.interest.textContent=rupee(interest);
+  out.principal.textContent=rupee(P);
+  out.tenure.textContent=tenureText+' ('+totalMonths+' months)';
+  out.rate.textContent=annualRate+'%';
+  out.compound.textContent=compound;
+  lastCopy=['FD breakdown',`Principal: ${rupee(P)}`,`Interest rate: ${annualRate}% p.a.`,`Tenure: ${tenureText}`,`Compounding: ${compound}`,`Interest earned: ${rupee(interest)}`,`Maturity value: ${rupee(maturity)}`].join('\n');
+  return `Maturity value is ${rupee(maturity)}.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate FD first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied FD results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [principalInput,rateInput,yearsInput,monthsInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="compound"]').forEach((input)=>input.addEventListener('change',()=>{try{if(principalInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate FD.','error')}}));
+</script></BaseLayout>

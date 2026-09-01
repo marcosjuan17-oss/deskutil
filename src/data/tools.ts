@@ -23,6 +23,7 @@ export const tools = [
   { slug:'gst-calculator', category:'finance' as CategorySlug, name:'GST Calculator', description:'Add or extract India GST with 5%, 12%, 18%, or 28% rates, CGST/SGST or IGST, entirely in your browser.', path:'/finance/gst-calculator/' },
   { slug:'emi-calculator', category:'finance' as CategorySlug, name:'EMI Calculator', description:'Estimate monthly EMI, total interest, and total payment for home, car, or personal loans in your browser.', path:'/finance/emi-calculator/' },
   { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
+  { slug:'fd-calculator', category:'finance' as CategorySlug, name:'FD Calculator', description:'Estimate fixed deposit maturity value, interest earned, and principal with compounding in your browser.', path:'/finance/fd-calculator/' },
   { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
 export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'sip-calculator', 'sql-formatter'] as const;
