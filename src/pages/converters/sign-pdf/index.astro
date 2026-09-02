@@ -1,0 +1,280 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Stamp a drawn or uploaded signature image onto a PDF page in your browser, then download signed.pdf. This is not a legally binding digital or certificate signature. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Sign PDF',item:'https://deskutil.com/converters/sign-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Sign PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/sign-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Draw a signature on a canvas','Upload a PNG or JPG signature image','Stamp near the bottom of a chosen page','Optional X and Y offsets','Download signed.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Is this a legally binding digital signature?',acceptedAnswer:{'@type':'Answer',text:'No. This stamps a drawn or uploaded image onto a PDF page. It is not a legally binding digital or certificate signature, and it does not use PKI, certificates, or cryptographic signing.'}},
+{'@type':'Question',name:'How does Sign PDF stamp a signature?',acceptedAnswer:{'@type':'Answer',text:'You draw on a canvas or upload a PNG or JPG. pdf-lib embeds that image with embedPng or embedJpg and draws it near the bottom of the page you choose. Optional offsets move it from that default corner.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Signing stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, signed.pdf is built locally, and Deskutil never receives the file or the signature image.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named signed.pdf. The chosen page has the image stamped near the bottom. Other pages are unchanged. This is still just an image stamp, not a certificate signature.'}}
+]}
+];
+---
+<BaseLayout title="Sign PDF Online — Stamp a Signature Image in Your Browser" description={description} canonical="https://deskutil.com/converters/sign-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Sign PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Sign PDF</h1><p>Stamp a drawn or uploaded signature image onto one PDF page in your browser, then download <strong>signed.pdf</strong>. This is <strong>not</strong> a legally binding digital or certificate signature. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Sign PDF actions"><button class="tool-button primary" id="sign" type="button">Sign PDF</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This stamps a PNG or JPG image onto a page with pdf-lib. It is not a certificate-based digital signature. Work stays in the browser. Large files may be slow.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose one PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field"><label for="page-number">Page number</label><input class="field-input" id="page-number" type="number" min="1" step="1" value="1" /></div>
+<div class="tool-field"><label for="offset-x">Offset X (pt, optional)</label><input class="field-input" id="offset-x" type="number" step="1" placeholder="72" /></div>
+<div class="tool-field"><label for="offset-y">Offset from bottom (pt, optional)</label><input class="field-input" id="offset-y" type="number" step="1" placeholder="36" /></div>
+</div>
+<div class="file-drop"><div class="file-drop-inner" style="flex-direction:column;align-items:flex-start">
+<p class="file-meta" style="font-weight:700;color:inherit">Draw a signature</p>
+<canvas id="sig-canvas" width="520" height="180" style="display:block;width:min(100%,520px);height:180px;border:1px solid #aab4c0;border-radius:6px;background:#fff;touch-action:none;cursor:crosshair"></canvas>
+<div class="tool-checks"><button class="tool-button" id="clear-canvas" type="button">Clear drawing</button></div>
+<p class="file-meta">Draw with mouse or touch. Or upload a PNG or JPG of a signature instead.</p>
+<label class="tool-check" for="sig-file">Signature image (PNG or JPG)</label>
+<input class="field-input" id="sig-file" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" />
+<p class="file-meta" id="sig-meta">No image uploaded. The canvas drawing will be used if you sign without a file.</p>
+</div></div>
+<div class="finance-grid">
+<div class="finance-stat"><span>File</span><strong id="out-file">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+<div class="finance-stat"><span>Size</span><strong id="out-size">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose one PDF, draw or upload a signature, pick a page, then sign. Files around 40 MB or many pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Sign PDF</h2><p>Choose or drop one PDF. Draw a signature on the canvas with mouse or touch, or upload a PNG or JPG. Enter the page number. Optional X and bottom offsets move the stamp from the default near-bottom position. Then <strong>Sign PDF</strong> to download <strong>signed.pdf</strong>. This only stamps an image. It is not a legally binding digital or certificate signature. Password-protected files fail with an error. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is this a legally binding digital signature?</h3><p>No. This stamps a drawn or uploaded image onto a PDF page. It is not a legally binding digital or certificate signature, and it does not use PKI, certificates, or cryptographic signing.</p>
+<h3>How does Sign PDF stamp a signature?</h3><p>You draw on a canvas or upload a PNG or JPG. pdf-lib embeds that image with embedPng or embedJpg and draws it near the bottom of the page you choose. Optional offsets move it from that default corner.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Signing stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, signed.pdf is built locally, and Deskutil never receives the file or the signature image.</p>
+<h3>What file do I download?</h3><p>A single PDF named signed.pdf. The chosen page has the image stamped near the bottom. Other pages are unchanged. This is still just an image stamp, not a certificate signature.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/rotate-pdf/">Rotate PDF</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=120*1024*1024;
+const WARN_PAGES=50;
+const MAX_PAGES=400;
+const DEFAULT_X=72;
+const DEFAULT_Y=36;
+const MAX_STAMP_W=180;
+const MAX_STAMP_H=72;
+let PDFDocument:any=null;
+let selected:File|null=null;
+let pageCount=0;
+let sigFile:File|null=null;
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const pageInput=document.querySelector<HTMLInputElement>("#page-number")!;
+const offsetXInput=document.querySelector<HTMLInputElement>("#offset-x")!;
+const offsetYInput=document.querySelector<HTMLInputElement>("#offset-y")!;
+const signBtn=document.querySelector<HTMLButtonElement>("#sign")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const clearCanvasBtn=document.querySelector<HTMLButtonElement>("#clear-canvas")!;
+const sigInput=document.querySelector<HTMLInputElement>("#sig-file")!;
+const sigMeta=document.querySelector<HTMLElement>("#sig-meta")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFile=document.querySelector<HTMLElement>("#out-file")!;
+const outPages=document.querySelector<HTMLElement>("#out-pages")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const canvas=document.querySelector<HTMLCanvasElement>("#sig-canvas")!;
+const ctx=canvas.getContext("2d")!;
+ctx.lineWidth=2.4;
+ctx.lineCap="round";
+ctx.lineJoin="round";
+ctx.strokeStyle="#111";
+let drawing=false;
+let hasStroke=false;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const extOf=(name:string)=>{const i=name.lastIndexOf(".");return i>=0?name.slice(i+1).toLowerCase():""};
+const sigKind=(file:File):"jpeg"|"png"|null=>{
+  const t=file.type.toLowerCase();
+  const e=extOf(file.name);
+  if(t==="image/jpeg"||t==="image/jpg"||e==="jpg"||e==="jpeg")return "jpeg";
+  if(t==="image/png"||e==="png")return "png";
+  return null;
+};
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(selected&&selected.size>WARN_BYTES)bits.push("this file is over about 40 MB");
+  if(pageCount>WARN_PAGES)bits.push(pageCount+" pages may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const canvasPoint=(event:PointerEvent)=>{
+  const rect=canvas.getBoundingClientRect();
+  const x=(event.clientX-rect.left)*(canvas.width/rect.width);
+  const y=(event.clientY-rect.top)*(canvas.height/rect.height);
+  return {x,y};
+};
+canvas.addEventListener("pointerdown",(event)=>{
+  event.preventDefault();
+  canvas.setPointerCapture(event.pointerId);
+  drawing=true;
+  hasStroke=true;
+  const p=canvasPoint(event);
+  ctx.beginPath();
+  ctx.moveTo(p.x,p.y);
+});
+canvas.addEventListener("pointermove",(event)=>{
+  if(!drawing)return;
+  event.preventDefault();
+  const p=canvasPoint(event);
+  ctx.lineTo(p.x,p.y);
+  ctx.stroke();
+});
+const endDraw=(event:PointerEvent)=>{
+  if(!drawing)return;
+  drawing=false;
+  try{canvas.releasePointerCapture(event.pointerId)}catch{}
+};
+canvas.addEventListener("pointerup",endDraw);
+canvas.addEventListener("pointercancel",endDraw);
+const wipeCanvas=()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasStroke=false;
+};
+clearCanvasBtn.addEventListener("click",()=>{wipeCanvas();setStatus("Drawing cleared. Draw again or upload a PNG or JPG.")});
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+const resetMeta=()=>{
+  selected=null;pageCount=0;
+  outFile.textContent="\u2014";outPages.textContent="\u2014";outSize.textContent="\u2014";
+  fileMeta.textContent="Choose one PDF or drop it here. Nothing is uploaded.";
+};
+const inspectFile=async(file:File)=>{
+  if(!isPdf(file))throw new Error("Choose a PDF file.");
+  if(file.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+  setStatus("Reading page count..."+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":""));
+  const Doc=await loadPdfLib();
+  const bytes=await file.arrayBuffer();
+  let source:any;
+  try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be signed here.")}
+  const count=source.getPageCount();
+  if(!count)throw new Error("This PDF has no pages.");
+  if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Sign a file with "+MAX_PAGES+" pages or fewer.");
+  selected=file;pageCount=count;
+  outFile.textContent=file.name;
+  outPages.textContent=String(count);
+  outSize.textContent=kb(file.size);
+  fileMeta.textContent=file.name+" \u2014 "+count+" page"+(count===1?"":"s")+" ("+kb(file.size)+"). Work stays in the browser.";
+  if(Number(pageInput.value)>count)pageInput.value="1";
+  pageInput.max=String(count);
+  setStatus(count+" page"+(count===1?"":"s")+" ready. Draw or upload a signature, pick a page, then sign."+warnNote());
+};
+fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",async(event)=>{
+  const file=event.dataTransfer&&event.dataTransfer.files&&event.dataTransfer.files[0];
+  if(!file)return;
+  const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+sigInput.addEventListener("change",()=>{
+  const file=sigInput.files&&sigInput.files[0];
+  if(!file){sigFile=null;sigMeta.textContent="No image uploaded. The canvas drawing will be used if you sign without a file.";return}
+  if(!sigKind(file)){sigFile=null;sigInput.value="";sigMeta.textContent="Choose a PNG or JPG signature image.";setStatus("Signature image must be PNG or JPG.","error");return}
+  sigFile=file;
+  sigMeta.textContent=file.name+" ("+kb(file.size)+") will be stamped. The uploaded image is used instead of the canvas.";
+  setStatus("Signature image ready: "+file.name+".");
+});
+clearBtn.addEventListener("click",()=>{
+  fileInput.value="";
+  sigInput.value="";
+  sigFile=null;
+  wipeCanvas();
+  resetMeta();
+  pageInput.value="1";
+  offsetXInput.value="";
+  offsetYInput.value="";
+  sigMeta.textContent="No image uploaded. The canvas drawing will be used if you sign without a file.";
+  setStatus("Cleared. Choose one PDF, draw or upload a signature, then sign.");
+});
+const parseOffset=(input:HTMLInputElement,fallback:number)=>{
+  const raw=input.value.trim();
+  if(!raw)return fallback;
+  const n=Number(raw);
+  if(!Number.isFinite(n))throw new Error("Offsets must be numbers.");
+  return n;
+};
+const canvasPng=async()=>{
+  if(!hasStroke)throw new Error("Draw a signature on the canvas, or upload a PNG or JPG.");
+  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob((value)=>value?resolve(value):reject(new Error("Could not export the drawing.")),"image/png"));
+  return new Uint8Array(await blob.arrayBuffer());
+};
+signBtn.addEventListener("click",async()=>{
+  signBtn.disabled=true;
+  try{
+    if(!selected||!pageCount)throw new Error("Choose a PDF first.");
+    if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+    const pageNum=Number(pageInput.value);
+    if(!Number.isInteger(pageNum)||pageNum<1)throw new Error("Enter a page number of 1 or higher.");
+    setStatus("Loading PDF library..."+warnNote());
+    const Doc=await loadPdfLib();
+    const bytes=await selected.arrayBuffer();
+    let source:any;
+    try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be signed here.")}
+    const count=source.getPageCount();
+    if(!count)throw new Error("This PDF has no pages.");
+    pageCount=count;outPages.textContent=String(count);
+    if(pageNum>count)throw new Error("That PDF has "+count+" page"+(count===1?"":"s")+". Choose a page between 1 and "+count+".");
+    const x=parseOffset(offsetXInput,DEFAULT_X);
+    const y=parseOffset(offsetYInput,DEFAULT_Y);
+    let image:any;
+    if(sigFile){
+      const kind=sigKind(sigFile);
+      if(!kind)throw new Error("Signature image must be PNG or JPG.");
+      const imgBytes=new Uint8Array(await sigFile.arrayBuffer());
+      try{
+        image=kind==="png"?await source.embedPng(imgBytes):await source.embedJpg(imgBytes);
+      }catch{
+        throw new Error("Could not read that signature image. Use a standard PNG or JPG.");
+      }
+    }else{
+      const pngBytes=await canvasPng();
+      try{image=await source.embedPng(pngBytes)}catch{throw new Error("Could not embed the drawn signature.")}
+    }
+    const scale=Math.min(MAX_STAMP_W/image.width,MAX_STAMP_H/image.height,1);
+    const w=image.width*scale;
+    const h=image.height*scale;
+    const page=source.getPages()[pageNum-1];
+    const size=page.getSize();
+    const drawX=x;
+    const drawY=y;
+    if(drawX+w<0||drawY+h<0||drawX>size.width||drawY>size.height)throw new Error("That offset places the stamp outside the page. Try smaller offsets.");
+    setStatus("Stamping signature on page "+pageNum+"..."+warnNote());
+    page.drawImage(image,{x:drawX,y:drawY,width:w,height:h});
+    setStatus("Building signed.pdf...");
+    const out=await source.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="signed.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded signed.pdf. Image stamped near the bottom of page "+pageNum+". This is not a legally binding digital signature. Nothing was uploaded.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not sign that PDF.","error")}
+  finally{signBtn.disabled=false}
+});
+</script></BaseLayout>
