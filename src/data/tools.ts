@@ -11,6 +11,7 @@ export type CategorySlug = (typeof categories)[number]['slug'];
 export const tools = [
   { slug:'json-formatter', category:'developer' as CategorySlug, name:'JSON Formatter', description:'Format, minify, validate, copy, and download JSON without sending it anywhere.', path:'/developer/json-formatter/' },
   { slug:'jwt-decoder', category:'developer' as CategorySlug, name:'JWT Decoder', description:'Decode JWT header and payload locally without verifying signatures.', path:'/developer/jwt-decoder/' },
+  { slug:'url-encoder', category:'developer' as CategorySlug, name:'URL Encoder', description:'Encode or decode URLs in your browser with encodeURIComponent, encodeURI, or plus-as-space form encoding.', path:'/developer/url-encoder/' },
   { slug:'base64-encoder', category:'converters' as CategorySlug, name:'Base64 Encoder', description:'Encode and decode UTF-8 text as Base64 entirely in your browser.', path:'/converters/base64-encoder/' },
   { slug:'pdf-to-word', category:'converters' as CategorySlug, name:'PDF to Word', description:'Extract selectable PDF text into a Word .docx file in your browser. Scanned pages and complex layouts will not match the original.', path:'/converters/pdf-to-word/' },
   { slug:'pdf-to-jpg', category:'converters' as CategorySlug, name:'PDF to JPG', description:'Convert each PDF page to a JPG image in your browser, then download pages one by one. Nothing is uploaded.', path:'/converters/pdf-to-jpg/' },

@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Encode or decode URLs in your browser with encodeURIComponent, encodeURI, or plus-as-space form encoding. Copy or download the result. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Developer Tools',item:'https://deskutil.com/developer/'},{'@type':'ListItem',position:3,name:'URL Encoder',item:'https://deskutil.com/developer/url-encoder/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'URL Encoder',applicationCategory:'DeveloperApplication',operatingSystem:'Any',url:'https://deskutil.com/developer/url-encoder/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Encode URL','Decode URL','encodeURIComponent','encodeURI','Plus-as-space form encoding','Copy result','Download result']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'What is the difference between encodeURIComponent and encodeURI?',acceptedAnswer:{'@type':'Answer',text:'encodeURIComponent encodes a single value, including reserved characters such as slash, question mark, hash, ampersand, and equals. encodeURI encodes a full URL and leaves those structural characters intact so the address still parses as a URL.'}},
+{'@type':'Question',name:'When should I use plus-as-space encoding?',acceptedAnswer:{'@type':'Answer',text:'application/x-www-form-urlencoded query strings often use a plus sign for spaces instead of %20. Choose that mode when you are encoding or decoding form-style query values, not a full URL path.'}},
+{'@type':'Question',name:'Is my text uploaded or stored?',acceptedAnswer:{'@type':'Answer',text:'No. Encoding and decoding run entirely in your browser with the built-in encodeURIComponent, decodeURIComponent, encodeURI, and decodeURI functions. Nothing you paste is sent to a server.'}},
+{'@type':'Question',name:'Why did decoding fail?',acceptedAnswer:{'@type':'Answer',text:'decodeURIComponent and decodeURI throw when a percent sequence is malformed, such as a lone percent sign or incomplete hex digits. Fix the percent-encoding and try again.'}},
+{'@type':'Question',name:'Can I encode Unicode and emoji?',acceptedAnswer:{'@type':'Answer',text:'Yes. The browser functions UTF-8 percent-encode non-ASCII characters, so international text and emoji become valid percent sequences in the output.'}}
+]}
+];
+---
+<BaseLayout title="URL Encoder Decoder Online — Encode or Decode URLs in Your Browser" description={description} canonical="https://deskutil.com/developer/url-encoder/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/developer/">Developer</a></li><li aria-current="page">URL Encoder</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Developer tool</p><h1>URL Encoder</h1><p>Encode or decode URLs and query values in your browser. Choose encodeURIComponent for one parameter, encodeURI for a full URL, or plus-as-space for form query strings. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="URL encoding actions"><button class="tool-button primary" id="encode" type="button">Encode</button><button class="tool-button" id="decode" type="button">Decode</button><button class="tool-button" id="copy" type="button">Copy</button><button class="tool-button" id="download" type="button">Download</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields"><div class="tool-field grow"><span>Encoding mode</span><div class="tool-checks">
+<label class="tool-check"><input type="radio" name="url-mode" value="component" checked /> encodeURIComponent (query values)</label>
+<label class="tool-check"><input type="radio" name="url-mode" value="uri" /> encodeURI (full URL)</label>
+<label class="tool-check"><input type="radio" name="url-mode" value="form" /> Plus as space (form query)</label>
+</div></div></div>
+<label class="editor-label" for="url-input">Input</label>
+<textarea class="tool-textarea" id="url-input" spellcheck="false" autocomplete="off" placeholder="Paste a URL, path, or query value. Example: hello world?x=1"></textarea>
+<label class="editor-label" for="url-output">Output</label>
+<textarea class="tool-textarea" id="url-output" spellcheck="false" autocomplete="off" placeholder="Encoded or decoded text appears here." readonly></textarea>
+<p class="status" id="status" role="status" aria-live="polite">Paste text, choose a mode, then Encode or Decode.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the URL encoder</h2><p>Paste text into the input box. Pick a mode, then choose <strong>Encode</strong> or <strong>Decode</strong>. Use <strong>Copy</strong> or <strong>Download</strong> for the output. Processing stays on this device.</p>
+<h2>encodeURIComponent vs encodeURI</h2><p><code>encodeURIComponent</code> is for a single path segment or query value. It percent-encodes reserved characters such as <code>/</code>, <code>?</code>, <code>#</code>, <code>&amp;</code>, and <code>=</code> so they cannot change URL structure. <code>encodeURI</code> is for an entire URL: it encodes spaces and non-ASCII characters but leaves those reserved characters so the URL still has a scheme, path, and query.</p>
+<p>Form-style query strings sometimes use <code>+</code> for a space instead of <code>%20</code>. That mode first applies component encoding, then swaps spaces to plus signs on encode and plus signs to spaces on decode.</p>
+<h2>Frequently asked questions</h2>
+<h3>What is the difference between encodeURIComponent and encodeURI?</h3><p>encodeURIComponent encodes one value, including slashes and query punctuation. encodeURI encodes a full URL and keeps structural characters so the address still parses.</p>
+<h3>When should I use plus-as-space encoding?</h3><p>Use it for application/x-www-form-urlencoded values, where a plus sign stands for a space. Do not use it for a full URL path.</p>
+<h3>Is my text uploaded or stored?</h3><p>No. Encoding and decoding run in your browser. Deskutil never receives the content.</p>
+<h3>Why did decoding fail?</h3><p>A percent sequence is incomplete or invalid. Correct the encoding and try again. The tool does not invent a guess for broken input.</p>
+<h3>Can I encode Unicode and emoji?</h3><p>Yes. The browser UTF-8 percent-encodes non-ASCII characters, including emoji.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/developer/">Developer tools</a></li><li><a href="/developer/json-formatter/">JSON Formatter</a></li><li><a href="/developer/jwt-decoder/">JWT Decoder</a></li><li><a href="/converters/base64-encoder/">Base64 Encoder</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const input=document.querySelector<HTMLTextAreaElement>('#url-input')!;
+const output=document.querySelector<HTMLTextAreaElement>('#url-output')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const mode=()=>(document.querySelector<HTMLInputElement>('input[name="url-mode"]:checked')?.value??'component');
+const encodeForm=(text:string)=>encodeURIComponent(text).replace(/%20/g,'+');
+const decodeForm=(text:string)=>decodeURIComponent(text.replace(/\+/g,' '));
+document.querySelector('#encode')?.addEventListener('click',()=>{
+  try{
+    const text=input.value;
+    if(!text)throw new Error('Enter some text first.');
+    const m=mode();
+    output.value=m==='uri'?encodeURI(text):m==='form'?encodeForm(text):encodeURIComponent(text);
+    setStatus(m==='uri'?'Encoded with encodeURI. Structural URL characters were left intact.':m==='form'?'Encoded as a form query value (spaces became plus signs).':'Encoded with encodeURIComponent.','success');
+  }catch(error){setStatus(error instanceof Error?error.message:'Could not encode this text.','error');input.focus()}
+});
+document.querySelector('#decode')?.addEventListener('click',()=>{
+  try{
+    const text=input.value;
+    if(!text)throw new Error('Enter some text first.');
+    const m=mode();
+    output.value=m==='uri'?decodeURI(text):m==='form'?decodeForm(text):decodeURIComponent(text);
+    setStatus(m==='uri'?'Decoded with decodeURI.':'Decoded successfully.','success');
+  }catch(error){const message=error instanceof URIError?'Decoding failed: a percent sequence is malformed.':error instanceof Error?error.message:'Could not decode this text.';setStatus(message,'error');input.focus()}
+});
+document.querySelector('#copy')?.addEventListener('click',async()=>{
+  try{
+    if(!output.value)throw new Error('Nothing to copy yet. Encode or decode first.');
+    await navigator.clipboard.writeText(output.value);
+    setStatus('Copied output to clipboard.','success');
+  }catch(error){setStatus(error instanceof Error?error.message:'Could not copy. Select the output and copy it manually.','error')}
+});
+document.querySelector('#download')?.addEventListener('click',()=>{
+  try{
+    if(!output.value)throw new Error('Nothing to download yet. Encode or decode first.');
+    const url=URL.createObjectURL(new Blob([output.value],{type:'text/plain'}));
+    const link=document.createElement('a');link.href=url;link.download='url-encoded.txt';link.click();URL.revokeObjectURL(url);
+    setStatus('Output downloaded.','success');
+  }catch(error){setStatus(error instanceof Error?error.message:'Could not download the output.','error')}
+});
+</script></BaseLayout>
