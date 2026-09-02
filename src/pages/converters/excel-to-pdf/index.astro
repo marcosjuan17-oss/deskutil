@@ -1,0 +1,259 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Convert an Excel .xlsx spreadsheet to a simple text-table PDF in your browser. First worksheet only, cell values only, no charts. Layout will not match Excel. Old .xls files are not supported. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Excel to PDF',item:'https://deskutil.com/converters/excel-to-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Excel to PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/excel-to-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Excel to PDF in the browser','.xlsx only (ZIP/OOXML)','Reject old .xls binary','First worksheet cell values as a text table','Download converted.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Does this convert Excel layout to PDF perfectly?',acceptedAnswer:{'@type':'Answer',text:'No. This tool reads the first worksheet and draws cell values as a simple text table on landscape pages. Charts are omitted. Column widths, merged cells, fonts, and print layout will not match Excel.'}},
+{'@type':'Question',name:'Can I convert an old .xls file?',acceptedAnswer:{'@type':'Answer',text:'No. Only .xlsx (Office Open XML zip) is accepted. The older binary .xls format is rejected with a clear error. Save as .xlsx in Excel first, then try again.'}},
+{'@type':'Question',name:'Is my Excel file uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. SheetJS parses the .xlsx in your browser and the PDF is built locally with pdf-lib. Deskutil never receives the file.'}},
+{'@type':'Question',name:'Which sheet and cell data are converted?',acceptedAnswer:{'@type':'Answer',text:'Only the first worksheet. Cell values only. Formulas show calculated values if those values are stored in the file; otherwise a formula may appear empty. Charts and images are not drawn. About 500 rows are included, with a warning if the sheet is longer.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A PDF named converted.pdf with a simple text table on US Letter landscape pages. It is not a pixel-perfect replica of the spreadsheet. Nothing is uploaded.'}}
+]}
+];
+---
+<BaseLayout title="Excel to PDF Online — Convert XLSX to PDF in Your Browser" description={description} canonical="https://deskutil.com/converters/excel-to-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Excel to PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Excel to PDF</h1><p>Turn an Excel <strong>.xlsx</strong> into a simple text-table PDF in your browser. This is excel to pdf for cell values on the first sheet—not a layout replica. Charts are omitted. Formulas show calculated values if they are stored in the file. Old <strong>.xls</strong> files are rejected. Download <strong>converted.pdf</strong>. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Excel to PDF actions"><button class="tool-button primary" id="convert" type="button">Convert to PDF</button><button class="tool-button" id="clear" type="button">Clear file</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This reads the first worksheet and draws cell values as a table. Layout will not match Excel. Only .xlsx is accepted. About 500 rows are included. Work stays in the browser.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="xlsx-file">Excel .xlsx file</label><input class="field-input" id="xlsx-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /><p class="file-meta" id="file-meta">Choose a .xlsx file or drop it here. Old .xls files are not supported. Nothing is uploaded.</p></div></div>
+<p class="status" id="status" role="status" aria-live="polite">Choose a .xlsx, then convert to download converted.pdf. First sheet, cell values only; layout will not match Excel.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Excel to PDF</h2><p>Choose or drop a <strong>.xlsx</strong> file, then <strong>Convert to PDF</strong>. SheetJS reads the first worksheet in your browser. Cell values are drawn as a simple table on landscape US Letter pages and you download <strong>converted.pdf</strong>. Old .xls (binary) files are rejected. Charts are skipped. Formulas show calculated values if those values are present in the file. Layout will not match Excel. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Does this convert Excel layout to PDF perfectly?</h3><p>No. This tool reads the first worksheet and draws cell values as a simple text table on landscape pages. Charts are omitted. Column widths, merged cells, fonts, and print layout will not match Excel.</p>
+<h3>Can I convert an old .xls file?</h3><p>No. Only .xlsx (Office Open XML zip) is accepted. The older binary .xls format is rejected with a clear error. Save as .xlsx in Excel first, then try again.</p>
+<h3>Is my Excel file uploaded to a server?</h3><p>No. SheetJS parses the .xlsx in your browser and the PDF is built locally with pdf-lib. Deskutil never receives the file.</p>
+<h3>Which sheet and cell data are converted?</h3><p>Only the first worksheet. Cell values only. Formulas show calculated values if those values are stored in the file; otherwise a formula may appear empty. Charts and images are not drawn. About 500 rows are included, with a warning if the sheet is longer.</p>
+<h3>What file do I download?</h3><p>A PDF named converted.pdf with a simple text table on US Letter landscape pages. It is not a pixel-perfect replica of the spreadsheet. Nothing is uploaded.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/word-to-pdf/">Word to PDF</a></li><li><a href="/converters/jpg-to-pdf/">JPG to PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+
+<script>
+const MAX_BYTES=40*1024*1024;
+const MAX_ROWS=500;
+const MAX_COLS=16;
+const MAX_CELL_LINES=6;
+const PAGE_W=792;
+const PAGE_H=612;
+const MARGIN=36;
+const FONT_SIZE=8;
+const LINE_H=10;
+const PAD=3;
+const OLE_MAGIC=[0xD0,0xCF,0x11,0xE0,0xA1,0xB1,0x1A,0xE1];
+let PDFDocument:any=null;
+let StandardFonts:any=null;
+let rgb:any=null;
+let XLSX:any=null;
+const fileInput=document.querySelector<HTMLInputElement>("#xlsx-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const convertBtn=document.querySelector<HTMLButtonElement>("#convert")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const extOf=(name:string)=>{const i=name.lastIndexOf(".");return i>=0?name.slice(i+1).toLowerCase():""};
+const isOle=(bytes:Uint8Array)=>bytes.length>=8&&OLE_MAGIC.every((b,i)=>bytes[i]===b);
+const isZip=(bytes:Uint8Array)=>bytes.length>=4&&bytes[0]===0x50&&bytes[1]===0x4b&&(bytes[2]===0x03||bytes[2]===0x05||bytes[2]===0x07)&&(bytes[3]===0x04||bytes[3]===0x06||bytes[3]===0x08);
+const winAnsi=(value:string)=>value.replace(/[^\t\n\r\u0020-\u007E\u00A0-\u00FF]/g,"?");
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const XLSX_SRC=proto+slash+"cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js";
+const loadPdfLib=async()=>{
+  if(PDFDocument)return;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  StandardFonts=mod.StandardFonts;
+  rgb=mod.rgb;
+  if(!PDFDocument||!StandardFonts||!rgb)throw new Error("Could not load the PDF library.");
+};
+const loadXlsx=async()=>{
+  if(XLSX)return XLSX;
+  await new Promise<void>((resolve,reject)=>{
+    const existing=document.querySelector("script[data-deskutil-xlsx]");
+    if(existing){
+      const done=()=>{if((window as any).XLSX){XLSX=(window as any).XLSX;resolve()}else reject(new Error("Could not load the spreadsheet library."))};
+      existing.addEventListener("load",()=>done());
+      existing.addEventListener("error",()=>reject(new Error("Could not load the spreadsheet library.")));
+      if((window as any).XLSX){XLSX=(window as any).XLSX;resolve()}
+      return;
+    }
+    const script=document.createElement("script");
+    script.src=XLSX_SRC;
+    script.async=true;
+    script.setAttribute("data-deskutil-xlsx","1");
+    script.onload=()=>{XLSX=(window as any).XLSX;if(!XLSX)reject(new Error("Could not load the spreadsheet library."));else resolve()};
+    script.onerror=()=>reject(new Error("Could not load the spreadsheet library."));
+    document.head.appendChild(script);
+  });
+  return XLSX;
+};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const chosenFile=()=>{
+  const file=fileInput.files?.[0];
+  if(!file)throw new Error("Choose a .xlsx file first.");
+  if(file.size>MAX_BYTES)throw new Error("That file is larger than 40 MB. Try a smaller .xlsx.");
+  const ext=extOf(file.name);
+  if(ext==="xls")throw new Error("Old .xls files are not supported. Save as .xlsx (Office Open XML) and try again.");
+  if(ext!=="xlsx")throw new Error("Choose a .xlsx file. Only Excel Open XML (.xlsx) is accepted.");
+  return file;
+};
+const resetMeta=()=>{fileMeta.textContent="Choose a .xlsx file or drop it here. Old .xls files are not supported. Nothing is uploaded."};
+fileInput.addEventListener("change",()=>{
+  try{
+    const file=fileInput.files?.[0];
+    if(!file){resetMeta();setStatus("Choose a .xlsx, then convert to download converted.pdf. First sheet, cell values only; layout will not match Excel.");return}
+    const ext=extOf(file.name);
+    if(ext==="xls"){setStatus("Old .xls files are not supported. Save as .xlsx (Office Open XML) and try again.","error");fileMeta.textContent=file.name+" is a .xls file and cannot be converted here.";return}
+    if(ext!=="xlsx"){setStatus("Choose a .xlsx file. Only Excel Open XML (.xlsx) is accepted.","error");resetMeta();return}
+    fileMeta.textContent=file.name+" ("+kb(file.size)+"). Work stays in the browser.";
+    setStatus("File selected. Convert to draw the first sheet into converted.pdf.");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",(event)=>{const file=event.dataTransfer?.files?.[0];if(!file)return;const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;fileInput.dispatchEvent(new Event("change"))});
+clearBtn.addEventListener("click",()=>{fileInput.value="";resetMeta();setStatus("File cleared. Choose a .xlsx, then convert to download converted.pdf.")});
+const cellText=(value:unknown)=>{
+  if(value==null||value==="")return "";
+  if(typeof value==="number"&&Number.isFinite(value))return String(value);
+  if(value instanceof Date)return value.toISOString().slice(0,10);
+  return winAnsi(String(value).replace(/\r\n|\r/g,"\n").replace(/\t/g," "));
+};
+const wrapCell=(font:any,text:string,maxW:number)=>{
+  const inner=Math.max(8,maxW-PAD*2);
+  const source=text.replace(/\n+/g," ").trim();
+  if(!source)return [""];
+  const out:string[]=[];
+  const chunks=source.split(/(\s+)/);
+  let line="";
+  const flush=()=>{if(line.length){out.push(line);line=""}};
+  const pushPiece=(chunk:string)=>{
+    let piece="";
+    for(const ch of chunk){
+      const tryPiece=piece+ch;
+      if(font.widthOfTextAtSize(tryPiece,FONT_SIZE)<=inner)piece=tryPiece;
+      else{if(piece)out.push(piece);piece=ch}
+    }
+    line=piece;
+  };
+  for(const chunk of chunks){
+    if(out.length>=MAX_CELL_LINES)break;
+    const next=line+chunk;
+    if(font.widthOfTextAtSize(next,FONT_SIZE)<=inner){line=next;continue}
+    if(!line){pushPiece(chunk);continue}
+    flush();
+    if(out.length>=MAX_CELL_LINES)break;
+    if(chunk.trim()==="")continue;
+    if(font.widthOfTextAtSize(chunk,FONT_SIZE)<=inner)line=chunk;
+    else pushPiece(chunk);
+  }
+  flush();
+  if(!out.length)out.push("");
+  if(out.length>MAX_CELL_LINES){
+    const last=out[MAX_CELL_LINES-1]||"";
+    out.length=MAX_CELL_LINES;
+    out[MAX_CELL_LINES-1]=last.length>1?last.slice(0,-1)+"...":"...";
+  }else if(source.length>0&&out.join(" ").length<source.length&&out.length===MAX_CELL_LINES){
+    const last=out[MAX_CELL_LINES-1]||"";
+    out[MAX_CELL_LINES-1]=last.length>1?last.slice(0,-1)+"...":"...";
+  }
+  return out;
+};
+const colWidths=(rows:string[][],colCount:number,maxW:number,font:any)=>{
+  const weights=new Array(colCount).fill(1);
+  for(const row of rows){
+    for(let i=0;i<colCount;i++){
+      const len=Math.min(40,(row[i]||"").length);
+      if(len>weights[i])weights[i]=len;
+    }
+  }
+  const sum=weights.reduce((a:number,b:number)=>a+b,0);
+  const raw=weights.map((w:number)=>Math.max(36,(w/sum)*maxW));
+  const rawSum=raw.reduce((a:number,b:number)=>a+b,0);
+  return raw.map((w:number)=>w*(maxW/rawSum));
+};
+convertBtn.addEventListener("click",async()=>{
+  convertBtn.disabled=true;
+  try{
+    const file=chosenFile();
+    setStatus("Reading .xlsx...");
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    if(isOle(bytes)||extOf(file.name)==="xls")throw new Error("Old .xls files are not supported. Save as .xlsx (Office Open XML) and try again.");
+    if(!isZip(bytes))throw new Error("That file is not a .xlsx (ZIP/OOXML). Only .xlsx is accepted.");
+    setStatus("Loading spreadsheet library...");
+    await loadXlsx();
+    if(!XLSX?.read||!XLSX?.utils?.sheet_to_json)throw new Error("Could not load the spreadsheet library.");
+    setStatus("Parsing first worksheet...");
+    const wb=XLSX.read(bytes,{type:"array",cellStyles:false,bookSheets:false,bookProps:false});
+    const sheetName=wb.SheetNames&&wb.SheetNames[0];
+    if(!sheetName)throw new Error("That workbook has no worksheets.");
+    const sheet=wb.Sheets[sheetName];
+    if(!sheet)throw new Error("Could not read the first worksheet.");
+    const rawRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:""}) as unknown[][];
+    const trimmed:string[][]=[];
+    for(const row of rawRows){
+      const cells=(Array.isArray(row)?row:[]).map((cell)=>cellText(cell));
+      if(cells.some((cell)=>cell.trim()))trimmed.push(cells);
+    }
+    const totalRows=trimmed.length;
+    const rows=trimmed.slice(0,MAX_ROWS);
+    let colCount=0;
+    for(const row of rows)if(row.length>colCount)colCount=row.length;
+    let colNote="";
+    if(colCount>MAX_COLS){colCount=MAX_COLS;colNote=" Extra columns beyond "+MAX_COLS+" were truncated."}
+    for(const row of rows)if(row.length>colCount)row.length=colCount;
+    if(!rows.length){
+      rows.push(["[No cell values found on the first worksheet]"]);
+      colCount=1;
+    }
+    setStatus("Loading PDF library...");
+    await loadPdfLib();
+    const pdf=await PDFDocument.create();
+    const font=await pdf.embedFont(StandardFonts.Helvetica);
+    const tableW=PAGE_W-MARGIN*2;
+    const widths=colWidths(rows,colCount,tableW,font);
+    const wrapped=rows.map((row)=>row.map((cell,i)=>wrapCell(font,cell,widths[i])));
+    const rowHeights=wrapped.map((cells)=>Math.max(LINE_H+PAD*2,...cells.map((lines)=>lines.length*LINE_H+PAD*2)));
+    let page=pdf.addPage([PAGE_W,PAGE_H]);
+    let y=PAGE_H-MARGIN;
+    const drawRow=(cells:string[][],height:number,header:boolean)=>{
+      if(y-height<MARGIN){page=pdf.addPage([PAGE_W,PAGE_H]);y=PAGE_H-MARGIN}
+      let x=MARGIN;
+      for(let i=0;i<colCount;i++){
+        const w=widths[i];
+        page.drawRectangle({x,y:y-height,width:w,height,borderColor:rgb(0.75,0.75,0.75),borderWidth:0.4,color:header?rgb(0.94,0.94,0.94):undefined});
+        const lines=cells[i]||[""];
+        let ty=y-PAD-FONT_SIZE;
+        for(const line of lines){
+          page.drawText(line||" ",{x:x+PAD,y:ty,size:FONT_SIZE,font,maxWidth:Math.max(4,w-PAD*2)});
+          ty-=LINE_H;
+        }
+        x+=w;
+      }
+      y-=height;
+    };
+    for(let r=0;r<wrapped.length;r++)drawRow(wrapped[r],rowHeights[r],r===0);
+    setStatus("Building converted.pdf...");
+    const out=await pdf.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="converted.pdf";link.click();
+    URL.revokeObjectURL(url);
+    const warn=[];
+    if(totalRows>MAX_ROWS)warn.push("Only the first "+MAX_ROWS+" of "+totalRows+" rows were included.");
+    if(colNote)warn.push(colNote.trim());
+    const base="Downloaded converted.pdf from the first worksheet. Cell values only; charts are omitted and layout will not match Excel.";
+    setStatus(warn.length?base+" "+warn.join(" "):base,"success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not convert that Excel file.","error")}
+  finally{convertBtn.disabled=false}
+});
+</script></BaseLayout>
