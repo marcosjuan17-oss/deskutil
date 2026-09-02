@@ -24,6 +24,7 @@ export const tools = [
   { slug:'sign-pdf', category:'converters' as CategorySlug, name:'Sign PDF', description:'Stamp a drawn or uploaded signature image onto a PDF page in your browser. Not a legally binding digital signature. Nothing is uploaded.', path:'/converters/sign-pdf/' },
   { slug:'protect-pdf', category:'converters' as CategorySlug, name:'Protect PDF', description:'Add an open password to a PDF in your browser. Already encrypted files fail with a clear error. Nothing is uploaded.', path:'/converters/protect-pdf/' },
   { slug:'watermark-pdf', category:'converters' as CategorySlug, name:'Add Watermark', description:'Add a text or image PDF watermark in your browser. Rotated tiled or centered text, optional PNG or JPG, opacity slider. Nothing is uploaded.', path:'/converters/watermark-pdf/' },
+  { slug:'add-page-numbers', category:'converters' as CategorySlug, name:'Add Page Numbers', description:'Add page numbers to a PDF in your browser. Overlay Helvetica numbers; choose position, format, start number, and font size. Nothing is uploaded.', path:'/converters/add-page-numbers/' },
   { slug:'organize-pdf', category:'converters' as CategorySlug, name:'Organize PDF', description:'Reorder or delete PDF pages in your browser, then download organized.pdf. Copies pages as-is; nothing is uploaded.', path:'/converters/organize-pdf/' },
   { slug:'image-compressor', category:'converters' as CategorySlug, name:'Image Compressor', description:'Shrink JPG, PNG, and WebP in your browser by redrawing to canvas. Lossy JPEG by default; optional PNG output. Nothing is uploaded.', path:'/converters/image-compressor/' },
   { slug:'image-resizer', category:'converters' as CategorySlug, name:'Image Resizer', description:'Resize JPG, PNG, and WebP in your browser. Set width and height, keep aspect ratio, then download JPEG or PNG. Nothing is uploaded.', path:'/converters/image-resizer/' },
@@ -39,7 +40,7 @@ export const tools = [
   { slug:'fd-calculator', category:'finance' as CategorySlug, name:'FD Calculator', description:'Estimate fixed deposit maturity value, interest earned, and principal with compounding in your browser.', path:'/finance/fd-calculator/' },
   { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
-export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'sip-calculator', 'sql-formatter'] as const;
+export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'jwt-decoder', 'sql-formatter'] as const;
 export const getToolsForCategory = (slug:string) => tools.filter((tool) => tool.category === slug);
 export const getLiveCategories = () => categories.filter((category) => getToolsForCategory(category.slug).length > 0);
 export const getFeaturedTools = () => featuredSlugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is (typeof tools)[number] => Boolean(tool));

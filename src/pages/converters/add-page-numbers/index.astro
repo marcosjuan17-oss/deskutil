@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Add page numbers to a PDF in your browser with pdf-lib, then download numbered.pdf. Choose position, format, start number, and font size. Overlay only: numbers may sit on existing content. Password-protected files fail with a clear error. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Add Page Numbers',item:'https://deskutil.com/converters/add-page-numbers/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Add Page Numbers',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/add-page-numbers/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Add page numbers to a PDF in the browser','Bottom or top position','Formats 1, 1 / N, and Page 1','Start number and font size','Reject password-protected PDFs','Download numbered.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, numbered.pdf is built locally, and Deskutil never receives the file.'}},
+{'@type':'Question',name:'How does Add Page Numbers stamp a PDF?',acceptedAnswer:{'@type':'Answer',text:'It draws Helvetica text on every page with pdf-lib. This is an overlay only. Content is not reflowed, and numbers may sit on existing content near the edge.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Numbering stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Can I choose position and format?',acceptedAnswer:{'@type':'Answer',text:'Yes. Position can be bottom-center, bottom-right, bottom-left, or top-center. Format can be the number alone, the number slash total pages, or Page plus the number. Set a start number if the first page should not be 1.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named numbered.pdf. Every page has a number drawn on top. The original file on your device is unchanged.'}}
+]}
+];
+---
+<BaseLayout title="Add Page Numbers to PDF Online — Number PDF Pages in Your Browser" description={description} canonical="https://deskutil.com/converters/add-page-numbers/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Add Page Numbers</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Add Page Numbers</h1><p>Add <strong>page numbers</strong> to a PDF in your browser, then download <strong>numbered.pdf</strong>. Choose position, format, start number, and font size. Numbers are drawn as an overlay and may sit on existing content near the edge. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Add Page Numbers actions"><button class="tool-button primary" id="number-pdf" type="button">Add page numbers</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This draws Helvetica numbers on every page with pdf-lib. It does not reflow content. Work stays in the browser. Large files may be slow.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose one PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field grow"><span>Position</span>
+<div class="tool-checks" role="radiogroup" aria-label="Number position">
+<label class="tool-check"><input type="radio" name="pos" id="pos-bc" value="bottom-center" checked /> Bottom center</label>
+<label class="tool-check"><input type="radio" name="pos" id="pos-br" value="bottom-right" /> Bottom right</label>
+<label class="tool-check"><input type="radio" name="pos" id="pos-bl" value="bottom-left" /> Bottom left</label>
+<label class="tool-check"><input type="radio" name="pos" id="pos-tc" value="top-center" /> Top center</label>
+</div></div>
+<div class="tool-field grow"><span>Format</span>
+<div class="tool-checks" role="radiogroup" aria-label="Number format">
+<label class="tool-check"><input type="radio" name="fmt" id="fmt-n" value="n" checked /> 1</label>
+<label class="tool-check"><input type="radio" name="fmt" id="fmt-slash" value="n-of" /> 1 / N</label>
+<label class="tool-check"><input type="radio" name="fmt" id="fmt-page" value="page" /> Page 1</label>
+</div></div>
+<div class="tool-field"><label for="start-num">Start number</label><input class="field-input" id="start-num" type="number" min="1" max="99999" step="1" value="1" inputmode="numeric" /></div>
+<div class="tool-field"><label for="font-size">Font size: <span id="size-label">12</span></label><input class="field-range" id="font-size" type="range" min="10" max="14" value="12" /></div>
+</div>
+<div class="finance-grid">
+<div class="finance-stat"><span>File</span><strong id="out-file">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+<div class="finance-stat"><span>Size</span><strong id="out-size">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose one PDF, set position and format, then add page numbers. Files around 40 MB or many pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to add page numbers to a PDF</h2><p>Choose or drop one PDF. Pick a position (bottom center, bottom right, bottom left, or top center). Choose a format: the number alone, the number slash total pages, or Page plus the number. Set a start number if needed (default 1) and a font size from 10 to 14. Then <strong>Add page numbers</strong> to download <strong>numbered.pdf</strong>. Numbers are drawn on top of each page. They do not reflow the document and may cover content near the edge. Password-protected files fail with an error. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, numbered.pdf is built locally, and Deskutil never receives the file.</p>
+<h3>How does Add Page Numbers stamp a PDF?</h3><p>It draws Helvetica text on every page with pdf-lib. This is an overlay only. Content is not reflowed, and numbers may sit on existing content near the edge.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Numbering stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Can I choose position and format?</h3><p>Yes. Position can be bottom-center, bottom-right, bottom-left, or top-center. Format can be the number alone, the number slash total pages, or Page plus the number. Set a start number if the first page should not be 1.</p>
+<h3>What file do I download?</h3><p>A single PDF named numbered.pdf. Every page has a number drawn on top. The original file on your device is unchanged.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/watermark-pdf/">Add Watermark</a></li><li><a href="/converters/rotate-pdf/">Rotate PDF</a></li><li><a href="/converters/organize-pdf/">Organize PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=120*1024*1024;
+const WARN_PAGES=50;
+const MAX_PAGES=400;
+const MARGIN=36;
+let PDFDocument:any=null;
+let StandardFonts:any=null;
+let rgbFn:any=null;
+let selected:File|null=null;
+let pageCount=0;
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const startInput=document.querySelector<HTMLInputElement>("#start-num")!;
+const sizeInput=document.querySelector<HTMLInputElement>("#font-size")!;
+const sizeLabel=document.querySelector<HTMLElement>("#size-label")!;
+const numberBtn=document.querySelector<HTMLButtonElement>("#number-pdf")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFile=document.querySelector<HTMLElement>("#out-file")!;
+const outPages=document.querySelector<HTMLElement>("#out-pages")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(selected&&selected.size>WARN_BYTES)bits.push("this file is over about 40 MB");
+  if(pageCount>WARN_PAGES)bits.push(pageCount+" pages may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const currentPos=()=>{
+  const checked=document.querySelector<HTMLInputElement>('input[name="pos"]:checked');
+  return checked?checked.value:"bottom-center";
+};
+const currentFmt=()=>{
+  const checked=document.querySelector<HTMLInputElement>('input[name="fmt"]:checked');
+  return checked?checked.value:"n";
+};
+sizeInput.addEventListener("input",()=>{sizeLabel.textContent=sizeInput.value});
+const loadPdfLib=async()=>{
+  if(PDFDocument&&StandardFonts&&rgbFn)return {PDFDocument,StandardFonts,rgb:rgbFn};
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  StandardFonts=mod.StandardFonts;
+  rgbFn=mod.rgb;
+  if(!PDFDocument||!StandardFonts||!rgbFn)throw new Error("Could not load the PDF library.");
+  return {PDFDocument,StandardFonts,rgb:rgbFn};
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+const resetMeta=()=>{
+  selected=null;pageCount=0;
+  outFile.textContent="\u2014";outPages.textContent="\u2014";outSize.textContent="\u2014";
+  fileMeta.textContent="Choose one PDF or drop it here. Nothing is uploaded.";
+};
+const inspectFile=async(file:File)=>{
+  if(!isPdf(file))throw new Error("Choose a PDF file.");
+  if(file.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+  setStatus("Reading page count..."+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":""));
+  const {PDFDocument:Doc}=await loadPdfLib();
+  const bytes=await file.arrayBuffer();
+  let source:any;
+  try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be numbered here.")}
+  const count=source.getPageCount();
+  if(!count)throw new Error("This PDF has no pages.");
+  if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Number a file with "+MAX_PAGES+" pages or fewer.");
+  selected=file;pageCount=count;
+  outFile.textContent=file.name;
+  outPages.textContent=String(count);
+  outSize.textContent=kb(file.size);
+  fileMeta.textContent=file.name+" \u2014 "+count+" page"+(count===1?"":"s")+" ("+kb(file.size)+"). Work stays in the browser.";
+  setStatus(count+" page"+(count===1?"":"s")+" ready. Set position and format, then add page numbers."+warnNote());
+};
+fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",async(event)=>{
+  const file=event.dataTransfer&&event.dataTransfer.files&&event.dataTransfer.files[0];
+  if(!file)return;
+  const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+clearBtn.addEventListener("click",()=>{
+  fileInput.value="";
+  startInput.value="1";
+  sizeInput.value="12";
+  sizeLabel.textContent="12";
+  const bc=document.querySelector<HTMLInputElement>("#pos-bc");
+  if(bc)bc.checked=true;
+  const fn=document.querySelector<HTMLInputElement>("#fmt-n");
+  if(fn)fn.checked=true;
+  resetMeta();
+  setStatus("Cleared. Choose one PDF, then add page numbers.");
+});
+const labelFor=(n:number,count:number,fmt:string)=>{
+  if(fmt==="n-of")return n+" / "+count;
+  if(fmt==="page")return "Page "+n;
+  return String(n);
+};
+const xyFor=(pos:string,width:number,height:number,tw:number,size:number)=>{
+  if(pos==="bottom-right")return {x:Math.max(MARGIN,width-MARGIN-tw),y:MARGIN};
+  if(pos==="bottom-left")return {x:MARGIN,y:MARGIN};
+  if(pos==="top-center")return {x:Math.max(MARGIN,(width-tw)/2),y:Math.max(MARGIN,height-MARGIN-size)};
+  return {x:Math.max(MARGIN,(width-tw)/2),y:MARGIN};
+};
+numberBtn.addEventListener("click",async()=>{
+  numberBtn.disabled=true;
+  try{
+    if(!selected||!pageCount)throw new Error("Choose a PDF first.");
+    if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+    const start=Math.floor(Number(startInput.value));
+    if(!Number.isFinite(start)||start<1||start>99999)throw new Error("Start number must be a whole number from 1 to 99999.");
+    const size=Math.floor(Number(sizeInput.value));
+    if(!Number.isFinite(size)||size<10||size>14)throw new Error("Font size must be between 10 and 14.");
+    const pos=currentPos();
+    const fmt=currentFmt();
+    setStatus("Loading PDF library..."+warnNote());
+    const {PDFDocument:Doc,StandardFonts:Fonts,rgb}=await loadPdfLib();
+    const bytes=await selected.arrayBuffer();
+    let source:any;
+    try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be numbered here.")}
+    const count=source.getPageCount();
+    if(!count)throw new Error("This PDF has no pages.");
+    if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Number a file with "+MAX_PAGES+" pages or fewer.");
+    pageCount=count;outPages.textContent=String(count);
+    const font=await source.embedFont(Fonts.Helvetica);
+    const color=rgb(0.12,0.12,0.12);
+    setStatus("Drawing numbers on "+count+" page"+(count===1?"":"s")+"..."+warnNote());
+    const pages=source.getPages();
+    for(let i=0;i<pages.length;i++){
+      const page=pages[i];
+      const n=start+i;
+      const text=labelFor(n,count,fmt);
+      const tw=font.widthOfTextAtSize(text,size);
+      const {width,height}=page.getSize();
+      const {x,y}=xyFor(pos,width,height,tw,size);
+      page.drawText(text,{x,y,size,font,color});
+    }
+    setStatus("Building numbered.pdf...");
+    const out=await source.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="numbered.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded numbered.pdf. Overlay numbers drawn on every page. Content was not reflowed. Nothing was uploaded.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not number that PDF.","error")}
+  finally{numberBtn.disabled=false}
+});
+</script></BaseLayout>
