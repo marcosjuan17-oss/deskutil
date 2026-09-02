@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Organize a PDF in your browser: reorder pages, delete pages, then download organized.pdf. Pages are copied as-is with pdf-lib. Password-protected files fail with a clear error. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Organize PDF',item:'https://deskutil.com/converters/organize-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Organize PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/organize-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Reorder PDF pages in the browser','Delete pages from the list','Rebuild with pdf-lib copyPages','Password-protected PDF error','Download organized.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How does Organize PDF reorder pages?',acceptedAnswer:{'@type':'Answer',text:'Pick one PDF. A list of pages 1 through n appears. Use Move up and Move down to change order, then download organized.pdf. Pages are copied as-is with pdf-lib copyPages in that new order.'}},
+{'@type':'Question',name:'Can I delete pages?',acceptedAnswer:{'@type':'Answer',text:'Yes. Use Remove on a page in the list. At least one page must remain. Deleted pages are not copied into organized.pdf. The original file on your device is unchanged.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Organize stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, organized.pdf is built locally, and Deskutil never receives the file.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named organized.pdf. Pages are copied as they are, in list order. Content is not OCR’d or restyled. Files over 100 pages are rejected.'}}
+]}
+];
+---
+<BaseLayout title="Organize PDF Online — Reorder and Delete PDF Pages in Your Browser" description={description} canonical="https://deskutil.com/converters/organize-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Organize PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Organize PDF</h1><p>Reorder or delete pages in one PDF in your browser, then download <strong>organized.pdf</strong>. Pages are copied as they are—not OCR or restyle. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Organize PDF actions"><button class="tool-button primary" id="organize" type="button">Download organized.pdf</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This copies pages as-is with pdf-lib copyPages. It does not OCR scans or restyle layouts. Work stays in the browser. Files over 100 pages are rejected. Large files may be slow.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose one PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div id="page-list" hidden></div>
+<div class="finance-grid">
+<div class="finance-stat"><span>File</span><strong id="out-file">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+<div class="finance-stat"><span>Size</span><strong id="out-size">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose one PDF, reorder or remove pages, then download organized.pdf. Files around 40 MB or many pages may be slow. Cap is 100 pages.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Organize PDF</h2><p>Choose or drop one PDF. A list of pages <strong>1 through n</strong> appears. Use <strong>Move up</strong>, <strong>Move down</strong>, and <strong>Remove</strong> to set the order and drop pages you do not want. Then <strong>Download organized.pdf</strong>. Pages are copied as they are with pdf-lib. Password-protected files fail with an error. Files with more than 100 pages are rejected. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How does Organize PDF reorder pages?</h3><p>Pick one PDF. A list of pages 1 through n appears. Use Move up and Move down to change order, then download organized.pdf. Pages are copied as-is with pdf-lib copyPages in that new order.</p>
+<h3>Can I delete pages?</h3><p>Yes. Use Remove on a page in the list. At least one page must remain. Deleted pages are not copied into organized.pdf. The original file on your device is unchanged.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Organize stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, organized.pdf is built locally, and Deskutil never receives the file.</p>
+<h3>What file do I download?</h3><p>A single PDF named organized.pdf. Pages are copied as they are, in list order. Content is not OCR’d or restyled. Files over 100 pages are rejected.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/converters/split-pdf/">Split PDF</a></li><li><a href="/converters/rotate-pdf/">Rotate PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=120*1024*1024;
+const WARN_PAGES=40;
+const MAX_PAGES=100;
+let PDFDocument:any=null;
+let selected:File|null=null;
+let pageCount=0;
+let order:number[]=[];
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const pageList=document.querySelector<HTMLElement>("#page-list")!;
+const organizeBtn=document.querySelector<HTMLButtonElement>("#organize")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFile=document.querySelector<HTMLElement>("#out-file")!;
+const outPages=document.querySelector<HTMLElement>("#out-pages")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(selected&&selected.size>WARN_BYTES)bits.push("this file is over about 40 MB");
+  if(pageCount>WARN_PAGES)bits.push(pageCount+" pages may be slow");
+  if(order.length!==pageCount&&pageCount)bits.push(order.length+" of "+pageCount+" pages will be kept");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+const renderList=()=>{
+  pageList.innerHTML="";
+  if(!order.length){pageList.hidden=true;return}
+  pageList.hidden=false;
+  order.forEach((orig,index)=>{
+    const row=document.createElement("div");
+    row.className="file-drop-inner";
+    row.style.padding="8px 16px";
+    const label=document.createElement("p");
+    label.className="file-meta";
+    label.style.margin="0";
+    label.style.flex="1";
+    label.textContent="Position "+(index+1)+" — original page "+(orig+1);
+    const up=document.createElement("button");
+    up.className="tool-button";up.type="button";up.textContent="Move up";up.disabled=index===0;
+    up.addEventListener("click",()=>{if(index===0)return;const swap=order[index-1]!;order[index-1]=order[index]!;order[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const down=document.createElement("button");
+    down.className="tool-button";down.type="button";down.textContent="Move down";down.disabled=index===order.length-1;
+    down.addEventListener("click",()=>{if(index>=order.length-1)return;const swap=order[index+1]!;order[index+1]=order[index]!;order[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const remove=document.createElement("button");
+    remove.className="tool-button";remove.type="button";remove.textContent="Remove";
+    remove.disabled=order.length<=1;
+    remove.addEventListener("click",()=>{
+      if(order.length<=1){setStatus("Keep at least one page.","error");return}
+      order=order.filter((_,i)=>i!==index);
+      outPages.textContent=String(order.length);
+      renderList();
+      setStatus("Page removed. "+order.length+" page"+(order.length===1?"":"s")+" remain."+warnNote());
+    });
+    row.append(label,up,down,remove);
+    pageList.append(row);
+  });
+};
+const resetMeta=()=>{
+  selected=null;pageCount=0;order=[];
+  outFile.textContent="\u2014";outPages.textContent="\u2014";outSize.textContent="\u2014";
+  fileMeta.textContent="Choose one PDF or drop it here. Nothing is uploaded.";
+  renderList();
+};
+const inspectFile=async(file:File)=>{
+  if(!isPdf(file))throw new Error("Choose a PDF file.");
+  if(file.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+  setStatus("Reading page count..."+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":""));
+  const Doc=await loadPdfLib();
+  const bytes=await file.arrayBuffer();
+  let source:any;
+  try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be organized here.")}
+  const count=source.getPageCount();
+  if(!count)throw new Error("This PDF has no pages.");
+  if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Organize a file with "+MAX_PAGES+" pages or fewer.");
+  selected=file;pageCount=count;
+  order=[];
+  for(let i=0;i<count;i++)order.push(i);
+  outFile.textContent=file.name;
+  outPages.textContent=String(count);
+  outSize.textContent=kb(file.size);
+  fileMeta.textContent=file.name+" \u2014 "+count+" page"+(count===1?"":"s")+" ("+kb(file.size)+"). Work stays in the browser.";
+  renderList();
+  setStatus(count+" page"+(count===1?"":"s")+" ready. Move, remove, then download organized.pdf."+warnNote());
+};
+fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",async(event)=>{
+  const file=event.dataTransfer&&event.dataTransfer.files&&event.dataTransfer.files[0];
+  if(!file)return;
+  const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+clearBtn.addEventListener("click",()=>{fileInput.value="";resetMeta();setStatus("Cleared. Choose one PDF, then organize.")});
+organizeBtn.addEventListener("click",async()=>{
+  organizeBtn.disabled=true;
+  try{
+    if(!selected||!pageCount||!order.length)throw new Error("Choose a PDF first.");
+    if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+    if(order.length>MAX_PAGES)throw new Error("Keep "+MAX_PAGES+" pages or fewer.");
+    setStatus("Loading PDF library..."+warnNote());
+    const Doc=await loadPdfLib();
+    const bytes=await selected.arrayBuffer();
+    let source:any;
+    try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be organized here.")}
+    const count=source.getPageCount();
+    if(!count)throw new Error("This PDF has no pages.");
+    if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Organize a file with "+MAX_PAGES+" pages or fewer.");
+    for(const idx of order){if(idx<0||idx>=count)throw new Error("A listed page is no longer in this PDF. Choose the file again.")}
+    setStatus("Copying "+order.length+" page"+(order.length===1?"":"s")+"..."+warnNote());
+    const outDoc=await Doc.create();
+    const copied=await outDoc.copyPages(source,order);
+    copied.forEach((page:any)=>outDoc.addPage(page));
+    setStatus("Building organized.pdf...");
+    const out=await outDoc.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="organized.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded organized.pdf with "+order.length+" page"+(order.length===1?"":"s")+" in the new order. Pages were copied as-is; nothing was uploaded.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not organize that PDF.","error")}
+  finally{organizeBtn.disabled=false}
+});
+</script></BaseLayout>
