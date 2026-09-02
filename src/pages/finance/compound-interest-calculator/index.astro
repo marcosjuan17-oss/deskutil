@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free compound interest calculator. Enter principal, rate, tenure, and compounding frequency to see final amount and interest. Work stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'Compound Interest Calculator',item:'https://deskutil.com/finance/compound-interest-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Compound Interest Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/compound-interest-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Final amount','Interest earned','Principal amount','Optional monthly contribution','Tenure in years and months','Daily, monthly, quarterly, half-yearly, or yearly compounding','Copy compound interest breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How is compound interest calculated?',acceptedAnswer:{'@type':'Answer',text:'Without contributions, the final amount is A = P × (1 + r/n)^(n×t). P is principal, r is the annual rate as a decimal, n is compounds per year, and t is time in years. Interest earned is A − P. When the rate is zero, the final amount equals the principal (plus any contributions).'}},
+{'@type':'Question',name:'What compounding frequencies can I use?',acceptedAnswer:{'@type':'Answer',text:'Choose daily (n = 365), monthly (n = 12), quarterly (n = 4), half-yearly (n = 2), or yearly (n = 1). Match the frequency your account or investment quotes.'}},
+{'@type':'Question',name:'How do monthly contributions work?',acceptedAnswer:{'@type':'Answer',text:'Optional monthly deposits are added using the future value of an ordinary annuity at the effective monthly rate derived from your compounding setting. Total invested is principal plus all contributions; interest is final amount minus total invested.'}},
+{'@type':'Question',name:'Is this financial advice?',acceptedAnswer:{'@type':'Answer',text:'No. Results are planning estimates. Real products may round differently, change rates, or charge fees. This is not investment advice or an offer.'}},
+{'@type':'Question',name:'Does the calculator upload my numbers?',acceptedAnswer:{'@type':'Answer',text:'No. All compound interest math runs in your browser. Deskutil never receives the principal, rate, tenure, contributions, or compounding you enter.'}}
+]}
+];
+---
+<BaseLayout title="Compound Interest Calculator — Growth & Final Amount" description={description} canonical="https://deskutil.com/finance/compound-interest-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">Compound Interest Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>Compound Interest Calculator</h1><p>Estimate how a principal grows with compound interest. Enter the starting amount, annual rate, tenure in years and months, compounding frequency, and an optional monthly contribution to see final amount, interest earned, and total invested—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Compound interest actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="principal">Principal (₹)</label><input class="field-input" id="principal" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 100000" /></div>
+<div class="tool-field"><label for="interest-rate">Interest rate (% p.a.)</label><input class="field-input" id="interest-rate" type="number" min="0" max="100" step="0.01" value="8" inputmode="decimal" /></div>
+<div class="tool-field"><label for="tenure-years">Tenure (years)</label><input class="field-input" id="tenure-years" type="number" min="0" step="1" value="5" inputmode="numeric" /></div>
+<div class="tool-field"><label for="tenure-months">Tenure (months)</label><input class="field-input" id="tenure-months" type="number" min="0" max="11" step="1" value="0" inputmode="numeric" /></div>
+<div class="tool-field grow"><label for="contribution">Monthly contribution (₹, optional)</label><input class="field-input" id="contribution" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 5000" value="0" /></div>
+<div class="tool-field grow"><span>Compounding</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="compounding" value="365" /> Daily</label><label class="tool-check"><input type="radio" name="compounding" value="12" checked /> Monthly</label><label class="tool-check"><input type="radio" name="compounding" value="4" /> Quarterly</label><label class="tool-check"><input type="radio" name="compounding" value="2" /> Half-yearly</label><label class="tool-check"><input type="radio" name="compounding" value="1" /> Yearly</label></div></div>
+</div>
+<div class="tool-output prose-output" id="ci-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Final amount</span><strong id="out-final">—</strong></div>
+<div class="finance-stat"><span>Interest earned</span><strong id="out-interest">—</strong></div>
+<div class="finance-stat"><span>Total invested</span><strong id="out-invested">—</strong></div>
+<div class="finance-stat"><span>Principal</span><strong id="out-principal">—</strong></div>
+<div class="finance-stat"><span>Tenure</span><strong id="out-tenure">—</strong></div>
+<div class="finance-stat"><span>Rate (p.a.)</span><strong id="out-rate">—</strong></div>
+<div class="finance-stat"><span>Compounding</span><strong id="out-compounding">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter principal, rate, tenure, and compounding, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the compound interest calculator</h2><p>Enter the starting principal, annual interest rate, tenure in years plus optional months, compounding frequency, and an optional monthly contribution. Choose <strong>Calculate</strong> to see final amount, interest earned, and total invested. Use <strong>Copy results</strong> when you want the breakdown elsewhere. Nothing is uploaded. Figures assume a constant rate and ignore fees and taxes.</p>
+<h2>Frequently asked questions</h2>
+<h3>How is compound interest calculated?</h3><p>Without contributions, the final amount is A = P × (1 + r/n)^(n×t). P is principal, r is the annual rate as a decimal (percent ÷ 100), n is compounds per year, and t is time in years (years + months ÷ 12). Interest earned is A − P. When the rate is zero, the final amount equals the principal plus any contributions.</p>
+<h3>What compounding frequencies can I use?</h3><p>Daily (365), monthly (12), quarterly (4), half-yearly (2), or yearly (1). Match the frequency your savings account, deposit, or investment quotes.</p>
+<h3>How do monthly contributions work?</h3><p>Optional monthly deposits use the future value of an ordinary annuity at an effective monthly rate derived from your compounding setting. Total invested is principal plus all contributions; interest is final amount minus total invested.</p>
+<h3>Is this financial advice?</h3><p>No. Results are planning estimates only. Real products may round differently, change rates, or charge fees. This page is not investment advice and not an offer.</p>
+<h3>Does the calculator upload my numbers?</h3><p>No. Compound interest math runs in your browser. Deskutil never receives the principal, rate, tenure, contributions, or compounding you enter.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/finance/fd-calculator/">FD Calculator</a></li><li><a href="/finance/sip-calculator/">SIP Calculator</a></li><li><a href="/finance/emi-calculator/">EMI Calculator</a></li><li><a href="/finance/gst-calculator/">GST Calculator</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li></ul></aside></div></section>
+<script>
+const principalInput=document.querySelector<HTMLInputElement>('#principal')!;
+const rateInput=document.querySelector<HTMLInputElement>('#interest-rate')!;
+const yearsInput=document.querySelector<HTMLInputElement>('#tenure-years')!;
+const monthsInput=document.querySelector<HTMLInputElement>('#tenure-months')!;
+const contributionInput=document.querySelector<HTMLInputElement>('#contribution')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={final:document.querySelector<HTMLElement>('#out-final')!,interest:document.querySelector<HTMLElement>('#out-interest')!,invested:document.querySelector<HTMLElement>('#out-invested')!,principal:document.querySelector<HTMLElement>('#out-principal')!,tenure:document.querySelector<HTMLElement>('#out-tenure')!,rate:document.querySelector<HTMLElement>('#out-rate')!,compounding:document.querySelector<HTMLElement>('#out-compounding')!};
+let lastCopy='';
+const compoundingLabels:{[key:string]:string}={ '365':'Daily','12':'Monthly','4':'Quarterly','2':'Half-yearly','1':'Yearly' };
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parsePrincipal=()=>{
+  const raw=principalInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter a starting amount (principal).');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<0)throw new Error('Enter a principal of 0 or more.');
+  return amount;
+};
+const parseRate=()=>{
+  const raw=rateInput.value.trim();
+  if(!raw)throw new Error('Enter an interest rate.');
+  const rate=Number(raw);
+  if(!Number.isFinite(rate)||rate<0||rate>100)throw new Error('Enter an interest rate between 0 and 100.');
+  return rate;
+};
+const parseTenure=()=>{
+  const yearsRaw=yearsInput.value.trim();
+  const monthsRaw=monthsInput.value.trim();
+  if(!yearsRaw && !monthsRaw)throw new Error('Enter tenure in years and/or months.');
+  const years=yearsRaw===''?0:Number(yearsRaw);
+  const months=monthsRaw===''?0:Number(monthsRaw);
+  if(!Number.isFinite(years)||years<0||!Number.isInteger(years))throw new Error('Enter whole years of 0 or more.');
+  if(!Number.isFinite(months)||months<0||!Number.isInteger(months))throw new Error('Enter whole months of 0 or more.');
+  if(months>11)throw new Error('Months must be between 0 and 11. Put extra months into years.');
+  if(years===0&&months===0)throw new Error('Tenure must be at least 1 month.');
+  const t=years+months/12;
+  if(t>100)throw new Error('Tenure must be 100 years or less.');
+  return {years,months,t};
+};
+const parseContribution=()=>{
+  const raw=contributionInput.value.trim().replace(/,/g,'');
+  if(!raw)return 0;
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<0)throw new Error('Enter a monthly contribution of 0 or more.');
+  return amount;
+};
+const calculate=()=>{
+  const principal=parsePrincipal();
+  const annualRate=parseRate();
+  const {years,months,t}=parseTenure();
+  const contribution=parseContribution();
+  const nRaw=selected('compounding');
+  if(!nRaw)throw new Error('Choose a compounding frequency.');
+  const n=Number(nRaw);
+  const r=annualRate/100;
+  const totalMonths=Math.round(t*12);
+  let finalAmount:number;
+  if(annualRate===0){
+    finalAmount=principal+contribution*totalMonths;
+  }else{
+    const principalGrowth=principal*Math.pow(1+r/n,n*t);
+    let contributionGrowth=0;
+    if(contribution>0&&totalMonths>0){
+      const monthlyRate=Math.pow(1+r/n,n/12)-1;
+      if(monthlyRate===0)contributionGrowth=contribution*totalMonths;
+      else contributionGrowth=contribution*((Math.pow(1+monthlyRate,totalMonths)-1)/monthlyRate);
+    }
+    finalAmount=principalGrowth+contributionGrowth;
+  }
+  finalAmount=round2(finalAmount);
+  const totalInvested=round2(principal+contribution*totalMonths);
+  const interest=round2(finalAmount-totalInvested);
+  const compoundingLabel=compoundingLabels[nRaw]??nRaw;
+  const tenureParts=[];
+  if(years)tenureParts.push(`${years} year${years===1?'':'s'}`);
+  if(months)tenureParts.push(`${months} month${months===1?'':'s'}`);
+  const tenureLabel=tenureParts.join(' ');
+  out.final.textContent=rupee(finalAmount);
+  out.interest.textContent=rupee(interest);
+  out.invested.textContent=rupee(totalInvested);
+  out.principal.textContent=rupee(principal);
+  out.tenure.textContent=tenureLabel;
+  out.rate.textContent=`${annualRate}%`;
+  out.compounding.textContent=compoundingLabel;
+  lastCopy=['Compound interest breakdown',`Principal: ${rupee(principal)}`,`Monthly contribution: ${rupee(contribution)}`,`Interest rate: ${annualRate}% p.a.`,`Tenure: ${tenureLabel}`,`Compounding: ${compoundingLabel}`,`Total invested: ${rupee(totalInvested)}`,`Interest earned: ${rupee(interest)}`,`Final amount: ${rupee(finalAmount)}`].join('\n');
+  return `Final amount is ${rupee(finalAmount)}.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate compound interest.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied compound interest results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [principalInput,rateInput,yearsInput,monthsInput,contributionInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate compound interest.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="compounding"]').forEach((input)=>input.addEventListener('change',()=>{try{if(principalInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate compound interest.','error')}}));
+</script></BaseLayout>

@@ -40,6 +40,7 @@ export const tools = [
   { slug:'emi-calculator', category:'finance' as CategorySlug, name:'EMI Calculator', description:'Estimate monthly EMI, total interest, and total payment for home, car, or personal loans in your browser.', path:'/finance/emi-calculator/' },
   { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
   { slug:'fd-calculator', category:'finance' as CategorySlug, name:'FD Calculator', description:'Estimate fixed deposit maturity value, interest earned, and principal with compounding in your browser.', path:'/finance/fd-calculator/' },
+  { slug:'compound-interest-calculator', category:'finance' as CategorySlug, name:'Compound Interest Calculator', description:'Estimate compound interest growth for principal with optional monthly contributions and flexible compounding in your browser.', path:'/finance/compound-interest-calculator/' },
   { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
 export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'jwt-decoder', 'sql-formatter'] as const;
