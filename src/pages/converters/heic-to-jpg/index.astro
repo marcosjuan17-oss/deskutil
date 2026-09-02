@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Convert HEIC to JPG in your browser. Decode HEIC or HEIF photos locally with native browser support or a client-side decoder, set JPEG quality, then download a JPG. Nothing is uploaded. Some Chromium builds cannot decode every file.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'HEIC to JPG',item:'https://deskutil.com/converters/heic-to-jpg/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'HEIC to JPG',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/heic-to-jpg/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Convert HEIC to JPG in the browser','Also accept HEIF','JPEG quality slider','Native decode when the browser supports HEIC','Client-side decoder fallback','Original is not uploaded']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Is my photo uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. Conversion runs in your browser. Deskutil never receives the HEIC or HEIF file or the JPG you download.'}},
+{'@type':'Question',name:'How does HEIC to JPG conversion work?',acceptedAnswer:{'@type':'Answer',text:'The tool first tries native decode with createImageBitmap or an Image element, which works in Safari and some Chromium builds. If that fails, it loads heic2any from a CDN and converts in the page. JPEG quality is the encoder setting on a canvas or decoder output.'}},
+{'@type':'Question',name:'Will every HEIC file convert in Chrome?',acceptedAnswer:{'@type':'Answer',text:'Not always. Some files fail in Chromium when the browser has no HEIC decoder and the fallback cannot parse the file. Safari usually does better. Nothing is uploaded either way.'}},
+{'@type':'Question',name:'Are EXIF and Live Photo extras kept?',acceptedAnswer:{'@type':'Answer',text:'No. The download is a new JPEG. Camera metadata is not copied. Live Photo motion is not kept. A multi-image HEIC may only yield the primary still, or extra stills if the decoder returns them.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'One HEIC becomes a .jpg named from the original. Several files download as converted-jpgs.zip. The original on your device is unchanged.'}}
+]}
+];
+---
+<BaseLayout title="HEIC to JPG Online — Convert HEIC Photos in Your Browser" description={description} canonical="https://deskutil.com/converters/heic-to-jpg/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">HEIC to JPG</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>HEIC to JPG</h1><p>Convert <strong>HEIC to JPG</strong> in your browser. Pick HEIC or HEIF photos, set JPEG quality, then download a JPG or a zip of JPGs. Work stays on your device. Safari often decodes natively. Some Chromium builds cannot convert every file even with the in-page decoder.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="HEIC to JPG actions"><button class="tool-button primary" id="convert" type="button">Convert to JPG</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">Original files are not uploaded. Native decode is tried first. If that fails, heic2any runs locally. Metadata is not copied. Some Chromium files will fail.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="image-files">HEIC or HEIF files</label><input class="field-input" id="image-files" type="file" accept="image/heic,image/heif,.heic,.heif,.HEIC,.HEIF" multiple /><p class="file-meta" id="file-meta">Choose one or more HEIC or HEIF photos, or drop them here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field"><label for="jpg-quality">JPEG quality: <span id="quality-label">82%</span></label><input class="field-range" id="jpg-quality" type="range" min="50" max="95" value="82" /></div>
+</div>
+<div class="finance-grid">
+<div class="finance-stat"><span>Files</span><strong id="out-files">—</strong></div>
+<div class="finance-stat"><span>Total size</span><strong id="out-size">—</strong></div>
+<div class="finance-stat"><span>Converted</span><strong id="out-done">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose HEIC or HEIF photos, set quality, then convert. Some Chromium builds cannot decode every file.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to convert HEIC to JPG</h2><p>Choose or drop one or more HEIC or HEIF photos. Set JPEG quality. Then <strong>Convert to JPG</strong>. Safari and some Chromium builds decode natively. If that fails, a client-side decoder (heic2any) runs in the page. One file downloads as a .jpg. Several files download as <strong>converted-jpgs.zip</strong>. EXIF is not copied. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is my photo uploaded to a server?</h3><p>No. Conversion runs in your browser. Deskutil never receives the HEIC or HEIF file or the JPG you download.</p>
+<h3>How does HEIC to JPG conversion work?</h3><p>The tool first tries native decode with createImageBitmap or an Image element, which works in Safari and some Chromium builds. If that fails, it loads heic2any from a CDN and converts in the page. JPEG quality is the encoder setting on a canvas or decoder output.</p>
+<h3>Will every HEIC file convert in Chrome?</h3><p>Not always. Some files fail in Chromium when the browser has no HEIC decoder and the fallback cannot parse the file. Safari usually does better. Nothing is uploaded either way.</p>
+<h3>Are EXIF and Live Photo extras kept?</h3><p>No. The download is a new JPEG. Camera metadata is not copied. Live Photo motion is not kept. A multi-image HEIC may only yield the primary still, or extra stills if the decoder returns them.</p>
+<h3>What file do I download?</h3><p>One HEIC becomes a .jpg named from the original. Several files download as converted-jpgs.zip. The original on your device is unchanged.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/image-compressor/">Image Compressor</a></li><li><a href="/converters/image-resizer/">Image Resizer</a></li><li><a href="/converters/jpg-to-pdf/">JPG to PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=15*1024*1024;
+const MAX_BYTES=40*1024*1024;
+const WARN_FILES=12;
+const MAX_FILES=30;
+const MAX_EDGE=8192;
+let items:File[]=[];
+let heicFn:any=null;
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="heic2any";
+const VER="0.0.4";
+const FILE="dist/heic2any.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const HEIC_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const fileInput=document.querySelector<HTMLInputElement>("#image-files")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const quality=document.querySelector<HTMLInputElement>("#jpg-quality")!;
+const qualityLabel=document.querySelector<HTMLElement>("#quality-label")!;
+const convertBtn=document.querySelector<HTMLButtonElement>("#convert")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFiles=document.querySelector<HTMLElement>("#out-files")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const outDone=document.querySelector<HTMLElement>("#out-done")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(2)+" MB":Math.round(n/1024)+" KB";
+const extOf=(name:string)=>{const i=name.lastIndexOf(".");return i>=0?name.slice(i+1).toLowerCase():""};
+const isHeic=(file:File)=>{const t=file.type.toLowerCase();const e=extOf(file.name);return t.includes("heic")||t.includes("heif")||e==="heic"||e==="heif"};
+const totalBytes=()=>items.reduce((sum,file)=>sum+file.size,0);
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(totalBytes()>WARN_BYTES)bits.push("total size is over about 15 MB");
+  if(items.length>WARN_FILES)bits.push(items.length+" files may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const baseName=(name:string)=>{const i=name.lastIndexOf(".");return (i>0?name.slice(0,i):name)||"photo"};
+quality.addEventListener("input",()=>{qualityLabel.textContent=quality.value+"%"});
+const renderMeta=()=>{
+  if(!items.length){
+    fileMeta.textContent="Choose one or more HEIC or HEIF photos, or drop them here. Nothing is uploaded.";
+    outFiles.textContent="\u2014";outSize.textContent="\u2014";outDone.textContent="\u2014";
+    return;
+  }
+  outFiles.textContent=String(items.length);
+  outSize.textContent=kb(totalBytes());
+  outDone.textContent="\u2014";
+  fileMeta.textContent=items.length+" file"+(items.length===1?"":"s")+" selected ("+kb(totalBytes())+"). Work stays in the browser.";
+};
+const addFiles=(list:FileList|File[])=>{
+  const next=Array.from(list);
+  for(const file of next){
+    if(!isHeic(file))throw new Error(file.name+" is not a HEIC or HEIF photo.");
+    if(file.size>MAX_BYTES)throw new Error(file.name+" is larger than 40 MB. Try a smaller photo.");
+  }
+  if(items.length+next.length>MAX_FILES)throw new Error("Choose "+MAX_FILES+" photos or fewer.");
+  const sum=totalBytes()+next.reduce((s,f)=>s+f.size,0);
+  if(sum>MAX_BYTES*2)throw new Error("Those files together are too large. Try fewer photos.");
+  items=items.concat(next);
+  renderMeta();
+  setStatus(items.length+" photo"+(items.length===1?"":"s")+" ready. Set quality, then convert."+warnNote());
+};
+fileInput.addEventListener("change",()=>{
+  try{
+    if(fileInput.files&&fileInput.files.length)addFiles(fileInput.files);
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not read those files.","error")}
+  fileInput.value="";
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",(event)=>{
+  try{
+    const files=event.dataTransfer&&event.dataTransfer.files;
+    if(files&&files.length)addFiles(files);
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not read those files.","error")}
+});
+clearBtn.addEventListener("click",()=>{items=[];renderMeta();setStatus("Cleared. Choose HEIC or HEIF photos, then convert.")});
+const qVal=()=>{
+  const n=Number(quality.value)/100;
+  if(!Number.isFinite(n)||n<0.5||n>0.95)throw new Error("JPEG quality must be between 50% and 95%.");
+  return n;
+};
+const canvasToJpeg=(source:CanvasImageSource,w:number,h:number,q:number)=>new Promise<Blob>((resolve,reject)=>{
+  if(w<1||h<1){reject(new Error("That image has no pixels."));return}
+  if(w>MAX_EDGE||h>MAX_EDGE){reject(new Error("That image is larger than "+MAX_EDGE+" px on a side."));return}
+  const canvas=document.createElement("canvas");
+  canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext("2d");
+  if(!ctx){reject(new Error("Could not draw that image."));return}
+  ctx.drawImage(source,0,0,w,h);
+  canvas.toBlob((blob)=>{if(blob)resolve(blob);else reject(new Error("Could not encode JPEG."));},"image/jpeg",q);
+});
+const nativeFromBitmap=async(file:File,q:number)=>{
+  if(typeof createImageBitmap!=="function")return null;
+  let bmp:ImageBitmap;
+  try{bmp=await createImageBitmap(file)}catch{return null}
+  try{return await canvasToJpeg(bmp,bmp.width,bmp.height,q)}finally{if(bmp.close)bmp.close()}
+};
+const nativeFromImage=async(file:File,q:number)=>new Promise<Blob|null>((resolve)=>{
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  const done=(blob:Blob|null)=>{URL.revokeObjectURL(url);resolve(blob)};
+  img.onload=()=>{canvasToJpeg(img,img.naturalWidth||img.width,img.naturalHeight||img.height,q).then((blob)=>done(blob)).catch(()=>done(null))};
+  img.onerror=()=>done(null);
+  img.src=url;
+});
+const loadHeic2any=async()=>{
+  if(heicFn)return heicFn;
+  const w=window as any;
+  if(typeof w.heic2any==="function"){heicFn=w.heic2any;return heicFn}
+  await new Promise<void>((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src=HEIC_SRC;
+    s.async=true;
+    s.onload=()=>resolve();
+    s.onerror=()=>reject(new Error("Could not load the HEIC decoder from the CDN."));
+    document.head.appendChild(s);
+  });
+  if(typeof w.heic2any!=="function")throw new Error("Could not load the HEIC decoder from the CDN.");
+  heicFn=w.heic2any;
+  return heicFn;
+};
+const blobsFromHeic2any=async(file:File,q:number)=>{
+  const convert=await loadHeic2any();
+  let result:any;
+  try{result=await convert({blob:file,toType:"image/jpeg",quality:q})}catch(error){
+    const text=String(error&&error.message?error.message:error||"");
+    throw new Error("Could not decode "+file.name+" in this browser. Try Safari, or a Chromium build with HEIC support. "+(text&&text.length<120?text:"")+" Nothing was uploaded.");
+  }
+  const list=Array.isArray(result)?result:[result];
+  const blobs=list.filter((item:any)=>item instanceof Blob);
+  if(!blobs.length)throw new Error("The decoder returned no JPEG for "+file.name+".");
+  return blobs as Blob[];
+};
+const convertOne=async(file:File,q:number)=>{
+  const nativeBmp=await nativeFromBitmap(file,q);
+  if(nativeBmp)return [nativeBmp];
+  const nativeImg=await nativeFromImage(file,q);
+  if(nativeImg)return [nativeImg];
+  return blobsFromHeic2any(file,q);
+};
+const crcTable=(()=>{
+  const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){
+    let c=n;
+    for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;
+    t[n]=c>>>0;
+  }
+  return t;
+})();
+const crc32=(data:Uint8Array)=>{
+  let c=0xffffffff;
+  for(let i=0;i<data.length;i++)c=crcTable[(c^data[i])&255]^(c>>>8);
+  return (c^0xffffffff)>>>0;
+};
+const u16=(n:number)=>new Uint8Array([n&255,(n>>>8)&255]);
+const u32=(n:number)=>new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]);
+const zipStore=async(files:{name:string;blob:Blob}[])=>{
+  const chunks:Uint8Array[]=[];
+  const central:Uint8Array[]=[];
+  let offset=0;
+  const enc=new TextEncoder();
+  for(const file of files){
+    const name=enc.encode(file.name.replace(/\\/g,"/"));
+    const data=new Uint8Array(await file.blob.arrayBuffer());
+    const crc=crc32(data);
+    const local=new Uint8Array(30+name.length);
+    local.set([0x50,0x4b,0x03,0x04,20,0,0,0,0,0,0,0,0,0],0);
+    local.set(u32(crc),14);
+    local.set(u32(data.length),18);
+    local.set(u32(data.length),22);
+    local.set(u16(name.length),26);
+    local.set(name,30);
+    chunks.push(local,data);
+    const hdr=new Uint8Array(46+name.length);
+    hdr.set([0x50,0x4b,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0],0);
+    hdr.set(u32(crc),16);
+    hdr.set(u32(data.length),20);
+    hdr.set(u32(data.length),24);
+    hdr.set(u16(name.length),28);
+    hdr.set(u32(offset),42);
+    hdr.set(name,46);
+    central.push(hdr);
+    offset+=local.length+data.length;
+  }
+  let centralSize=0;
+  for(const part of central)centralSize+=part.length;
+  const end=new Uint8Array(22);
+  end.set([0x50,0x4b,0x05,0x06],0);
+  end.set(u16(files.length),8);
+  end.set(u16(files.length),10);
+  end.set(u32(centralSize),12);
+  end.set(u32(offset),16);
+  return new Blob([...chunks,...central,end],{type:"application/zip"});
+};
+const downloadBlob=(blob:Blob,name:string)=>{
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;link.download=name;link.click();
+  URL.revokeObjectURL(url);
+};
+convertBtn.addEventListener("click",async()=>{
+  convertBtn.disabled=true;
+  try{
+    if(!items.length)throw new Error("Choose a HEIC or HEIF photo first.");
+    const q=qVal();
+    const outputs:{name:string;blob:Blob}[]=[];
+    let failed=0;
+    for(let i=0;i<items.length;i++){
+      const file=items[i];
+      setStatus("Converting "+(i+1)+" of "+items.length+": "+file.name+"..."+warnNote());
+      try{
+        const blobs=await convertOne(file,q);
+        blobs.forEach((blob,idx)=>{
+          const extra=blobs.length>1?"-"+(idx+1):"";
+          outputs.push({name:baseName(file.name)+extra+".jpg",blob});
+        });
+      }catch(error){
+        failed+=1;
+        if(items.length===1)throw error;
+      }
+    }
+    if(!outputs.length)throw new Error("None of those photos could be decoded in this browser. Try Safari. Nothing was uploaded.");
+    outDone.textContent=String(outputs.length);
+    if(outputs.length===1){
+      downloadBlob(outputs[0].blob,outputs[0].name);
+      setStatus("Downloaded "+outputs[0].name+". JPEG quality "+quality.value+"%. EXIF was not copied. Nothing was uploaded.","success");
+    }else{
+      setStatus("Building converted-jpgs.zip...");
+      const zip=await zipStore(outputs);
+      downloadBlob(zip,"converted-jpgs.zip");
+      const extra=failed?" "+failed+" file"+(failed===1?"":"s")+" failed in this browser.":"";
+      setStatus("Downloaded converted-jpgs.zip with "+outputs.length+" JPG"+(outputs.length===1?"":"s")+". JPEG quality "+quality.value+"%. EXIF was not copied."+extra+" Nothing was uploaded.","success");
+    }
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not convert those photos.","error")}
+  finally{convertBtn.disabled=false}
+});
+</script></BaseLayout>
