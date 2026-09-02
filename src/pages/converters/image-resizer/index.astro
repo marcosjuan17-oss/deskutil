@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Resize JPG, PNG, and WebP in your browser. Set width and height, keep aspect ratio, then download JPEG or PNG. Nothing is uploaded. HEIC is not supported.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Image Resizer',item:'https://deskutil.com/converters/image-resizer/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Image Resizer',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/image-resizer/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Resize JPG PNG WebP in the browser','Show original width and height','Keep aspect ratio','Canvas redraw','Download JPEG or PNG']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How does Image Resizer change dimensions?',acceptedAnswer:{'@type':'Answer',text:'It draws your image onto a canvas at the width and height you enter, then exports that canvas. Keep aspect ratio is on by default so one side follows the other. This is a redraw, not a lossless pixel copy.'}},
+{'@type':'Question',name:'Is my image uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. The file stays on your device. Canvas encoding runs in your browser and Deskutil never receives the image.'}},
+{'@type':'Question',name:'Does this support HEIC?',acceptedAnswer:{'@type':'Answer',text:'No. This tool accepts JPG, PNG, and WebP only. HEIC belongs to a later tool.'}},
+{'@type':'Question',name:'What format do I download?',acceptedAnswer:{'@type':'Answer',text:'JPEG sources download as .jpg. PNG sources download as .png so transparency can be kept. WebP sources download as .jpg. Nothing is uploaded.'}},
+{'@type':'Question',name:'What happens if I uncheck keep aspect ratio?',acceptedAnswer:{'@type':'Answer',text:'You can set width and height independently. The image is stretched to those pixels on the canvas. Turn keep aspect ratio back on to lock the original proportions again.'}}
+]}
+];
+---
+<BaseLayout title="Image Resizer Online — Resize JPG PNG WebP in Browser" description={description} canonical="https://deskutil.com/converters/image-resizer/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Image Resizer</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Image Resizer</h1><p>Resize a JPG, PNG, or WebP image in your browser. See the original width and height, enter new dimensions, keep aspect ratio if you want, then download JPEG or PNG. Nothing is uploaded. HEIC is not this tool.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Image Resizer actions"><button class="tool-button primary" id="resize" type="button">Resize image</button><button class="tool-button" id="download" type="button" disabled>Download</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This redraws your image on a canvas at the size you choose. JPEG output is lossy. PNG output keeps a transparent background when the source is PNG. HEIC is not supported. Nothing is uploaded.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="image-file">Image file</label><input class="field-input" id="image-file" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" /><p class="file-meta" id="file-meta">Choose a JPG, PNG, or WebP file, or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field"><label for="new-width">New width (px)</label><input class="field-input" id="new-width" type="number" min="1" max="8192" step="1" inputmode="numeric" /></div>
+<div class="tool-field"><label for="new-height">New height (px)</label><input class="field-input" id="new-height" type="number" min="1" max="8192" step="1" inputmode="numeric" /></div>
+<div class="tool-field"><div class="tool-checks"><label class="tool-check"><input id="keep-aspect" type="checkbox" checked /> Keep aspect ratio</label></div></div>
+</div>
+<div class="finance-grid">
+<div class="finance-stat"><span>Original width</span><strong id="out-ow">—</strong></div>
+<div class="finance-stat"><span>Original height</span><strong id="out-oh">—</strong></div>
+<div class="finance-stat"><span>New size</span><strong id="out-new">—</strong></div>
+<div class="finance-stat"><span>Output</span><strong id="out-fmt">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose a JPG, PNG, or WebP image, set width and height, then resize. HEIC is not supported.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Image Resizer</h2><p>Choose or drop one JPG, PNG, or WebP file. Original width and height appear after the file loads. Enter a new width and height. Keep aspect ratio is on by default so the other side updates with you. Then <strong>Resize image</strong> and download. HEIC files are rejected. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How does Image Resizer change dimensions?</h3><p>It draws your image onto a canvas at the width and height you enter, then exports that canvas. Keep aspect ratio is on by default so one side follows the other. This is a redraw, not a lossless pixel copy.</p>
+<h3>Is my image uploaded to a server?</h3><p>No. The file stays on your device. Canvas encoding runs in your browser and Deskutil never receives the image.</p>
+<h3>Does this support HEIC?</h3><p>No. This tool accepts JPG, PNG, and WebP only. HEIC belongs to a later tool.</p>
+<h3>What format do I download?</h3><p>JPEG sources download as .jpg. PNG sources download as .png so transparency can be kept. WebP sources download as .jpg. Nothing is uploaded.</p>
+<h3>What happens if I uncheck keep aspect ratio?</h3><p>You can set width and height independently. The image is stretched to those pixels on the canvas. Turn keep aspect ratio back on to lock the original proportions again.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/image-compressor/">Image Compressor</a></li><li><a href="/converters/jpg-to-pdf/">JPG to PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=15*1024*1024;
+const MAX_BYTES=40*1024*1024;
+const MAX_EDGE=8192;
+let sourceFile:File|null=null;
+let origW=0;
+let origH=0;
+let resultUrl='';
+let resultName='resized.jpg';
+let syncing=false;
+const fileInput=document.querySelector<HTMLInputElement>('#image-file')!;
+const dropZone=document.querySelector<HTMLElement>('#drop-zone')!;
+const fileMeta=document.querySelector<HTMLElement>('#file-meta')!;
+const widthInput=document.querySelector<HTMLInputElement>('#new-width')!;
+const heightInput=document.querySelector<HTMLInputElement>('#new-height')!;
+const keepAspect=document.querySelector<HTMLInputElement>('#keep-aspect')!;
+const outOw=document.querySelector<HTMLElement>('#out-ow')!;
+const outOh=document.querySelector<HTMLElement>('#out-oh')!;
+const outNew=document.querySelector<HTMLElement>('#out-new')!;
+const outFmt=document.querySelector<HTMLElement>('#out-fmt')!;
+const resizeBtn=document.querySelector<HTMLButtonElement>('#resize')!;
+const downloadBtn=document.querySelector<HTMLButtonElement>('#download')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=('status '+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(2)+' MB':Math.round(n/1024)+' KB';
+const extOf=(name:string)=>{const i=name.lastIndexOf('.');return i>=0?name.slice(i+1).toLowerCase():''};
+const isHeic=(file:File)=>{const t=file.type.toLowerCase();const e=extOf(file.name);return t.includes('heic')||t.includes('heif')||e==='heic'||e==='heif'};
+const kindOf=(file:File):'jpeg'|'png'|'webp'|null=>{
+  const t=file.type.toLowerCase();
+  const e=extOf(file.name);
+  if(t==='image/jpeg'||t==='image/jpg'||e==='jpg'||e==='jpeg')return 'jpeg';
+  if(t==='image/png'||e==='png')return 'png';
+  if(t==='image/webp'||e==='webp')return 'webp';
+  return null;
+};
+const clampDim=(n:number)=>{if(!Number.isFinite(n))return 1;return Math.min(MAX_EDGE,Math.max(1,Math.round(n)));};
+const resetOutput=()=>{if(resultUrl){URL.revokeObjectURL(resultUrl);resultUrl=''} downloadBtn.disabled=true; outNew.textContent='—'; outFmt.textContent='—';};
+const clearDims=()=>{origW=0;origH=0;widthInput.value='';heightInput.value='';outOw.textContent='—';outOh.textContent='—';};
+const setFile=(file:File|null)=>{
+  resetOutput();
+  sourceFile=file;
+  if(!file){fileMeta.textContent='Choose a JPG, PNG, or WebP file, or drop it here. Nothing is uploaded.';clearDims();return}
+  fileMeta.textContent=file.name+' ('+kb(file.size)+'). Work stays in the browser.';
+};
+const loadDims=async(file:File)=>{
+  let bitmap:ImageBitmap;
+  try{bitmap=await createImageBitmap(file)}catch{throw new Error('Could not read that file. Use a standard JPG, PNG, or WebP image.')}
+  origW=bitmap.width;
+  origH=bitmap.height;
+  bitmap.close();
+  if(origW>MAX_EDGE||origH>MAX_EDGE){origW=0;origH=0;throw new Error('This image is over 8192 pixels on one side. Use a smaller image.')}
+  outOw.textContent=String(origW);
+  outOh.textContent=String(origH);
+  widthInput.value=String(origW);
+  heightInput.value=String(origH);
+};
+const applyFile=async(file:File)=>{
+  if(isHeic(file)){setFile(null);fileInput.value='';setStatus('HEIC is not this tool. Use JPG, PNG, or WebP.','error');return}
+  if(!kindOf(file)){setFile(null);fileInput.value='';setStatus('Choose a JPG, PNG, or WebP file.','error');return}
+  setFile(file);
+  try{
+    await loadDims(file);
+    const note=file.size>WARN_BYTES?' Large images may be slow.':'';
+    setStatus(file.name+' is '+origW+' × '+origH+' px.'+note);
+  }catch(error){setFile(null);fileInput.value='';setStatus(error instanceof Error?error.message:'Could not read that image.','error')}
+};
+fileInput.addEventListener('change',()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  void applyFile(file);
+});
+['dragenter','dragover'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add('drag')}));
+['dragleave','drop'].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove('drag')}));
+dropZone.addEventListener('drop',(event)=>{
+  const files=event.dataTransfer&&event.dataTransfer.files;
+  if(!files||!files.length)return;
+  const file=files[0];
+  fileInput.value='';
+  void applyFile(file);
+});
+widthInput.addEventListener('input',()=>{
+  if(syncing||!keepAspect.checked||!origW||!origH)return;
+  syncing=true;
+  const w=clampDim(Number(widthInput.value));
+  heightInput.value=String(clampDim(w*origH/origW));
+  syncing=false;
+});
+heightInput.addEventListener('input',()=>{
+  if(syncing||!keepAspect.checked||!origW||!origH)return;
+  syncing=true;
+  const h=clampDim(Number(heightInput.value));
+  widthInput.value=String(clampDim(h*origW/origH));
+  syncing=false;
+});
+keepAspect.addEventListener('change',()=>{
+  if(!keepAspect.checked||!origW||!origH)return;
+  const w=clampDim(Number(widthInput.value)||origW);
+  widthInput.value=String(w);
+  heightInput.value=String(clampDim(w*origH/origW));
+});
+const stemOf=(name:string)=>{const i=name.lastIndexOf('.');return (i>0?name.slice(0,i):name)||'image'};
+resizeBtn.addEventListener('click',async()=>{
+  resizeBtn.disabled=true;
+  try{
+    if(!sourceFile)throw new Error('Choose a JPG, PNG, or WebP image first.');
+    if(isHeic(sourceFile))throw new Error('HEIC is not this tool. Use JPG, PNG, or WebP.');
+    const kind=kindOf(sourceFile);
+    if(!kind)throw new Error('Choose a JPG, PNG, or WebP file.');
+    if(sourceFile.size>MAX_BYTES)throw new Error('This image is over 40 MB. Use a smaller file.');
+    if(!origW||!origH)throw new Error('Could not read image dimensions. Choose the file again.');
+    const w=clampDim(Number(widthInput.value));
+    const h=clampDim(Number(heightInput.value));
+    if(!Number.isFinite(Number(widthInput.value))||!Number.isFinite(Number(heightInput.value)))throw new Error('Enter a width and height in pixels.');
+    widthInput.value=String(w);
+    heightInput.value=String(h);
+    setStatus('Drawing image to canvas...');
+    let bitmap:ImageBitmap;
+    try{bitmap=await createImageBitmap(sourceFile)}catch{throw new Error('Could not read that file. Use a standard JPG, PNG, or WebP image.')}
+    const pngOut=kind==='png';
+    const canvas=document.createElement('canvas');
+    canvas.width=w;
+    canvas.height=h;
+    const ctx=canvas.getContext('2d',{alpha:pngOut});
+    if(!ctx){bitmap.close();throw new Error('Could not prepare that image.');}
+    if(!pngOut){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)}
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality='high';
+    ctx.drawImage(bitmap,0,0,w,h);
+    bitmap.close();
+    const mime=pngOut?'image/png':'image/jpeg';
+    setStatus(pngOut?'Encoding PNG...':'Encoding JPEG...');
+    const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob((value)=>value?resolve(value):reject(new Error('Could not encode that image.')),mime,pngOut?undefined:0.92));
+    if(resultUrl)URL.revokeObjectURL(resultUrl);
+    resultUrl=URL.createObjectURL(blob);
+    resultName=stemOf(sourceFile.name)+'-'+w+'x'+h+(pngOut?'.png':'.jpg');
+    outNew.textContent=kb(blob.size)+' · '+w+' × '+h;
+    outFmt.textContent=pngOut?'PNG': 'JPEG';
+    downloadBtn.disabled=false;
+    setStatus('Resized to '+w+' × '+h+' as '+resultName+'. Nothing was uploaded.','success');
+  }catch(error){setStatus(error instanceof Error?error.message:'Could not resize that image.','error')}
+  finally{resizeBtn.disabled=false}
+});
+downloadBtn.addEventListener('click',()=>{
+  if(!resultUrl)return;
+  const link=document.createElement('a');
+  link.href=resultUrl;link.download=resultName;link.click();
+  setStatus('Downloaded '+resultName+'. Nothing was uploaded.','success');
+});
+</script></BaseLayout>
