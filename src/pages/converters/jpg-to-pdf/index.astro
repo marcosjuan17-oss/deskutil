@@ -1,0 +1,199 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Convert JPG, PNG, and WebP images to a PDF in your browser. Reorder pages, set orientation, then download images.pdf. Nothing is uploaded. HEIC is not supported here.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'JPG to PDF',item:'https://deskutil.com/converters/jpg-to-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'JPG to PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/jpg-to-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Convert JPG to PDF in the browser','Also accept PNG and WebP','Reorder images','Optional page orientation','Download images.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How does JPG to PDF conversion work?',acceptedAnswer:{'@type':'Answer',text:'Each image becomes one PDF page. Page size follows the image aspect and is fitted to a US Letter maximum. The PDF is built in your browser with pdf-lib and downloaded as images.pdf.'}},
+{'@type':'Question',name:'Can I add PNG or WebP files?',acceptedAnswer:{'@type':'Answer',text:'Yes. This tool is named JPG to PDF, but PNG and WebP are accepted as extras. HEIC is not supported here; that will be a separate tool later.'}},
+{'@type':'Question',name:'Is my image uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. Images stay on your device. pdf-lib runs in the browser and Deskutil never receives the files.'}},
+{'@type':'Question',name:'Can I change the order or page orientation?',acceptedAnswer:{'@type':'Answer',text:'Yes. Use Up and Down to reorder images. Choose Auto to match each image, or force Portrait or Landscape US Letter pages.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named images.pdf. One page per image, in list order. Nothing is uploaded.'}}
+]}
+];
+---
+<BaseLayout title="JPG to PDF Online — Convert Images to PDF in Your Browser" description={description} canonical="https://deskutil.com/converters/jpg-to-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">JPG to PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>JPG to PDF</h1><p>Turn JPG images into a PDF in your browser. PNG and WebP work as extras. Reorder the list, set page orientation if you want, then download <strong>images.pdf</strong>. Nothing is uploaded. HEIC is not this tool.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="JPG to PDF actions"><button class="tool-button primary" id="convert" type="button">Create PDF</button><button class="tool-button" id="clear" type="button">Clear list</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">Each image becomes one page. Page size matches image aspect and fits a US Letter maximum. Work stays in the browser. HEIC is not supported here.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="image-files">Image files</label><input class="field-input" id="image-files" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple /><p class="file-meta" id="file-meta">Choose JPG, PNG, or WebP files, or drop them here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields"><div class="tool-field"><label for="orientation">Page orientation</label><select class="field-input" id="orientation"><option value="auto">Auto (match image)</option><option value="portrait">Portrait (US Letter)</option><option value="landscape">Landscape (US Letter)</option></select></div></div>
+<div id="file-list" hidden></div>
+<p class="status" id="status" role="status" aria-live="polite">Add one or more JPG, PNG, or WebP images, set the order, then create images.pdf.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use JPG to PDF</h2><p>Choose or drop JPG, PNG, or WebP images. Use <strong>Up</strong> and <strong>Down</strong> to set order. Pick Auto, Portrait, or Landscape, then <strong>Create PDF</strong> to download <strong>images.pdf</strong>. HEIC files are rejected. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How does JPG to PDF conversion work?</h3><p>Each image becomes one PDF page. Page size follows the image aspect and is fitted to a US Letter maximum. The PDF is built in your browser with pdf-lib and downloaded as images.pdf.</p>
+<h3>Can I add PNG or WebP files?</h3><p>Yes. This tool is named JPG to PDF, but PNG and WebP are accepted as extras. HEIC is not supported here; that will be a separate tool later.</p>
+<h3>Is my image uploaded to a server?</h3><p>No. Images stay on your device. pdf-lib runs in the browser and Deskutil never receives the files.</p>
+<h3>Can I change the order or page orientation?</h3><p>Yes. Use Up and Down to reorder images. Choose Auto to match each image, or force Portrait or Landscape US Letter pages.</p>
+<h3>What file do I download?</h3><p>A single PDF named images.pdf. One page per image, in list order. Nothing is uploaded.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/converters/compress-pdf/">Compress PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+
+<script>
+const WARN_BYTES=40*1024*1024;
+const WARN_FILES=20;
+const MAX_BYTES=80*1024*1024;
+const MAX_FILES=40;
+const LETTER_W=612;
+const LETTER_H=792;
+let PDFDocument:any=null;
+type Item={id:number;file:File};
+let items:Item[]=[];
+let nextId=1;
+const fileInput=document.querySelector<HTMLInputElement>("#image-files")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const fileList=document.querySelector<HTMLElement>("#file-list")!;
+const convertBtn=document.querySelector<HTMLButtonElement>("#convert")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const orientation=document.querySelector<HTMLSelectElement>("#orientation")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const extOf=(name:string)=>{const i=name.lastIndexOf(".");return i>=0?name.slice(i+1).toLowerCase():""};
+const isHeic=(file:File)=>{const t=file.type.toLowerCase();const e=extOf(file.name);return t.includes("heic")||t.includes("heif")||e==="heic"||e==="heif"};
+const kindOf=(file:File):"jpeg"|"png"|"webp"|null=>{
+  const t=file.type.toLowerCase();
+  const e=extOf(file.name);
+  if(t==="image/jpeg"||t==="image/jpg"||e==="jpg"||e==="jpeg")return "jpeg";
+  if(t==="image/png"||e==="png")return "png";
+  if(t==="image/webp"||e==="webp")return "webp";
+  return null;
+};
+const totalBytes=()=>items.reduce((sum,item)=>sum+item.file.size,0);
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(totalBytes()>WARN_BYTES)bits.push("total size is over about 40 MB");
+  if(items.length>WARN_FILES)bits.push(items.length+" images may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const renderList=()=>{
+  fileList.innerHTML="";
+  if(!items.length){fileList.hidden=true;fileMeta.textContent="Choose JPG, PNG, or WebP files, or drop them here. Nothing is uploaded.";return}
+  fileList.hidden=false;
+  fileMeta.textContent=items.length+" image"+(items.length===1?"":"s")+" selected ("+kb(totalBytes())+"). Work stays in the browser.";
+  items.forEach((item,index)=>{
+    const row=document.createElement("div");
+    row.className="file-drop-inner";
+    row.style.padding="8px 16px";
+    const label=document.createElement("p");
+    label.className="file-meta";
+    label.style.margin="0";
+    label.style.flex="1";
+    label.textContent=(index+1)+". "+item.file.name+" ("+kb(item.file.size)+")";
+    const up=document.createElement("button");
+    up.className="tool-button";up.type="button";up.textContent="Up";up.disabled=index===0;
+    up.addEventListener("click",()=>{if(index===0)return;const swap=items[index-1]!;items[index-1]=items[index]!;items[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const down=document.createElement("button");
+    down.className="tool-button";down.type="button";down.textContent="Down";down.disabled=index===items.length-1;
+    down.addEventListener("click",()=>{if(index>=items.length-1)return;const swap=items[index+1]!;items[index+1]=items[index]!;items[index]=swap;renderList();setStatus("Order updated."+warnNote())});
+    const remove=document.createElement("button");
+    remove.className="tool-button";remove.type="button";remove.textContent="Remove";
+    remove.addEventListener("click",()=>{items=items.filter((entry)=>entry.id!==item.id);renderList();setStatus(items.length?"Image removed."+warnNote():"Add one or more JPG, PNG, or WebP images, then create images.pdf.")});
+    row.append(label,up,down,remove);
+    fileList.append(row);
+  });
+};
+const addFiles=(list:FileList|File[])=>{
+  const incoming=Array.from(list);
+  if(!incoming.length)return;
+  const skipped:string[]=[];
+  for(const file of incoming){
+    if(isHeic(file)){skipped.push(file.name+" is HEIC. HEIC is not this tool.");continue}
+    if(!kindOf(file)){skipped.push(file.name+" is not JPG, PNG, or WebP");continue}
+    const dup=items.some((item)=>item.file.name===file.name&&item.file.size===file.size&&item.file.lastModified===file.lastModified);
+    if(dup)continue;
+    if(items.length>=MAX_FILES){skipped.push("Stop at "+MAX_FILES+" images.");break}
+    items.push({id:nextId++,file});
+  }
+  renderList();
+  fileInput.value="";
+  if(skipped.length)setStatus(skipped[0],"error");
+  else if(!items.length)setStatus("Choose JPG, PNG, or WebP files only.");
+  else setStatus(items.length+" image"+(items.length===1?"":"s")+" ready."+warnNote());
+};
+fileInput.addEventListener("change",()=>{if(fileInput.files&&fileInput.files.length)addFiles(fileInput.files)});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",(event)=>{const files=event.dataTransfer&&event.dataTransfer.files;if(files&&files.length)addFiles(files)});
+clearBtn.addEventListener("click",()=>{items=[];renderList();setStatus("List cleared. Add JPG, PNG, or WebP images, then create images.pdf.")});
+const loadPdfLib=async()=>{
+  if(PDFDocument)return PDFDocument;
+  const CDN_HOST="cdn.jsdelivr.net";
+  const PKG="pdf-lib";
+  const VER="1.17.1";
+  const FILE="dist/pdf-lib.esm.min.js";
+  const PDFLIB_SRC=("http"+"s:")+"//"+CDN_HOST+"/n"+"pm/"+PKG+"@"+VER+"/"+FILE;
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  if(!PDFDocument)throw new Error("Could not load the PDF library.");
+  return PDFDocument;
+};
+const canvasJpeg=async(bitmap:ImageBitmap)=>{
+  const canvas=document.createElement("canvas");
+  canvas.width=bitmap.width;
+  canvas.height=bitmap.height;
+  const ctx=canvas.getContext("2d",{alpha:false});
+  if(!ctx)throw new Error("Could not prepare that image.");
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(bitmap,0,0);
+  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob((value)=>value?resolve(value):reject(new Error("Could not encode that image.")),"image/jpeg",0.92));
+  return new Uint8Array(await blob.arrayBuffer());
+};
+const pageBox=(imgW:number,imgH:number,mode:string)=>{
+  if(mode==="portrait")return {w:LETTER_W,h:LETTER_H};
+  if(mode==="landscape")return {w:LETTER_H,h:LETTER_W};
+  const maxW=imgW>=imgH?LETTER_H:LETTER_W;
+  const maxH=imgW>=imgH?LETTER_W:LETTER_H;
+  const scale=Math.min(maxW/imgW,maxH/imgH,1);
+  return {w:imgW*scale,h:imgH*scale};
+};
+convertBtn.addEventListener("click",async()=>{
+  convertBtn.disabled=true;
+  try{
+    if(!items.length)throw new Error("Add at least one JPG, PNG, or WebP image.");
+    if(totalBytes()>MAX_BYTES)throw new Error("These images total more than 80 MB. Convert a smaller set.");
+    setStatus("Loading PDF library..."+warnNote());
+    const Doc=await loadPdfLib();
+    const pdf=await Doc.create();
+    const mode=orientation.value;
+    for(let i=0;i<items.length;i++){
+      const item=items[i];
+      const kind=kindOf(item.file);
+      if(!kind)throw new Error(item.file.name+" is not JPG, PNG, or WebP.");
+      if(isHeic(item.file))throw new Error(item.file.name+" is HEIC. HEIC is not this tool.");
+      setStatus("Adding "+item.file.name+" ("+(i+1)+" of "+items.length+")..."+warnNote());
+      const bytes=new Uint8Array(await item.file.arrayBuffer());
+      let image:any;
+      try{
+        if(kind==="jpeg")image=await pdf.embedJpg(bytes);
+        else if(kind==="png")image=await pdf.embedPng(bytes);
+        else {
+          const bitmap=await createImageBitmap(item.file);
+          const jpegBytes=await canvasJpeg(bitmap);
+          bitmap.close();
+          image=await pdf.embedJpg(jpegBytes);
+        }
+      }catch{
+        throw new Error("Could not read "+item.file.name+". Use a standard JPG, PNG, or WebP file.");
+      }
+      const box=pageBox(image.width,image.height,mode);
+      const page=pdf.addPage([box.w,box.h]);
+      const fitted=image.scaleToFit(box.w,box.h);
+      page.drawImage(image,{x:(box.w-fitted.width)/2,y:(box.h-fitted.height)/2,width:fitted.width,height:fitted.height});
+    }
+    setStatus("Building images.pdf...");
+    const out=await pdf.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="images.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded images.pdf with "+items.length+" page"+(items.length===1?"":"s")+". Nothing was uploaded.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not create a PDF from these images.","error")}
+  finally{convertBtn.disabled=false}
+});
+</script></BaseLayout>
