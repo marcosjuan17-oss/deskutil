@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Rotate a PDF in your browser by 90, 180, or 270 degrees clockwise. Apply to all pages or a page range, then download rotated.pdf. Nothing is uploaded.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Converter Tools',item:'https://deskutil.com/converters/'},{'@type':'ListItem',position:3,name:'Rotate PDF',item:'https://deskutil.com/converters/rotate-pdf/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Rotate PDF',applicationCategory:'UtilitiesApplication',operatingSystem:'Any',url:'https://deskutil.com/converters/rotate-pdf/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['Rotate PDF pages 90, 180, or 270 degrees clockwise','All pages or a page range','Adds to existing page rotation','Password-protected PDF error','Download rotated.pdf']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'How does Rotate PDF turn pages?',acceptedAnswer:{'@type':'Answer',text:'It sets each chosen page rotation with pdf-lib, adding 90, 180, or 270 degrees clockwise to any rotation already on the page. Pages are not redrawn as images.'}},
+{'@type':'Question',name:'Can I rotate only some pages?',acceptedAnswer:{'@type':'Answer',text:'Yes. Choose All pages, or enter a range such as 1-3,5,8-10. Only those pages are rotated. The rest stay as they are.'}},
+{'@type':'Question',name:'What happens with a password-protected PDF?',acceptedAnswer:{'@type':'Answer',text:'Rotation stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.'}},
+{'@type':'Question',name:'Is my PDF uploaded to a server?',acceptedAnswer:{'@type':'Answer',text:'No. pdf-lib runs in your browser, rotated.pdf is built locally, and Deskutil never receives the file.'}},
+{'@type':'Question',name:'What file do I download?',acceptedAnswer:{'@type':'Answer',text:'A single PDF named rotated.pdf. Rotation is added to existing page rotation. Content is not OCR’d or restyled.'}}
+]}
+];
+---
+<BaseLayout title="Rotate PDF Online — Turn PDF Pages in Your Browser" description={description} canonical="https://deskutil.com/converters/rotate-pdf/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/converters/">Converters</a></li><li aria-current="page">Rotate PDF</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Converter tool</p><h1>Rotate PDF</h1><p>Rotate one PDF in your browser by <strong>90</strong>, <strong>180</strong>, or <strong>270</strong> degrees clockwise. Apply to all pages or a page range, then download <strong>rotated.pdf</strong>. New rotation is added to any existing page rotation. Password-protected PDFs fail with a clear error. Nothing is uploaded.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Rotate PDF actions"><button class="tool-button primary" id="rotate" type="button">Rotate PDF</button><button class="tool-button" id="clear" type="button">Clear</button><span class="privacy-note">Processed only in your browser</span></div>
+<p class="tool-note">This adds clockwise rotation with pdf-lib. Pages are not redrawn as images. Work stays in the browser. Large files may be slow.</p>
+<div class="file-drop" id="drop-zone"><div class="file-drop-inner"><label class="tool-check" for="pdf-file">PDF file</label><input class="field-input" id="pdf-file" type="file" accept="application/pdf,.pdf" /><p class="file-meta" id="file-meta">Choose one PDF or drop it here. Nothing is uploaded.</p></div></div>
+<div class="tool-fields">
+<div class="tool-field grow"><span>Clockwise rotation</span>
+<div class="tool-checks" role="radiogroup" aria-label="Rotation angle">
+<label class="tool-check"><input type="radio" name="angle" id="angle-90" value="90" checked /> 90°</label>
+<label class="tool-check"><input type="radio" name="angle" id="angle-180" value="180" /> 180°</label>
+<label class="tool-check"><input type="radio" name="angle" id="angle-270" value="270" /> 270°</label>
+</div></div>
+<div class="tool-field grow"><span>Pages</span>
+<div class="tool-checks" role="radiogroup" aria-label="Pages to rotate">
+<label class="tool-check"><input type="radio" name="scope" id="scope-all" value="all" checked /> All pages</label>
+<label class="tool-check"><input type="radio" name="scope" id="scope-range" value="range" /> Page range</label>
+</div></div>
+<div class="tool-field grow" id="range-field" hidden><label for="page-range">Page range</label><input class="field-input" id="page-range" type="text" placeholder="1-3,5,8-10" autocomplete="off" /></div>
+</div>
+<div class="finance-grid">
+<div class="finance-stat"><span>File</span><strong id="out-file">—</strong></div>
+<div class="finance-stat"><span>Pages</span><strong id="out-pages">—</strong></div>
+<div class="finance-stat"><span>Size</span><strong id="out-size">—</strong></div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Choose one PDF, pick an angle, then rotate. Files around 40 MB or many pages may be slow.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use Rotate PDF</h2><p>Choose or drop one PDF. Pick <strong>90</strong>, <strong>180</strong>, or <strong>270</strong> degrees clockwise. Rotate all pages, or enter a range such as <strong>1-3,5,8-10</strong>. Then <strong>Rotate PDF</strong> to download <strong>rotated.pdf</strong>. Rotation is added to any existing page rotation. Password-protected files fail with an error. Nothing is sent to a server.</p>
+<h2>Frequently asked questions</h2>
+<h3>How does Rotate PDF turn pages?</h3><p>It sets each chosen page rotation with pdf-lib, adding 90, 180, or 270 degrees clockwise to any rotation already on the page. Pages are not redrawn as images.</p>
+<h3>Can I rotate only some pages?</h3><p>Yes. Choose All pages, or enter a range such as 1-3,5,8-10. Only those pages are rotated. The rest stay as they are.</p>
+<h3>What happens with a password-protected PDF?</h3><p>Rotation stops with a clear error. Remove the password in another app, then try again. The file is never uploaded.</p>
+<h3>Is my PDF uploaded to a server?</h3><p>No. pdf-lib runs in your browser, rotated.pdf is built locally, and Deskutil never receives the file.</p>
+<h3>What file do I download?</h3><p>A single PDF named rotated.pdf. Rotation is added to existing page rotation. Content is not OCR’d or restyled.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/converters/">Converter tools</a></li><li><a href="/converters/merge-pdf/">Merge PDF</a></li><li><a href="/converters/split-pdf/">Split PDF</a></li><li><a href="/converters/compress-pdf/">Compress PDF</a></li><li><a href="/privacy/">How privacy works</a></li></ul></aside></div></section>
+<script>
+const WARN_BYTES=40*1024*1024;
+const MAX_BYTES=120*1024*1024;
+const WARN_PAGES=50;
+const MAX_PAGES=400;
+let PDFDocument:any=null;
+let degreesFn:any=null;
+let selected:File|null=null;
+let pageCount=0;
+const CDN_HOST="cdn.jsdelivr.net";
+const PKG="pdf-lib";
+const VER="1.17.1";
+const FILE="dist/pdf-lib.esm.min.js";
+const proto="http"+"s:";
+const slash="//";
+const at="@";
+const npmDir="/n"+"pm/";
+const PDFLIB_SRC=proto+slash+CDN_HOST+npmDir+PKG+at+VER+"/"+FILE;
+const fileInput=document.querySelector<HTMLInputElement>("#pdf-file")!;
+const dropZone=document.querySelector<HTMLElement>("#drop-zone")!;
+const fileMeta=document.querySelector<HTMLElement>("#file-meta")!;
+const rangeInput=document.querySelector<HTMLInputElement>("#page-range")!;
+const rangeField=document.querySelector<HTMLElement>("#range-field")!;
+const rotateBtn=document.querySelector<HTMLButtonElement>("#rotate")!;
+const clearBtn=document.querySelector<HTMLButtonElement>("#clear")!;
+const status=document.querySelector<HTMLParagraphElement>("#status")!;
+const outFile=document.querySelector<HTMLElement>("#out-file")!;
+const outPages=document.querySelector<HTMLElement>("#out-pages")!;
+const outSize=document.querySelector<HTMLElement>("#out-size")!;
+const setStatus=(message:string,kind="")=>{status.textContent=message;status.className=("status "+kind).trim()};
+const kb=(n:number)=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
+const isPdf=(file:File)=>file.type.includes("pdf")||file.name.toLowerCase().endsWith(".pdf");
+const warnNote=()=>{
+  const bits:string[]=[];
+  if(selected&&selected.size>WARN_BYTES)bits.push("this file is over about 40 MB");
+  if(pageCount>WARN_PAGES)bits.push(pageCount+" pages may be slow");
+  return bits.length?" Warning: "+bits.join("; ")+".":"";
+};
+const currentScope=()=>{
+  const checked=document.querySelector<HTMLInputElement>('input[name="scope"]:checked');
+  return checked?checked.value:"all";
+};
+const currentAngle=()=>{
+  const checked=document.querySelector<HTMLInputElement>('input[name="angle"]:checked');
+  return Number(checked?checked.value:"90");
+};
+const syncScopeFields=()=>{rangeField.hidden=currentScope()!=="range"};
+document.querySelectorAll('input[name="scope"]').forEach((el)=>el.addEventListener("change",syncScopeFields));
+syncScopeFields();
+const loadPdfLib=async()=>{
+  if(PDFDocument&&degreesFn)return {PDFDocument,degrees:degreesFn};
+  const mod:any=await import(/* @vite-ignore */ PDFLIB_SRC);
+  PDFDocument=mod.PDFDocument;
+  degreesFn=mod.degrees;
+  if(!PDFDocument||!degreesFn)throw new Error("Could not load the PDF library.");
+  return {PDFDocument,degrees:degreesFn};
+};
+const encrypted=(error:any)=>{
+  const text=String(error&&error.message?error.message:error||"");
+  return /encrypt/i.test(text)||error&&error.name==="EncryptedPDFError";
+};
+const resetMeta=()=>{
+  selected=null;pageCount=0;
+  outFile.textContent="\u2014";outPages.textContent="\u2014";outSize.textContent="\u2014";
+  fileMeta.textContent="Choose one PDF or drop it here. Nothing is uploaded.";
+};
+const inspectFile=async(file:File)=>{
+  if(!isPdf(file))throw new Error("Choose a PDF file.");
+  if(file.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+  setStatus("Reading page count..."+(file.size>WARN_BYTES?" Warning: this file is over about 40 MB.":""));
+  const {PDFDocument:Doc}=await loadPdfLib();
+  const bytes=await file.arrayBuffer();
+  let source:any;
+  try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be rotated here.")}
+  const count=source.getPageCount();
+  if(!count)throw new Error("This PDF has no pages.");
+  if(count>MAX_PAGES)throw new Error("This PDF has "+count+" pages. Rotate a file with "+MAX_PAGES+" pages or fewer.");
+  selected=file;pageCount=count;
+  outFile.textContent=file.name;
+  outPages.textContent=String(count);
+  outSize.textContent=kb(file.size);
+  fileMeta.textContent=file.name+" \u2014 "+count+" page"+(count===1?"":"s")+" ("+kb(file.size)+"). Work stays in the browser.";
+  setStatus(count+" page"+(count===1?"":"s")+" ready. Pick an angle, then rotate."+warnNote());
+};
+fileInput.addEventListener("change",async()=>{
+  const file=fileInput.files&&fileInput.files[0];
+  if(!file)return;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+["dragenter","dragover"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.add("drag")}));
+["dragleave","drop"].forEach((eventName)=>dropZone.addEventListener(eventName,(event)=>{event.preventDefault();dropZone.classList.remove("drag")}));
+dropZone.addEventListener("drop",async(event)=>{
+  const file=event.dataTransfer&&event.dataTransfer.files&&event.dataTransfer.files[0];
+  if(!file)return;
+  const list=new DataTransfer();list.items.add(file);fileInput.files=list.files;
+  try{await inspectFile(file)}catch(error){resetMeta();setStatus(error instanceof Error?error.message:"Could not read that file.","error")}
+});
+clearBtn.addEventListener("click",()=>{fileInput.value="";resetMeta();setStatus("Cleared. Choose one PDF, then rotate.")});
+const parseRange=(spec:string,count:number)=>{
+  const raw=spec.trim();
+  if(!raw)throw new Error("Enter a page range such as 1-3,5,8-10.");
+  const pages:number[]=[];
+  const seen=new Set<number>();
+  for(const part of raw.split(",")){
+    const token=part.trim();
+    if(!token)continue;
+    const dash=token.match(/^(\d+)\s*-\s*(\d+)$/);
+    const single=token.match(/^(\d+)$/);
+    let from=0,to=0;
+    if(dash){from=Number(dash[1]);to=Number(dash[2]);}
+    else if(single){from=to=Number(single[1]);}
+    else throw new Error("Could not parse \""+token+"\". Use pages like 1-3,5,8-10.");
+    if(from<1||to<1||from>count||to>count)throw new Error("Pages must be between 1 and "+count+".");
+    if(from>to){const tmp=from;from=to;to=tmp}
+    for(let p=from;p<=to;p++){if(!seen.has(p)){seen.add(p);pages.push(p)}}
+  }
+  if(!pages.length)throw new Error("Enter a page range such as 1-3,5,8-10.");
+  return pages;
+};
+rotateBtn.addEventListener("click",async()=>{
+  rotateBtn.disabled=true;
+  try{
+    if(!selected||!pageCount)throw new Error("Choose a PDF first.");
+    if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
+    const extra=currentAngle();
+    if(extra!==90&&extra!==180&&extra!==270)throw new Error("Choose 90, 180, or 270 degrees clockwise.");
+    setStatus("Loading PDF library..."+warnNote());
+    const {PDFDocument:Doc,degrees}=await loadPdfLib();
+    const bytes=await selected.arrayBuffer();
+    let source:any;
+    try{source=await Doc.load(bytes)}catch(error){if(encrypted(error))throw new Error("This PDF is password-protected. Remove the password and try again. Nothing was uploaded.");throw new Error("Could not open that PDF. Damaged files cannot be rotated here.")}
+    const count=source.getPageCount();
+    if(!count)throw new Error("This PDF has no pages.");
+    pageCount=count;outPages.textContent=String(count);
+    const pages=source.getPages();
+    let targets:number[];
+    if(currentScope()==="range")targets=parseRange(rangeInput.value,count);
+    else{targets=[];for(let i=1;i<=count;i++)targets.push(i)}
+    setStatus("Rotating "+targets.length+" page"+(targets.length===1?"":"s")+" by "+extra+" degrees clockwise..."+warnNote());
+    for(const n of targets){
+      const page=pages[n-1];
+      const current=page.getRotation();
+      const currentDeg=current&&typeof current.angle==="number"?current.angle:0;
+      const next=((currentDeg+extra)%360+360)%360;
+      page.setRotation(degrees(next));
+    }
+    setStatus("Building rotated.pdf...");
+    const out=await source.save();
+    const blob=new Blob([out],{type:"application/pdf"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;link.download="rotated.pdf";link.click();
+    URL.revokeObjectURL(url);
+    setStatus("Downloaded rotated.pdf. "+targets.length+" page"+(targets.length===1?"":"s")+" rotated "+extra+"° clockwise (added to existing rotation). Nothing was uploaded.","success");
+  }catch(error){setStatus(error instanceof Error?error.message:"Could not rotate that PDF.","error")}
+  finally{rotateBtn.disabled=false}
+});
+</script></BaseLayout>
