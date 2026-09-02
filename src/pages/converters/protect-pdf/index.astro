@@ -134,9 +134,9 @@ protectBtn.addEventListener("click",async()=>{
     if(!selected||!pageCount)throw new Error("Choose a PDF first.");
     if(selected.size>MAX_BYTES)throw new Error("That PDF is larger than 120 MB. Try a smaller file.");
     const password=passwordInput.value;
-    const confirm=confirmInput.value;
+    const confirmValue=confirmInput.value;
     if(!password)throw new Error("Type a password.");
-    if(password!==confirm)throw new Error("Password and confirmation do not match.");
+    if(password!==confirmValue)throw new Error("Password and confirmation do not match.");
     setStatus("Loading PDF library..."+warnNote());
     const Doc=await loadPdfLib();
     const bytes=await selected.arrayBuffer();
