@@ -18,10 +18,11 @@ const jsonLd = [
       <p class="eyebrow">Useful by default</p>
       <h1>Simple tools that work.</h1>
       <p>Fast utilities for files, code, and money math. No accounts, no clutter, and nothing you paste is uploaded.</p>
-      <label class="tool-search" for="tool-search">
-        <span class="visually-hidden">Search tools</span>
-        <input class="field-input" id="tool-search" type="search" placeholder="Search tools — PDF, JSON, GST, SQL…" autocomplete="off" />
-      </label>
+      <div class="tool-search">
+        <label class="visually-hidden" for="tool-search">Search tools</label>
+        <input class="field-input" id="tool-search" type="search" placeholder="Search tools — PDF, JSON, GST, SQL…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-suggestions" />
+        <ul class="search-suggestions" id="search-suggestions" role="listbox" hidden></ul>
+      </div>
     </div>
   </section>
 
@@ -78,20 +79,65 @@ const jsonLd = [
 
 <script>
 const input = document.querySelector<HTMLInputElement>('#tool-search');
+const list = document.querySelector<HTMLUListElement>('#search-suggestions');
 const cards = [...document.querySelectorAll<HTMLAnchorElement>('#tool-grid .tool-card')];
 const empty = document.querySelector<HTMLParagraphElement>('#no-matches');
+const catalog = cards.map((card) => ({
+  name: card.dataset.name || '',
+  description: card.dataset.description || '',
+  category: card.dataset.category || '',
+  href: card.getAttribute('href') || '',
+}));
+let active = -1;
+const hideSug = () => {
+  if (!list || !input) return;
+  list.hidden = true;
+  list.innerHTML = '';
+  input.setAttribute('aria-expanded', 'false');
+  active = -1;
+};
+const paintActive = () => {
+  if (!list) return;
+  [...list.querySelectorAll('a')].forEach((a, i) => a.setAttribute('aria-selected', i === active ? 'true' : 'false'));
+};
+const filter = () => {
+  if (!input) return;
+  const q = input.value.trim().toLowerCase();
+  let shown = 0;
+  for (const card of cards) {
+    const hay = `${card.dataset.name} ${card.dataset.description} ${card.dataset.category}`.toLowerCase();
+    const match = !q || hay.includes(q);
+    card.hidden = !match;
+    if (match) shown += 1;
+  }
+  if (empty) empty.hidden = shown > 0;
+  if (!list) return;
+  if (!q) { hideSug(); return; }
+  const hits = catalog.filter((tool) => `${tool.name} ${tool.description} ${tool.category}`.toLowerCase().includes(q)).slice(0, 8);
+  if (!hits.length) { hideSug(); return; }
+  list.innerHTML = hits.map((tool) => `<li role="option"><a href="${tool.href}"><span class="sug-name">${tool.name}</span><span class="sug-cat">${tool.category}</span></a></li>`).join('');
+  list.hidden = false;
+  input.setAttribute('aria-expanded', 'true');
+  active = 0;
+  paintActive();
+};
 if (input) {
-  const filter = () => {
-    const q = input.value.trim().toLowerCase();
-    let shown = 0;
-    for (const card of cards) {
-      const hay = `${card.dataset.name} ${card.dataset.description} ${card.dataset.category}`.toLowerCase();
-      const match = !q || hay.includes(q);
-      card.hidden = !match;
-      if (match) shown += 1;
-    }
-    if (empty) empty.hidden = shown > 0;
-  };
   input.addEventListener('input', filter);
+  input.addEventListener('keydown', (event) => {
+    if (!list || list.hidden) {
+      if (event.key === 'Enter' && catalog.length) return;
+      return;
+    }
+    const links = [...list.querySelectorAll('a')];
+    if (event.key === 'ArrowDown') { event.preventDefault(); active = Math.min(links.length - 1, active + 1); paintActive(); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); active = Math.max(0, active - 1); paintActive(); }
+    else if (event.key === 'Enter' && links[active]) { event.preventDefault(); window.location.href = links[active].href; }
+    else if (event.key === 'Escape') { hideSug(); }
+  });
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Node)) return;
+    if (input.contains(event.target) || list?.contains(event.target)) return;
+    hideSug();
+  });
 }
 </script>

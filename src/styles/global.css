@@ -64,3 +64,9 @@
 .featured-card{border-color:#c5d4f5;background:#f8faff}
 .empty-filter{margin:0 0 16px;color:var(--muted)}
 .tool-card[hidden]{display:none}
+.tool-search{position:relative}
+.search-suggestions{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:5;margin:0;padding:6px;list-style:none;border:1px solid var(--line);border-radius:8px;background:#fff;box-shadow:0 8px 24px rgba(23,32,42,.12);max-height:320px;overflow:auto}
+.search-suggestions a{display:block;padding:8px 10px;border-radius:6px;color:inherit;text-decoration:none}
+.search-suggestions a:hover,.search-suggestions a[aria-selected="true"]{background:#eef4ff}
+.search-suggestions .sug-name{display:block;font-weight:700}
+.search-suggestions .sug-cat{display:block;color:var(--muted);font-size:.82rem}
