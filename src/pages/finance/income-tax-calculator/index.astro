@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const description='Free India income tax calculator. Estimate tax under the new or old regime for FY 2024-25 (AY 2025-26) with slabs, rebate, and cess. Work stays in your browser.';
+const jsonLd=[
+{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:'https://deskutil.com/'},{'@type':'ListItem',position:2,name:'Finance',item:'https://deskutil.com/finance/'},{'@type':'ListItem',position:3,name:'Income Tax Calculator',item:'https://deskutil.com/finance/income-tax-calculator/'}]},
+{'@context':'https://schema.org','@type':'SoftwareApplication',name:'Income Tax Calculator',applicationCategory:'FinanceApplication',operatingSystem:'Any',url:'https://deskutil.com/finance/income-tax-calculator/',offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},featureList:['New and old tax regime','FY 2024-25 / AY 2025-26 slabs','Standard deduction','Section 87A rebate','Health and education cess','Taxable income and total tax','Copy tax breakdown']},
+{'@context':'https://schema.org','@type':'FAQPage',mainEntity:[
+{'@type':'Question',name:'Which financial year does this income tax calculator use?',acceptedAnswer:{'@type':'Answer',text:'Slabs and defaults follow India’s FY 2024-25 (assessment year 2025-26): new-regime Budget 2024 slabs with ₹75,000 standard deduction and section 87A rebate when taxable income is up to ₹7 lakh; old-regime slabs with ₹50,000 standard deduction and rebate when taxable income is up to ₹5 lakh. Health and education cess is 4% on tax after rebate.'}},
+{'@type':'Question',name:'How is taxable income calculated?',acceptedAnswer:{'@type':'Answer',text:'Taxable income is gross annual income minus the standard deduction for the chosen regime, minus optional deductions you enter (for example section 80C under the old regime). Negative results are treated as zero. New-regime users often leave extra deductions at zero because many chapter VI-A deductions are not available there.'}},
+{'@type':'Question',name:'How does the section 87A rebate work here?',acceptedAnswer:{'@type':'Answer',text:'Under the new regime, if taxable income is ₹7 lakh or less, rebate wipes out the tax before cess. Under the old regime, if taxable income is ₹5 lakh or less, rebate wipes out tax before cess. Cess is then applied to tax after rebate.'}},
+{'@type':'Question',name:'Is this official income tax advice?',acceptedAnswer:{'@type':'Answer',text:'No. Results are planning estimates for resident individuals under 60. Surcharge for very high incomes, alternate deductions, and edge cases are simplified or omitted. This is not advice from the Income Tax Department and not financial advice.'}},
+{'@type':'Question',name:'Does the income tax calculator upload my income details?',acceptedAnswer:{'@type':'Answer',text:'No. All tax math runs in your browser. Deskutil never receives the income, regime, deductions, or other figures you enter.'}}
+]}
+];
+---
+<BaseLayout title="Income Tax Calculator — India FY 2024-25 Estimate" description={description} canonical="https://deskutil.com/finance/income-tax-calculator/" jsonLd={jsonLd}>
+<div class="shell breadcrumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/finance/">Finance</a></li><li aria-current="page">Income Tax Calculator</li></ol></nav></div>
+<section class="shell page-heading tool-wrap"><p class="eyebrow">Finance tool</p><h1>Income Tax Calculator</h1><p>Estimate India income tax for a resident individual under 60 for FY 2024-25 (AY 2025-26). Choose the new or old regime, enter gross annual income and optional deductions, then see taxable income, tax, cess, and total liability—all in your browser.</p>
+<div class="tool-panel"><div class="tool-topbar" role="toolbar" aria-label="Income tax actions"><button class="tool-button primary" id="calculate" type="button">Calculate</button><button class="tool-button" id="copy" type="button">Copy results</button><span class="privacy-note">Processed only in your browser</span></div>
+<div class="tool-fields">
+<div class="tool-field grow"><label for="gross-income">Gross annual income (₹)</label><input class="field-input" id="gross-income" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 1200000" /></div>
+<div class="tool-field grow"><label for="deductions">Other deductions (₹, optional)</label><input class="field-input" id="deductions" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="e.g. 80C / HRA under old regime" value="0" /></div>
+<div class="tool-field grow"><span>Tax regime</span><div class="tool-checks"><label class="tool-check"><input type="radio" name="regime" value="new" checked /> New regime (default)</label><label class="tool-check"><input type="radio" name="regime" value="old" /> Old regime</label></div></div>
+</div>
+<div class="tool-output prose-output" id="tax-results">
+<div class="finance-grid">
+<div class="finance-stat"><span>Taxable income</span><strong id="out-taxable">—</strong></div>
+<div class="finance-stat"><span>Tax before cess</span><strong id="out-tax">—</strong></div>
+<div class="finance-stat"><span>Rebate (87A)</span><strong id="out-rebate">—</strong></div>
+<div class="finance-stat"><span>Cess (4%)</span><strong id="out-cess">—</strong></div>
+<div class="finance-stat"><span>Total tax</span><strong id="out-total">—</strong></div>
+<div class="finance-stat"><span>Effective rate</span><strong id="out-effective">—</strong></div>
+<div class="finance-stat"><span>Standard deduction</span><strong id="out-standard">—</strong></div>
+<div class="finance-stat"><span>Regime</span><strong id="out-regime">—</strong></div>
+</div>
+</div>
+<p class="status" id="status" role="status" aria-live="polite">Enter gross income and regime, then calculate.</p></div>
+<div class="content-grid"><article class="prose"><h2>How to use the income tax calculator</h2><p>Enter your gross annual income, pick the <strong>new</strong> or <strong>old</strong> regime, and add optional chapter VI-A or other deductions if they apply (often used under the old regime). Choose <strong>Calculate</strong> to see taxable income, tax before cess, section 87A rebate, 4% cess, total tax, and effective rate on gross income. Use <strong>Copy results</strong> when you want the breakdown elsewhere. Nothing is uploaded. Figures assume a resident individual under 60 and ignore surcharge on very high incomes.</p>
+<h2>Frequently asked questions</h2>
+<h3>Which financial year does this income tax calculator use?</h3><p>FY 2024-25 (AY 2025-26). The new regime uses Budget 2024 slabs with a ₹75,000 standard deduction and section 87A rebate when taxable income is up to ₹7 lakh. The old regime uses classic slabs with a ₹50,000 standard deduction and rebate when taxable income is up to ₹5 lakh. Health and education cess is 4% on tax after rebate.</p>
+<h3>How is taxable income calculated?</h3><p>Gross annual income minus the regime’s standard deduction, minus optional deductions you enter. Results below zero become zero. Under the new regime many chapter VI-A deductions are unavailable, so leave other deductions at zero unless you know an allowed amount applies.</p>
+<h3>How does the section 87A rebate work here?</h3><p>New regime: taxable income up to ₹7 lakh gets a rebate that clears tax before cess. Old regime: taxable income up to ₹5 lakh gets the same treatment. Cess is calculated on tax after rebate.</p>
+<h3>Is this official income tax advice?</h3><p>No. Results are planning estimates only. Surcharge, alternate deductions, senior-citizen slabs, and other edge cases are simplified or omitted. This page is not Income Tax Department advice and not financial advice.</p>
+<h3>Does the income tax calculator upload my income details?</h3><p>No. Tax math runs in your browser. Deskutil never receives the income, regime, deductions, or other figures you enter.</p></article>
+<aside class="aside-card"><h2>Explore Deskutil</h2><ul><li><a href="/finance/">Finance tools</a></li><li><a href="/finance/compound-interest-calculator/">Compound Interest Calculator</a></li><li><a href="/finance/fd-calculator/">FD Calculator</a></li><li><a href="/finance/sip-calculator/">SIP Calculator</a></li><li><a href="/finance/emi-calculator/">EMI Calculator</a></li><li><a href="/finance/gst-calculator/">GST Calculator</a></li><li><a href="/">All live tools</a></li><li><a href="/privacy/">How privacy works</a></li><li><a href="/about/">About Deskutil</a></li><li><a href="/contact/">Contact</a></li></ul></aside></div></section>
+<script>
+const incomeInput=document.querySelector<HTMLInputElement>('#gross-income')!;
+const deductionsInput=document.querySelector<HTMLInputElement>('#deductions')!;
+const status=document.querySelector<HTMLParagraphElement>('#status')!;
+const out={taxable:document.querySelector<HTMLElement>('#out-taxable')!,tax:document.querySelector<HTMLElement>('#out-tax')!,rebate:document.querySelector<HTMLElement>('#out-rebate')!,cess:document.querySelector<HTMLElement>('#out-cess')!,total:document.querySelector<HTMLElement>('#out-total')!,effective:document.querySelector<HTMLElement>('#out-effective')!,standard:document.querySelector<HTMLElement>('#out-standard')!,regime:document.querySelector<HTMLElement>('#out-regime')!};
+let lastCopy='';
+const setStatus=(message:string,kind='')=>{status.textContent=message;status.className=`status ${kind}`.trim()};
+const round2=(n:number)=>Math.round(n*100)/100;
+const rupee=(n:number)=>n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const selected=(name:string)=>document.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value??'';
+const parseIncome=()=>{
+  const raw=incomeInput.value.trim().replace(/,/g,'');
+  if(!raw)throw new Error('Enter gross annual income.');
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<0)throw new Error('Enter gross income of 0 or more.');
+  if(amount>1e12)throw new Error('Enter a realistic gross income.');
+  return amount;
+};
+const parseDeductions=()=>{
+  const raw=deductionsInput.value.trim().replace(/,/g,'');
+  if(!raw)return 0;
+  const amount=Number(raw);
+  if(!Number.isFinite(amount)||amount<0)throw new Error('Enter deductions of 0 or more.');
+  return amount;
+};
+type Slab={upto:number;rate:number};
+const taxFromSlabs=(taxable:number,slabs:Slab[])=>{
+  let remaining=taxable;
+  let prev=0;
+  let tax=0;
+  for(const slab of slabs){
+    const width=slab.upto===Infinity?remaining:Math.max(0,Math.min(remaining,slab.upto-prev));
+    tax+=width*(slab.rate/100);
+    remaining-=width;
+    prev=slab.upto===Infinity?prev:slab.upto;
+    if(remaining<=0)break;
+  }
+  return tax;
+};
+const calculate=()=>{
+  const gross=parseIncome();
+  const other=parseDeductions();
+  const regime=selected('regime');
+  if(regime!=='new'&&regime!=='old')throw new Error('Choose a tax regime.');
+  const standard=regime==='new'?75000:50000;
+  const rebateLimit=regime==='new'?700000:500000;
+  const slabs:Slab[]=regime==='new'
+    ?[{upto:300000,rate:0},{upto:700000,rate:5},{upto:1000000,rate:10},{upto:1200000,rate:15},{upto:1500000,rate:20},{upto:Infinity,rate:30}]
+    :[{upto:250000,rate:0},{upto:500000,rate:5},{upto:1000000,rate:20},{upto:Infinity,rate:30}];
+  const taxable=Math.max(0,round2(gross-standard-other));
+  let taxBeforeRebate=round2(taxFromSlabs(taxable,slabs));
+  let rebate=0;
+  if(taxable<=rebateLimit)rebate=taxBeforeRebate;
+  const taxAfterRebate=round2(Math.max(0,taxBeforeRebate-rebate));
+  const cess=round2(taxAfterRebate*0.04);
+  const total=round2(taxAfterRebate+cess);
+  const effective=gross>0?round2((total/gross)*100):0;
+  const regimeLabel=regime==='new'?'New regime':'Old regime';
+  out.taxable.textContent=rupee(taxable);
+  out.tax.textContent=rupee(taxAfterRebate);
+  out.rebate.textContent=rupee(rebate);
+  out.cess.textContent=rupee(cess);
+  out.total.textContent=rupee(total);
+  out.effective.textContent=`${effective}%`;
+  out.standard.textContent=rupee(standard);
+  out.regime.textContent=regimeLabel;
+  lastCopy=['Income tax breakdown (FY 2024-25 / AY 2025-26)',`Regime: ${regimeLabel}`,`Gross annual income: ${rupee(gross)}`,`Standard deduction: ${rupee(standard)}`,`Other deductions: ${rupee(other)}`,`Taxable income: ${rupee(taxable)}`,`Tax before rebate: ${rupee(taxBeforeRebate)}`,`Rebate u/s 87A: ${rupee(rebate)}`,`Tax after rebate: ${rupee(taxAfterRebate)}`,`Cess (4%): ${rupee(cess)}`,`Total tax: ${rupee(total)}`,`Effective rate on gross: ${effective}%`].join('\n');
+  return `Total tax is ${rupee(total)}.`;
+};
+document.querySelector('#calculate')?.addEventListener('click',()=>{try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate income tax.','error')}});
+document.querySelector('#copy')?.addEventListener('click',async()=>{try{if(!lastCopy)throw new Error('Calculate first.');await navigator.clipboard.writeText(lastCopy);setStatus('Copied income tax results.','success')}catch(error){setStatus(error instanceof Error?error.message:'Could not copy.','error')}});
+for(const input of [incomeInput,deductionsInput])input.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();try{setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate income tax.','error')}}});
+document.querySelectorAll<HTMLInputElement>('input[name="regime"]').forEach((input)=>input.addEventListener('change',()=>{try{if(incomeInput.value.trim())setStatus(calculate(),'success')}catch(error){setStatus(error instanceof Error?error.message:'Could not calculate income tax.','error')}}));
+</script></BaseLayout>

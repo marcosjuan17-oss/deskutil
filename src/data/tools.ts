@@ -41,6 +41,7 @@ export const tools = [
   { slug:'sip-calculator', category:'finance' as CategorySlug, name:'SIP Calculator', description:'Estimate SIP maturity value, total invested, and returns for monthly mutual fund investments in your browser.', path:'/finance/sip-calculator/' },
   { slug:'fd-calculator', category:'finance' as CategorySlug, name:'FD Calculator', description:'Estimate fixed deposit maturity value, interest earned, and principal with compounding in your browser.', path:'/finance/fd-calculator/' },
   { slug:'compound-interest-calculator', category:'finance' as CategorySlug, name:'Compound Interest Calculator', description:'Estimate compound interest growth for principal with optional monthly contributions and flexible compounding in your browser.', path:'/finance/compound-interest-calculator/' },
+  { slug:'income-tax-calculator', category:'finance' as CategorySlug, name:'Income Tax Calculator', description:'Estimate India income tax under the new or old regime for FY 2024-25 with slabs, rebate, and cess in your browser.', path:'/finance/income-tax-calculator/' },
   { slug:'word-counter', category:'text-tools' as CategorySlug, name:'Word Counter', description:'Count words, characters, sentences, paragraphs, and reading time in your browser as you type.', path:'/text-tools/word-counter/' },
 ] as const;
 export const featuredSlugs = ['pdf-to-word', 'gst-calculator', 'jwt-decoder', 'sql-formatter'] as const;
